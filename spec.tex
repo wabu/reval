@@ -1,7 +1,7 @@
 % $Id: spec.tex,v 1.1 2007/06/23 15:33:52 fb Exp $
 \documentclass[11pt,a4paper]{article}
 \usepackage{a4}
-\usepackage{ngerman}                            % neue Rechtschreibung
+\usepackage{ngerman}                            % neü Rechtschreibung
 \usepackage[latin1]{inputenc}
 %\usepackage[utf8-tes]{inputenc}
 %\usepackage[applemac]{inputenc}
@@ -32,13 +32,13 @@
 %
 \maketitle                      % Titel
 %\tableofcontents                % Inhaltsverzeichnis
-%\newcounter{zaehler}
+%\newcounter{zähler}
 %\stepcounter{section}
 \begin{center}
   \textbf{Tutor: Böse}
 \end{center}
 %
-FIXME: Project name ist reval
+Das Projekt hat den Namen reval.
 \section{usecases}
 \subsection{Student}
 \begin{description}
@@ -46,24 +46,44 @@ FIXME: Project name ist reval
 \item[Iteration] 0
 \item[Summary] 
 Karl ist Student an einer Berliner Uni.
-Karl hört gerade eine Datenbankvorlesung und muss relationelle Algebra lernen.
-Karl will reval benutzen um  relationelle Algebra zu lernen und eine
-Uebungen zu ueberpruefen.
+Karl hört gerade eine Datenbankvorlesung und muss relationale Algebra lernen.
+Karl will reval benutzen um  relationale Algebra zu lernen und eine
+Übungen zu überprüfen.
 \item[Preconditions]
-Karl muss ghci und reval installiert und gestarted haben.
+Karl muss ghci und reval installiert und gestartet haben.
 \item[Basic course of events]
-Karl tippt in den ghci repl folgendes ein:
-\begin{verbatim}
-> rload("tabel-def.hs") 
-> reval("x tab1 tab2")
-[..reval liefert das Ergebniss..]
-\end{verbatim}
+Karl schreibt mit einem Texteditor die Tabellendeffinition vom
+Uebungsblatt in ein Textdatei.
+Nun kann er diese in ghci laden und anzeigen lassen.
+Um nun seine Loesungen zu ueberpruefen kann er Ausdruecke in ghci
+eingeben und rauswerten lassn.
+Er kann die Ausdruecke in Haskell Syntax notieren oder eine alternative
+mathematische Notation verwenden.
 \item[Alternative paths]
 none.
 \item[Postconditions]
 none.
 \item[Date]
-Fabian, Daniel - 23. Juni 2007
+Daniel, Fabian- 23. Juni 2007
+\end{description}
+
+\subsection{Dozent}
+\begin{description}
+\item[Use Case Name] Dozentin Tina 
+\item[Iteration] 0
+\item[Summary] 
+Tina ist Dozention fuer Datenbank-Technologien an einer Hamburger Uni.
+Sie will das ihre Studenten relationale Algebra verstehen.
+\item[Preconditions]
+Tina muss ghci und reval installiert und gestartet haben.
+\item[Basic course of events]
+s. Student Karl
+\item[Alternative paths]
+none.
+\item[Postconditions]
+none.
+\item[Date]
+Daniel, Fabian- 23. Juni 2007
 \end{description}
 
 \section{spec}
@@ -71,26 +91,32 @@ Iteration: 0\\
 Date: 23. Juni 2007
 \subsection{Required}
 \begin{itemize}
-\item ADT fuer Tabelle 
-\item Notation fuer Tabellen bzw. Mengen
-\item Notation fuer atomare Werte
-\item Support fuer die sechs Basisoperationen
+\item ADT für Tabelle 
+\begin{itemize}
+\item Notation für Tabellen bzw. Mengen
+\item Notation für atomare Werte
+\end{itemize}
+\item Support für die sechs Basisoperationen
+\begin{itemize}
 \item Projektion
 \item Selektion
-\item Umbenenung
+\item Umbenennung
 \item Kreuzprodukt
 \item Vereinigung
-\item Diffrenz
+\item Differenz
+\end{itemize}
+\item gute Code Qualität (stabil, les- und wartbar)
+\item test-driven-development (nicht-funktional)
 \end{itemize}
 \subsection{Optinal}
 \begin{itemize}
-\item ADT fuer Tabelle 
-\item Tabellen mit unterschiedlichen Typen fuer Spalten
-\item gut lesbare ASCII-Art show funktion fuer ADT
+\item ADT für Tabelle 
+\item Tabellen mit unterschiedlichen Typen für Spalten
+\item gut lesbare ASCII-Art show Funktion für ADT
 \end{itemize}
 \subsection{Nice to have}
 \begin{itemize}
-\item gute Performance
+\item relativ gute Performance (nicht funktional)
 \item Ausgabe der Rechenschritte
 \item einlesen der Tabellen aus txt-dateien
 \item einlesen von befehlen aus txt-dateien
