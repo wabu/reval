@@ -38,30 +38,62 @@
   \textbf{Tutor: Böse}
 \end{center}
 %
+FIXME: Project name ist reval
 \section{usecases}
 \subsection{Student}
+\begin{description}
+\item[Use Case Name] Student Karl
+\item[Iteration] 0
+\item[Summary] 
 Karl ist Student an einer Berliner Uni.
 Karl hört gerade eine Datenbankvorlesung und muss relationelle Algebra lernen.
-\begin{description}
-\item[Use Case Name]
-\item[Iteration]
-\item[Summary]
+Karl will reval benutzen um  relationelle Algebra zu lernen und eine
+Uebungen zu ueberpruefen.
 \item[Preconditions]
-\item[Triggers]
+Karl muss ghci und reval installiert und gestarted haben.
 \item[Basic course of events]
+Karl tippt in den ghci repl folgendes ein:
+\begin{verbatim}
+> rload("tabel-def.hs") 
+> reval("x tab1 tab2")
+[..reval liefert das Ergebniss..]
+\end{verbatim}
 \item[Alternative paths]
+none.
 \item[Postconditions]
-\item[Business rules]
-\item[Notes]
-\item[Author and date]
+none.
+\item[Date]
+Fabian, Daniel - 23. Juni 2007
 \end{description}
-\subsection{Profesor}
 
 \section{spec}
+Iteration: 0\\
+Date: 23. Juni 2007
 \subsection{Required}
-
+\begin{itemize}
+\item ADT fuer Tabelle 
+\item Notation fuer Tabellen bzw. Mengen
+\item Notation fuer atomare Werte
+\item Support fuer die sechs Basisoperationen
+\item Projektion
+\item Selektion
+\item Umbenenung
+\item Kreuzprodukt
+\item Vereinigung
+\item Diffrenz
+\end{itemize}
 \subsection{Optinal}
-
+\begin{itemize}
+\item ADT fuer Tabelle 
+\item Tabellen mit unterschiedlichen Typen fuer Spalten
+\item gut lesbare ASCII-Art show funktion fuer ADT
+\end{itemize}
 \subsection{Nice to have}
-
+\begin{itemize}
+\item gute Performance
+\item Ausgabe der Rechenschritte
+\item einlesen der Tabellen aus txt-dateien
+\item einlesen von befehlen aus txt-dateien
+\item intuitive nicht-haskell Notation für die rel. Algebra
+\end{itemize}
 \end{document}
