@@ -17,3 +17,10 @@ FIXME: this will not work :-(
 	name _ = error "StringRow.name"
 	content (SRow (_,c)) = c
 	content _ = error "StringRow.content"
+
+Just go easy, and everthing is fine...
+
+> data Tabel a b = Nil |  Tab a b
+> 	deriving (Show, Eq, Read)
+> 
+> type Row a = [a] 
