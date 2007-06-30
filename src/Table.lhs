@@ -5,6 +5,7 @@ FIXME: howto import from lib/AssertFun.lhs ?
 	import Lib.AssertFun !
 
 > import qualified AssertFun
+> import qualified Data.Set as Set
 
 this will not work :-(
 
@@ -54,5 +55,49 @@ Getters for Row
 
 Well, screw it, just use ASTs:
 
+> data Lit = Null | IntLit Int | StrLit String | CharLit Char -- ...
+>	deriving (Show, Eq, Read)
+
+Ord for Lit needed to stuff Lits in Sets
+
+> instance Ord Lit where
+>	compare Null Null = EQ
+>	compare (IntLit a) (IntLit b) = compare a b 
+>	compare (StrLit a) (StrLit b) = compare a b 
+>	compare (CharLit a) (CharLit b) = compare a b 
+
+just to keep it consitent
+
+>	compare Null _ = LT
+>	compare _ Null = GT
+>	compare (IntLit _) _ = LT
+>	compare _ (IntLit _) = GT
+>	compare (StrLit _) _ = LT
+>	compare _ (StrLit _) = GT
+
+TODO: impl. own Show and Read ...
+
+> type Row = [Lit]
+
+> type ColumName = String
+> type ColumNames = [ColumName]
+
+> data Tabel = Tab (ColumNames, Set.Set Row) 
+>	deriving (Show, Eq, Read)
+
+TODO: impl. own Show and Read ...
+
+> mkTabel :: ColumNames -> [Row] -> Tabel
+> mkTabel names rows = if all (== (length names)) (map length rows) then
+>		Tab (names, Set.fromList rows)
+>	else
+>		error ("length name (" ++ show (length names)
+>			++ ") /= length rows")
+	
+
 UnitTesting:
+
+> tabel1 = mkTabel ["ID", "Name"] [
+>	[IntLit 23, StrLit "fb"],
+>	[IntLit 42, StrLit "daniel"]  ]
 
