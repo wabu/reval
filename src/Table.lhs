@@ -1,6 +1,10 @@
 > module Table where
 > 
 
+FIXME: howto import from lib/AssertFun.lhs ?
+
+> import qualified AssertFun
+
 FIXME: this will not work :-(
 
  class (Show a) => Row a where
@@ -20,7 +24,14 @@ FIXME: this will not work :-(
 
 Just go easy, and everthing is fine...
 
+Tabel is a LISP-like cons-cell to represent Tabels.
+
 > data Tabel a b = Nil |  Tab a b
 > 	deriving (Show, Eq, Read)
 > 
-> type Row a = [a] 
+
+Row is a typealias for a tupel.
+Format is (name, [values]).
+Note: Rows shoudl be showable
+
+> type Row a = (String, [a]) 
