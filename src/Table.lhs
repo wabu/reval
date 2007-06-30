@@ -2,10 +2,11 @@
 > 
 
 FIXME: howto import from lib/AssertFun.lhs ?
+	import Lib.AssertFun !
 
 > import qualified AssertFun
 
-FIXME: this will not work :-(
+this will not work :-(
 
  class (Show a) => Row a where
 	name :: a -> String
@@ -22,16 +23,36 @@ FIXME: this will not work :-(
 	content (SRow (_,c)) = c
 	content _ = error "StringRow.content"
 
-Just go easy, and everthing is fine...
 
-Tabel is a LISP-like cons-cell to represent Tabels.
+Second Try - will not work, either ...
 
-> data Tabel a b = Nil |  Tab a b
-> 	deriving (Show, Eq, Read)
-> 
+TabelType is a LISP-like cons-cell to represent Tabels.
+
+ data TabelType a b = Nil | Tab (Row a) (Tab a b)
+ 	deriving (Show, Eq, Read)
+
+
+ names Nil = [] 
+ names (Tab (name, _ ) b) = names b -- INFINITE TYPE! 
+ names _ = error "StringRow.name"
+
 
 Row is a typealias for a tupel.
 Format is (name, [values]).
 Note: Rows shoudl be showable
 
-> type Row a = (String, [a]) 
+ type Row a = (String, [a]) 
+
+Getters for Row
+
+ getRowName :: Row a -> String
+ getRowName (name, _) = name
+
+ getRowContent :: Row a -> [a]
+ getRowContent (_, content) = content
+
+
+Well, screw it, just use ASTs:
+
+UnitTesting:
+
