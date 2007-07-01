@@ -1,6 +1,6 @@
 rel-eval is a leazy relational algebra interpreter written in haskell.
 
-Copyright (C) 2007  Daniel Weber, Fabian Bieker
+Copyright (C) 2007  Daniel Waeber, Fabian Bieker
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as 

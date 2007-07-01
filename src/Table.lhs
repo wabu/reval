@@ -1,6 +1,6 @@
 - rel-eval is a leazy relational algebra interpreter written in haskell. -
 
-Copyright (C) 2007  Daniel Weber, Fabian Bieker
+Copyright (C) 2007  Daniel Waeber, Fabian Bieker
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as 
@@ -195,7 +195,7 @@ Yes, those two are valid!
 
 License foo:
 
-> licenseNote = "rel-eval \tCopyright (C) 2007 \tDaniel Weber, Fabian Bieker\n" ++
+> licenseNote = "rel-eval \tCopyright (C) 2007 \tDaniel Waeber, Fabian Bieker\n" ++
 >	"This program comes with ABSOLUTELY NO WARRANTY; for details " ++
 >	"read the LICENSE.txt file.\n" ++
 >       "This is free software, and you are welcome to " ++
