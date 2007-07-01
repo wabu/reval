@@ -177,13 +177,23 @@ UnitTesting:
 >       [IntLit 23, StrLit "fb"],
 >       [IntLit 42, StrLit "daniel"]  ]
 
+Yes, those two are valid!
+
+> table2 = mkTable ["ID", "Name"] [
+>       [IntLit 23, StrLit "fb"],
+>       [Null, StrLit "daniel"]  ]
+>
+> table3 = mkTable ["ID", "Name"] [
+>       [Null, StrLit "fb"],
+>       [IntLit 42, StrLit "daniel"]  ]
+
 > tableInvalid = mkTable ["ID", "Name"] [
 >       [IntLit 23, StrLit "fb"],
 >       [CharLit 'a', StrLit "daniel"]  ]
 
 > testCheckTable = afun1 checkTable "checktab"
->       [tableEmpty, table1, tableInvalid]
->       [True, True, False]
+>       [tableEmpty, table1, tableInvalid, table2, table3]
+>       [True, True, False, True, True]
 
 > testAll = testCheckTable
 
