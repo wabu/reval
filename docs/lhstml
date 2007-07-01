@@ -9,19 +9,36 @@
   </head>\
   <body>\
 
+# headlines
+/^-\+$/d
 s,^- \(.*\) -$,<h1>\1</h1>, 
 s,^-- \(.*\) --$,<h2>\1</h2>, 
 s,^--- \(.*\) ---$,<h3>\1</h3>, 
+s,^---- \(.*\) ----$,<h3>\1</h3>, 
 
-/^>/{
-    s/^>/<pre>\n/
-    :code
-    N
-    s/\n>/\n/
-    tcode
-    s/\n$/\n<\/pre>\n/
+# lists
+/^\* /{
+    s,^\* ,<ul>\n<li>,
+    :item
+        :line
+            n
+            s,^\s,,
+        tline
+        s,^\* ,</li>\n<li>,
+    titem
+    s,^,</li></ul>\n,
 }
 
-$i\
+# code
+/^>/{
+    s,^>,<pre>\n>,
+    :code
+        n
+        s,^>,>,
+    tcode
+    s,^$,</pre>\n,
+}
+
+$a\
   </body>\
 </html>

@@ -14,7 +14,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 - The Table Type -
+------------------
+
 Or how to trick Haskell to get a Table with different data types inside each
 column, but with arbitrary length.
 
@@ -25,7 +28,9 @@ column, but with arbitrary length.
 
 
 
+
 -- Our First Try --
+-------------------
 
 ... in tricking the type system. The type class look good, but still
 we got a problem: There is no way to instantiate it.
@@ -76,7 +81,15 @@ BOOOMM!! as soon as we use the type.
 ----------------------
 
 Well, screw it, just use ASTs:
-
+* just a Test List
+* you can say something here
+  and spread it of more linse
+* cool ha?
+* you just
+  * can't have
+  * a sublist
+* but you can continue
+Your normal Text
 
 
 --- Basic AST Types ---
@@ -85,7 +98,7 @@ Lit is a Literal.
 TODO: impl. own Show and Read ...
 
 > data Lit = Null | IntLit Int | StrLit String | CharLit Char |
->	BoolLit Bool
+>       BoolLit Bool
 >       deriving (Show, Eq, Read)
 
 Type is used to store Type information in the table schema.
@@ -173,7 +186,7 @@ TODO: impl. own Show and Read ...
 
 > mkTable :: ColumNames -> [Row] -> Table
 > mkTable names rows =
-> 	if all (== (length names)) (map length rows) then
+>        if all (== (length names)) (map length rows) then
 >              Tab (names, Set.fromList rows)
 >       else
 >              error ("length name (" ++ show (length names)
@@ -184,26 +197,26 @@ Note: mkTable [] [[]] is considered invalid
 > checkTable :: Table -> Bool
 > checkTable (Tab ([], rows)) = Set.null rows
 > checkTable (Tab (names, rows)) =
->	Set.null (Set.filter checkLength rows)
->		&& checkTypes rows	
->	where
->	checkLength row = length row /= length names
->	rowsSize = Set.size rows
->	first = head (Set.toList rows) 
+>       Set.null (Set.filter checkLength rows)
+>       	&& checkTypes rows	
+>       where
+>       checkLength row = length row /= length names
+>       rowsSize = Set.size rows
+>       first = head (Set.toList rows) 
 
 check the type of all rows
 
->	checkTypes :: Set.Set Row -> Bool
->	checkTypes rows = rowsSize == 0
->		||  all checkTyp (Set.toList rows)
+>       checkTypes :: Set.Set Row -> Bool
+>       checkTypes rows = rowsSize == 0
+>       	||  all checkTyp (Set.toList rows)
 
 check the type of one row
 
->	checkTyp :: Row -> Bool
->	checkTyp row = foldr (==) True (map
->			(\(f,x) -> f x)
->			(zip (map cmpLitType first) row))
->		  	
+>       checkTyp :: Row -> Bool
+>       checkTyp row = foldr (==) True (map
+>       		(\(f,x) -> f x)
+>       		(zip (map cmpLitType first) row))
+>       	  	
 
 perhaps something like this is cooler for typecheking ;)
 
@@ -290,8 +303,9 @@ Yes, those two are valid!
 License foo:
 
 > licenseNote = "rel-eval \tCopyright (C) 2007 \tDaniel Waeber, Fabian Bieker\n" ++
->	"This program comes with ABSOLUTELY NO WARRANTY; for details " ++
->	"read the LICENSE.txt file.\n" ++
+>       "This program comes with ABSOLUTELY NO WARRANTY; for details " ++
+>       "read the LICENSE.txt file.\n" ++
 >       "This is free software, and you are welcome to " ++
-> 	"redistribute it under certain conditions; type LGPL.txt for " ++
-> 	"details.\n"
+>       "redistribute it under certain conditions; type LGPL.txt for " ++
+>       "details.\n"
+
