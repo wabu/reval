@@ -1,0 +1,17 @@
+TODO-List for rel-eval
+
+format: **{0,*} <TODO-ITEM> (<USERNAME-WHO-ADDED-IT>) [<USERNAME-OF-PERSON-TO-DO-IT>]
+
+* basic features
+** intersection (fb)
+** union (fb)
+** substraction (fb)
+** cross join (fb)
+** sigma/projection (fb)
+** pi/selection (fb)
+** renaming (fb)
+
+* misc (fb)
+** Update spec (fb) [fb]
+*** remove performance, add leazyness (fb) [fb]
+** send update of spec to Joos (fb) [fb]
