@@ -3,6 +3,9 @@ TODO-List for rel-eval
 format: **{0,*} <TODO-ITEM> (<USERNAME-WHO-ADDED-IT>) [<USERNAME-OF-PERSON-TO-DO-IT>]
 
 * basic features
+** basic types
+*** show and read function (wabu)
+*** ?create an abstraction layer? (wabu)
 ** intersection (fb)
 ** union (fb)
 ** substraction (fb)
