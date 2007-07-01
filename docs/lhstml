@@ -1,4 +1,4 @@
-#!/bin/sed -f
+#!/usr/bin/sed -f
 
 1i\
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"\
