@@ -1,0 +1,6 @@
+#!/bin/sh
+
+for i in ../src/*.lhs; do
+    echo "creating doc for ${i}"
+    ./lhstml $i > ${i/..\/src\//}.html
+done

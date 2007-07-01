@@ -51,7 +51,7 @@
 *
 *********************************************************
 
-> module AssertFun (assertfun1, assertfun2, assertfun3,
+> module Lib.AssertFun (assertfun1, assertfun2, assertfun3,
 >                   afun1)
 > where
 > import Prelude
