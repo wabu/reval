@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+</head>
+<body>
+<h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
+
+Copyright (C) 2007  Daniel Weber, Fabian Bieker
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as 
+published by the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+<h1>The Table Type</h1>
+Or how to trick Haskell to get a Table with different data types inside each
+column, but with arbitrary length.
+
+<pre>n module Table wheren n import Lib.AssertFunn import qualified Data.Set as Setn</pre>n
+<h2>Our First Try</h2>
+
+... in tricking the type system. The type class look good, but still
+we got a problem: There is no way to instantiate it.
+
+<pre>n {- the class looks good, but can be instanciatednn class (Show a) => Row a wheren       name :: a -> Stringn       content :: (Show b, Ord b) => a -> [b]nn --type Table = (Row a) => [a]nn newtype StringRow = SRow (String, [String])n       deriving (Show, Eq, Read)nn instance Row StringRow wheren       name (SRow (n,_))  = nn       name _ = error "StringRow.name"n       content (SRow (_,c)) = cn       content _ = error "StringRow.content"n -}n</pre>n
+<h2>The Second Try</h2>
+
+The idea was to create a TableType as a LISP-like cons-cell to represent Tables.
+Trying to ignore the type of the second argument, so we can put a TableType d e
+did not work, as the type system cam back as we tried to write a on TableType. The
+compile will construct the type for the function, but that's an infinite type, so
+BOOOMM!! as soon as we use the type.
+
+<pre>n {- cant be used eithernn data TableType a b = Nil | Tab (Row a) bn        deriving (Show, Eq, Read)nnn names Nil = [] n names (Tab (name, _ ) b) = names b -- INFINITE TYPE! BOOM!!n names _ = error "StringRow.name"n -}n</pre>n
+<h2>Better: Use ASTs</h2>
+
+Well, screw it, just use ASTs:
+
+<h3>Basic AST Types</h3>
+
+Lit is a Literal.
+TODO: impl. own Show and Read ...
+
+<pre>n data Lit = Null | IntLit Int | StrLit String | CharLit Char |n	BoolLit Booln       deriving (Show, Eq, Read)n</pre>n
+Type is used to store Type information in the table schema.
+Note: Null has Type Any.
+
+<pre>n data Type = Any | Number | String | Char | Booln       deriving (Show, Eq, Read)n</pre>n
+Now we can just use Lists as rows, as all data just has the type Lit. Creating
+our own type System, we also define need type types to check things.
+
+
+Ord for Lit needed to stuff Lits in Sets
+
+<pre>n instance Ord Lit wheren       compare Null Null = EQn       compare (IntLit a) (IntLit b) = compare a b n       compare (StrLit a) (StrLit b) = compare a b n       compare (CharLit a) (CharLit b) = compare a b n       compare (BoolLit a) (BoolLit b) = compare a b n</pre>n
+just to keep it consitent
+
+<pre>n       compare Null _ = LTn       compare _ Null = GTn       compare (IntLit _) _ = LTn       compare _ (IntLit _) = GTn       compare (StrLit _) _ = LTn       compare _ (StrLit _) = GTn       compare (CharLit _) _ = LTn       compare _ (CharLit _) = GTn</pre>n
+compare the Type of two Lits
+
+<pre>n cmpLitType :: Lit -> Lit -> Booln cmpLitType Null Null = Truen cmpLitType (IntLit _) (IntLit _) = Truen cmpLitType (StrLit _) (StrLit _) = Truen cmpLitType (CharLit _) (CharLit _) = Truen cmpLitType _ _ = Falsen</pre>n
+
+
+<pre>n type Row = [Lit]n</pre>n
+<pre>n type ColumName = Stringn type ColumNames = [ColumName]n</pre>n
+<pre>n data Table = Tab (ColumNames, Set.Set Row) n       deriving (Show, Eq, Read)n</pre>n
+TODO: impl. own Show and Read ...
+
+<pre>n mkTable :: ColumNames -> [Row] -> Tablen mkTable names rows =n 	if all (== (length names)) (map length rows) thenn              Tab (names, Set.fromList rows)n       elsen              error ("length name (" ++ show (length names)n                     ++ ") /= length rows")n</pre>n
+Note: mkTable [] [[]] is considered invalid
+
+<pre>n checkTable :: Table -> Booln checkTable (Tab ([], rows)) = Set.null rowsn checkTable (Tab (names, rows)) =n	Set.null (Set.filter checkLength rows)n		&& checkTypes rows	n	wheren	checkLength row = length row /= length namesn	rowsSize = Set.size rowsn	first :: Rown	first = head (Set.toList rows) n</pre>n
+check the type of all rows
+
+<pre>n	checkTypes :: Set.Set Row -> Booln	checkTypes rows = rowsSize == 0n		||  all checkTyp (Set.toList rows)n</pre>n
+check the type of one row
+
+<pre>n	checkTyp :: Row -> Booln	checkTyp row = foldr (==) True (mapn			(\(f,x) -> f x)n			(zip (map cmpLitType first) row))n		  	n</pre>n
+UnitTesting:
+
+<pre>n tableEmpty = mkTable [] []n</pre>n
+<pre>n table1 = mkTable ["ID", "Name"] [n       [IntLit 23, StrLit "fb"],n       [IntLit 42, StrLit "daniel"]  ]n</pre>n
+Yes, those two are valid!
+
+<pre>n table2 = mkTable ["ID", "Name"] [n       [IntLit 23, StrLit "fb"],n       [Null, StrLit "daniel"]  ]nn table3 = mkTable ["ID", "Name"] [n       [Null, StrLit "fb"],n       [IntLit 42, StrLit "daniel"]  ]n</pre>n
+<pre>n tableInvalid = mkTable ["ID", "Name"] [n       [IntLit 23, StrLit "fb"],n       [CharLit 'a', StrLit "daniel"]  ]n</pre>n
+<pre>n testCheckTable = afun1 checkTable "checktab"n       [tableEmpty, table1, tableInvalid, table2, table3]n       [True, True, False, True, True]n</pre>n
+<pre>n testAll = testCheckTablen</pre>n
+
+License foo:
+
