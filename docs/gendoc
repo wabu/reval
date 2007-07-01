@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/bash
+
+cd "`dirname $0i`"
 
 for i in ../src/*.lhs; do
     echo "creating doc for ${i}"
