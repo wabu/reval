@@ -69,10 +69,13 @@ BOOOMM!! as soon as we use the type.
 
 Well, screw it, just use ASTs:
 
-> data Lit = Null | IntLit Int | StrLit String | CharLit Char -- ...
+--- Basic AST Types: ---
+
+> data Lit = Null | IntLit Int | StrLit String | CharLit Char |
+>	BoolLit Bool
 >       deriving (Show, Eq, Read)
 >
-> data Type = Any | Number | String | Char
+> data Type = Any | Number | String | Char | Bool
 >       deriving (Show, Eq, Read)
 
 Now we can just use Lists as rows, as all data just has the type Lit. Creating
@@ -86,6 +89,7 @@ Ord for Lit needed to stuff Lits in Sets
 >       compare (IntLit a) (IntLit b) = compare a b 
 >       compare (StrLit a) (StrLit b) = compare a b 
 >       compare (CharLit a) (CharLit b) = compare a b 
+>       compare (BoolLit a) (BoolLit b) = compare a b 
 
 just to keep it consitent
 
@@ -95,23 +99,8 @@ just to keep it consitent
 >       compare _ (IntLit _) = GT
 >       compare (StrLit _) _ = LT
 >       compare _ (StrLit _) = GT
-
-
-Row is a typealias for a tupel.
-Format is (name, [values]).
-Note: Rows shoudl be showable
-
- type Row a = (String, [a]) 
-
-Getters for Row
-
- getRowName :: Row a -> String
- getRowName (name, _) = name
-
- getRowContent :: Row a -> [a]
- getRowContent (_, content) = content
-
-
+>       compare (CharLit _) _ = LT
+>       compare _ (CharLit _) = GT
 
 compare the Type of two Lits
 
