@@ -78,6 +78,7 @@ Lit is a Literal.
 >       deriving (Show, Eq, Read)
 
 Type is used to store Type information in the table schema.
+Note: Null has Type Any.
 
 > data Type = Any | Number | String | Char | Bool
 >       deriving (Show, Eq, Read)
