@@ -69,12 +69,16 @@ BOOOMM!! as soon as we use the type.
 
 Well, screw it, just use ASTs:
 
---- Basic AST Types: ---
+--- Basic AST Types ---
+
+Lit is a Literal.
 
 > data Lit = Null | IntLit Int | StrLit String | CharLit Char |
 >	BoolLit Bool
 >       deriving (Show, Eq, Read)
->
+
+Type is used to store Type information in the table schema.
+
 > data Type = Any | Number | String | Char | Bool
 >       deriving (Show, Eq, Read)
 
