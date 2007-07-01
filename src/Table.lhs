@@ -18,7 +18,7 @@
 - The Table Type -
 ------------------
 
-Or how to trick Haskell to get a {-Table-} with different data types inside each
+Or how to trick Haskell to get a Table with different data types inside each
 column, but with arbitrary length.
 
 > module Table where
