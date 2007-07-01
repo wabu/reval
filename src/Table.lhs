@@ -72,6 +72,7 @@ Well, screw it, just use ASTs:
 --- Basic AST Types ---
 
 Lit is a Literal.
+TODO: impl. own Show and Read ...
 
 > data Lit = Null | IntLit Int | StrLit String | CharLit Char |
 >	BoolLit Bool
@@ -116,7 +117,7 @@ compare the Type of two Lits
 > cmpLitType (CharLit _) (CharLit _) = True
 > cmpLitType _ _ = False
 
-TODO: impl. own Show and Read ...
+
 
 > type Row = [Lit]
 
