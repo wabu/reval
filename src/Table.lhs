@@ -23,6 +23,8 @@ column, but with arbitrary length.
 > import Lib.AssertFun
 > import qualified Data.Set as Set
 
+
+
 -- Our First Try --
 
 ... in tricking the type system. The type class look good, but still
@@ -46,7 +48,10 @@ we got a problem: There is no way to instantiate it.
 >       content _ = error "StringRow.content"
 > -}
 
+
+
 -- The Second Try --
+--------------------
 
 The idea was to create a TableType as a LISP-like cons-cell to represent Tables.
 Trying to ignore the type of the second argument, so we can put a TableType d e
@@ -65,12 +70,17 @@ BOOOMM!! as soon as we use the type.
 > names _ = error "StringRow.name"
 > -}
 
+
+
 -- Better: Use ASTs --
+----------------------
 
 Well, screw it, just use ASTs:
 
---- Basic AST Types ---
 
+
+--- Basic AST Types ---
+-----------------------
 Lit is a Literal.
 TODO: impl. own Show and Read ...
 
@@ -84,9 +94,7 @@ Note: Null has Type Any.
 > data Type = Any | Number | String | Char | Bool
 >       deriving (Show, Eq, Read)
 
-Now we can just use Lists as rows, as all data just has the type Lit. Creating
-our own type System, we also define need type types to check things.
-
+Now we can just use Lists as rows, as all data just has the type Lit.
 
 Ord for Lit needed to stuff Lits in Sets
 
@@ -96,9 +104,7 @@ Ord for Lit needed to stuff Lits in Sets
 >       compare (StrLit a) (StrLit b) = compare a b 
 >       compare (CharLit a) (CharLit b) = compare a b 
 >       compare (BoolLit a) (BoolLit b) = compare a b 
-
-just to keep it consitent
-
+>       -- just to keep it consitent
 >       compare Null _ = LT
 >       compare _ Null = GT
 >       compare (IntLit _) _ = LT
@@ -108,6 +114,31 @@ just to keep it consitent
 >       compare (CharLit _) _ = LT
 >       compare _ (CharLit _) = GT
 
+check it two types are compatilbe
+
+> checkType :: Type -> Type -> Bool
+> checkType Any _ = True
+> checkType _ Any = True
+> checkType Number Number = True
+> checkType String String = True
+> checkType Char Char = True
+> checkType Bool Bool = True
+> checkType _ _ = False
+
+get type information
+
+> getLitType :: Lit -> Type
+> getLitType Null = Any
+> getLitType (IntLit _) = Number
+> getLitType (StrLit _) = String
+> getLitType (CharLit _) = Char
+> getLitType (BoolLit _) = Bool
+
+check for right type
+
+> checkLitType :: Type -> Lit -> Bool
+> checkLitType t l = checkType t $ getLitType l
+
 compare the Type of two Lits
 
 > cmpLitType :: Lit -> Lit -> Bool
@@ -115,9 +146,14 @@ compare the Type of two Lits
 > cmpLitType (IntLit _) (IntLit _) = True
 > cmpLitType (StrLit _) (StrLit _) = True
 > cmpLitType (CharLit _) (CharLit _) = True
+> cmpLitType (BoolLit _) (BoolLit _) = True
 > cmpLitType _ _ = False
 
 
+--- The Table ---
+-----------------
+Now Rows and Tables are easy, as we just can use a Set of List. We only have to
+check the types when createing or changeing a Table at runtime.
 
 > type Row = [Lit]
 
@@ -153,7 +189,6 @@ Note: mkTable [] [[]] is considered invalid
 >	where
 >	checkLength row = length row /= length names
 >	rowsSize = Set.size rows
->	first :: Row
 >	first = head (Set.toList rows) 
 
 check the type of all rows
@@ -184,9 +219,12 @@ perhaps something like this is cooler for typecheking ;)
 > -}
 
 
+
 -- UnitTesting: --
+------------------
 
 --- Type System ---
+-------------------
 
 > int = IntLit 32
 > str = StrLit "wabu"
@@ -196,15 +234,13 @@ perhaps something like this is cooler for typecheking ;)
 > types = [Number, String, Char, Bool]
 > lits  = [int, str, chr, bool]
 
-> checkType a b = True
 > testCheckTypeEq = assertfun2 checkType "checkType"
 >       ( [(a,a,True) | a <- types] ++
 >         [(a,Any,True) | a <- types] ++
 >         [(a,Bool,False) | a <- [String,Number,Char]] ++
->         [(a,b,b==a) | a <- types, b <- types] ++
+>         [(a,b,checkType b a) | a <- types, b <- types] ++
 >         [(Any,Any,True)] )
 
-> checkLitType a b = True
 > testCheckLitType = assertfun2 checkLitType "checkLitType"
 >       ( [(t,l,True) | (t,l) <- zip types lits] ++
 >         [(t,l,False) | i <- [1..4], l <- drop i lits, t <- take i types] ++
@@ -212,15 +248,17 @@ perhaps something like this is cooler for typecheking ;)
 >         [(Any,l,True) | l <- lits] )
 
 > testCheckCmpType = assertfun2 cmpLitType "cmpLitType"
->       ( [(t,l,True) | (t,l) <- zip lits lits] ++
->         [(t,l,False) | i <- [1..4], l <- drop i lits, t <- take i lits] ++
->         [(t,l,False) | i <- [1..4], l <- take i lits, t <- drop i lits] ++
->         [(t,l,l==t) | l <- lits, t <- lits] ++
+>       ( [(a,b,True) | (a,b) <- zip lits lits] ++
+>         [(a,b,False) | i <- [1..4], a <- drop i lits, b <- take i lits] ++
+>         [(a,b,False) | i <- [1..4], a <- take i lits, b <- drop i lits] ++
+>         [(a,b,cmpLitType b a) | a <- lits, b <- lits] ++
 >         [(Null,l,False) | l <- lits] ++ [(Null,Null,True)] )
 
 > testCheckTypes = testCheckTypeEq && testCheckLitType && testCheckCmpType
 
+
 --- Table ---
+-------------
 
 > tableEmpty = mkTable [] []
 
