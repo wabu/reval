@@ -125,7 +125,13 @@ compare the Type of two Lits
 > type ColumNames = [ColumName]
 
 > data Table = Tab (ColumNames, Set.Set Row) 
->       deriving (Show, Eq, Read)
+>       deriving (Show, Eq) -- , Read)
+>       -- FIXME:
+>       -- =>  No instance for (Read (Data.Set.Set Row))
+>       --       arising from the 'deriving' clause of a data type declaration at Table.lhs:127:6
+>       --     Probable fix: add an instance declaration for (Read (Data.Set.Set Row))
+>       --     When deriving the `Read' instance for type `Table'
+
 
 TODO: impl. own Show and Read ...
 
@@ -164,7 +170,57 @@ check the type of one row
 >			(zip (map cmpLitType first) row))
 >		  	
 
-UnitTesting:
+perhaps something like this is cooler for typecheking ;)
+
+> {-
+> all (all (== True)) $ 
+>     map                                   -- for each raw
+>         ((map (uncurry (==))) .           -- check the types of the pair list
+>               ((zip ['a','b','c']) .      -- pairs are zipped out of the table type
+>                     map head))            -- and getType map of the row
+>         [["a","b","c"],["a","a","c"]] 
+> 
+>         -- ['a','b','c']->types, head->getType, [[],[]]->table
+> -}
+
+
+-- UnitTesting: --
+
+--- Type System ---
+
+> int = IntLit 32
+> str = StrLit "wabu"
+> chr = CharLit '_'
+> bool = BoolLit True
+> null = Null
+> types = [Number, String, Char, Bool]
+> lits  = [int, str, chr, bool]
+
+> checkType a b = True
+> testCheckTypeEq = assertfun2 checkType "checkType"
+>       ( [(a,a,True) | a <- types] ++
+>         [(a,Any,True) | a <- types] ++
+>         [(a,Bool,False) | a <- [String,Number,Char]] ++
+>         [(a,b,b==a) | a <- types, b <- types] ++
+>         [(Any,Any,True)] )
+
+> checkLitType a b = True
+> testCheckLitType = assertfun2 checkLitType "checkLitType"
+>       ( [(t,l,True) | (t,l) <- zip types lits] ++
+>         [(t,l,False) | i <- [1..4], l <- drop i lits, t <- take i types] ++
+>         [(t,l,False) | i <- [1..4], l <- take i lits, t <- drop i types] ++
+>         [(Any,l,True) | l <- lits] )
+
+> testCheckCmpType = assertfun2 cmpLitType "cmpLitType"
+>       ( [(t,l,True) | (t,l) <- zip lits lits] ++
+>         [(t,l,False) | i <- [1..4], l <- drop i lits, t <- take i lits] ++
+>         [(t,l,False) | i <- [1..4], l <- take i lits, t <- drop i lits] ++
+>         [(t,l,l==t) | l <- lits, t <- lits] ++
+>         [(Null,l,False) | l <- lits] ++ [(Null,Null,True)] )
+
+> testCheckTypes = testCheckTypeEq && testCheckLitType && testCheckCmpType
+
+--- Table ---
 
 > tableEmpty = mkTable [] []
 
@@ -190,7 +246,7 @@ Yes, those two are valid!
 >       [tableEmpty, table1, tableInvalid, table2, table3]
 >       [True, True, False, True, True]
 
-> testAll = testCheckTable
+> testAll = testCheckTypes && testCheckTable
 
 
 License foo:
