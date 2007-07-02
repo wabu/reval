@@ -175,12 +175,26 @@ check the types when createing or changeing a Table at runtime.
 
 > data Table = Tab (ColumNames, Set.Set Row) 
 >       deriving (Show, Eq) -- , Read)
->       -- FIXME:
->       -- =>  No instance for (Read (Data.Set.Set Row))
->       --       arising from the 'deriving' clause of a data type declaration at Table.lhs:127:6
->       --     Probable fix: add an instance declaration for (Read (Data.Set.Set Row))
->       --     When deriving the `Read' instance for type `Table'
 
+FIXME:
+ =>  No instance for (Read (Data.Set.Set Row))
+     arising from the 'deriving' clause of a data type declaration at Table.lhs:127:6
+     Probable fix: add an instance declaration for (Read (Data.Set.Set Row))
+     When deriving the `Read' instance for type `Table'
+
+TODO: 
+change ADT to: 
+
+ColumHader = (ColumName, ColumType)
+
+type ColumHeader = (String, Type)
+type ColumHeaders = [ColumHeader]
+
+data Table = Tab (ColumHeaders, Set.Set Row)
+	deriving (Show, Eq) -- , Read)
+
+Do you like that? (fb)	
+       
 
 TODO: impl. own Show and Read ...
 
@@ -218,11 +232,12 @@ check the type of one row
 >       		(zip (map cmpLitType first) row))
 >       	  	
 
-perhaps something like this is cooler for typecheking ;)
+TODO: perhaps something like this is cooler for typecheking ;)
+	yes the above code is insane and performs badly (fb)
 
 > {-
 > all (all (== True)) $ 
->     map                                   -- for each raw
+>     map                                   -- for each row
 >         ((map (uncurry (==))) .           -- check the types of the pair list
 >               ((zip ['a','b','c']) .      -- pairs are zipped out of the table type
 >                     map head))            -- and getType map of the row
