@@ -170,10 +170,9 @@ check the types when createing or changeing a Table at runtime.
 
 > type Row = [Lit]
 
-> type ColumName = String
-> type ColumNames = [ColumName]
-
-> data Table = Tab (ColumNames, Set.Set Row) 
+> type ColumHeader = (String, Type)
+> type TableHeader = [ColumHeader]
+> data Table = Tab (TableHeader, Set.Set Row) 
 >       deriving (Show, Eq) -- , Read)
 
 FIXME:
@@ -182,70 +181,28 @@ FIXME:
      Probable fix: add an instance declaration for (Read (Data.Set.Set Row))
      When deriving the `Read' instance for type `Table'
 
-TODO: 
-change ADT to: 
-
-ColumHader = (ColumName, ColumType)
-
-type ColumHeader = (String, Type)
-type ColumHeaders = [ColumHeader]
-
-data Table = Tab (ColumHeaders, Set.Set Row)
-	deriving (Show, Eq) -- , Read)
-
-Do you like that? (fb)	
-       
-
 TODO: impl. own Show and Read ...
 
-> mkTable :: ColumNames -> [Row] -> Table
-> mkTable names rows =
->        if all (== (length names)) (map length rows) then
->              Tab (names, Set.fromList rows)
->       else
->              error ("length name (" ++ show (length names)
->                     ++ ") /= length rows")
+> mkTable :: TableHeader -> [Row] -> Table
+> mkTable header rows = Tab (header, Set.fromList rows)
+
+error will fuck up unit test :(
+and infinite Tables won't be possible if we check them first :(
+
+>-- mkTable header rows = if checkTable tab then tab
+>--       else error "the table contains invalid valuse"
+>--       where tab = 
 
 Note: mkTable [] [[]] is considered invalid
 
 > checkTable :: Table -> Bool
 > checkTable (Tab ([], rows)) = Set.null rows
-> checkTable (Tab (names, rows)) =
->       Set.null (Set.filter checkLength rows)
->       	&& checkTypes rows	
->       where
->       checkLength row = length row /= length names
->       rowsSize = Set.size rows
->       first = head (Set.toList rows) 
-
-check the type of all rows
-
->       checkTypes :: Set.Set Row -> Bool
->       checkTypes rows = rowsSize == 0
->       	||  all checkTyp (Set.toList rows)
-
-check the type of one row
-
->       checkTyp :: Row -> Bool
->       checkTyp row = foldr (==) True (map
->       		(\(f,x) -> f x)
->       		(zip (map cmpLitType first) row))
->       	  	
-
-TODO: perhaps something like this is cooler for typecheking ;)
-	yes the above code is insane and performs badly (fb)
-
-> {-
-> all (all (== True)) $ 
->     map                                   -- for each row
->         ((map (uncurry (==))) .           -- check the types of the pair list
->               ((zip ['a','b','c']) .      -- pairs are zipped out of the table type
->                     map head))            -- and getType map of the row
->         [["a","b","c"],["a","a","c"]] 
-> 
->         -- ['a','b','c']->types, head->getType, [[],[]]->table
-> -}
-
+> checkTable (Tab (heads, rows)) = ctypes && clength
+>       where 
+>           types = map snd heads
+>           size = length heads
+>           ctypes = Set.fold ((==) . all (uncurry checkLitType) . zip types) True rows
+>           clength = Set.fold ((==) . (size ==) . length) True rows
 
 
 -- UnitTesting: --
@@ -290,21 +247,21 @@ TODO: perhaps something like this is cooler for typecheking ;)
 
 > tableEmpty = mkTable [] []
 
-> table1 = mkTable ["ID", "Name"] [
+> table1 = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [IntLit 42, StrLit "daniel"]  ]
 
 Yes, those two are valid!
 
-> table2 = mkTable ["ID", "Name"] [
+> table2 = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [Null, StrLit "daniel"]  ]
 >
-> table3 = mkTable ["ID", "Name"] [
+> table3 = mkTable [("ID",Number), ("Name",String)] [
 >       [Null, StrLit "fb"],
 >       [IntLit 42, StrLit "daniel"]  ]
 
-> tableInvalid = mkTable ["ID", "Name"] [
+> tableInvalid = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [CharLit 'a', StrLit "daniel"]  ]
 
@@ -323,4 +280,3 @@ License foo:
 >       "This is free software, and you are welcome to " ++
 >       "redistribute it under certain conditions; type LGPL.txt for " ++
 >       "details.\n"
-
