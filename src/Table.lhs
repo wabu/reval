@@ -80,17 +80,7 @@ BOOOMM!! as soon as we use the type.
 -- Better: Use ASTs --
 ----------------------
 
-Well, screw it, just use ASTs:
-* just a Test List
-* you can say something here
-  and spread it of more linse
-* cool ha?
-* you just
-  * can't have
-  * a sublist
-* but you can continue
-Your normal Text
-
+Well, screw it, just use ASTs
 
 --- Basic AST Types ---
 -----------------------
@@ -169,10 +159,10 @@ Now Rows and Tables are easy, as we just can use a Set of List. We only have to
 check the types when createing or changeing a Table at runtime.
 
 > type Row = [Lit]
-
 > type ColumHeader = (String, Type)
 > type TableHeader = [ColumHeader]
-> data Table = Tab (TableHeader, Set.Set Row) 
+>
+> data Table = Tab TableHeader (Set.Set Row) 
 >       deriving (Show, Eq) -- , Read)
 
 FIXME:
@@ -184,7 +174,7 @@ FIXME:
 TODO: impl. own Show and Read ...
 
 > mkTable :: TableHeader -> [Row] -> Table
-> mkTable header rows = Tab (header, Set.fromList rows)
+> mkTable header rows = Tab header (Set.fromList rows)
 
 error will fuck up unit test :(
 and infinite Tables won't be possible if we check them first :(
@@ -196,8 +186,8 @@ and infinite Tables won't be possible if we check them first :(
 Note: mkTable [] [[]] is considered invalid
 
 > checkTable :: Table -> Bool
-> checkTable (Tab ([], rows)) = Set.null rows
-> checkTable (Tab (heads, rows)) = ctypes && clength
+> checkTable (Tab [] rows) = Set.null rows
+> checkTable (Tab heads rows) = ctypes && clength
 >       where 
 >           types = map snd heads
 >           size = length heads
