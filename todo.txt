@@ -14,6 +14,9 @@ format: **{0,*} <TODO-ITEM> (<USERNAME-WHO-ADDED-IT>) [<USERNAME-OF-PERSON-TO-DO
 ** pi/selection (fb)
 ** renaming (fb)
 
+* nice to have
+** mkLeazyTable (fb)
+
 * misc (fb)
 ** Update spec (fb) [fb]
 *** remove performance, add leazyness (fb) [fb]
