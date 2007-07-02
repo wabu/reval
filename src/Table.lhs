@@ -185,7 +185,7 @@ FIXME:
 TODO: 
 change ADT to: 
 
-ColumHader = (ColumName, ColumType)
+ColumHeader = (ColumName, ColumType)
 
 type ColumHeader = (String, Type)
 type ColumHeaders = [ColumHeader]
