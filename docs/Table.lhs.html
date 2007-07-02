@@ -203,31 +203,34 @@ check the types when createing or changeing a Table at runtime.
 </pre>
 
 <pre>
-> type ColumName = String
-> type ColumNames = [ColumName]
-</pre>
-
-<pre>
-> data Table = Tab (ColumNames, Set.Set Row) 
+> type ColumHeader = (String, Type)
+> type TableHeader = [ColumHeader]
+> data Table = Tab (TableHeader, Set.Set Row) 
 >       deriving (Show, Eq) -- , Read)
->       -- FIXME:
->       -- =>  No instance for (Read (Data.Set.Set Row))
->       --       arising from the 'deriving' clause of a data type declaration at Table.lhs:127:6
->       --     Probable fix: add an instance declaration for (Read (Data.Set.Set Row))
->       --     When deriving the `Read' instance for type `Table'
 </pre>
 
+FIXME:
+ =>  No instance for (Read (Data.Set.Set Row))
+<pre>
+   arising from the 'deriving' clause of a data type declaration at Table.lhs:127:6
+   Probable fix: add an instance declaration for (Read (Data.Set.Set Row))
+   When deriving the `Read' instance for type `Table'
+</pre>
 
 TODO: impl. own Show and Read ...
 
 <pre>
-> mkTable :: ColumNames -> [Row] -> Table
-> mkTable names rows =
->        if all (== (length names)) (map length rows) then
->              Tab (names, Set.fromList rows)
->       else
->              error ("length name (" ++ show (length names)
->                     ++ ") /= length rows")
+> mkTable :: TableHeader -> [Row] -> Table
+> mkTable header rows = Tab (header, Set.fromList rows)
+</pre>
+
+error will fuck up unit test :(
+and infinite Tables won't be possible if we check them first :(
+
+<pre>
+>-- mkTable header rows = if checkTable tab then tab
+>--       else error "the table contains invalid valuse"
+>--       where tab = 
 </pre>
 
 Note: mkTable [] [[]] is considered invalid
@@ -235,48 +238,13 @@ Note: mkTable [] [[]] is considered invalid
 <pre>
 > checkTable :: Table -> Bool
 > checkTable (Tab ([], rows)) = Set.null rows
-> checkTable (Tab (names, rows)) =
->       Set.null (Set.filter checkLength rows)
->       	&& checkTypes rows	
->       where
->       checkLength row = length row /= length names
->       rowsSize = Set.size rows
->       first = head (Set.toList rows) 
+> checkTable (Tab (heads, rows)) = ctypes && clength
+>       where 
+>           types = map snd heads
+>           size = length heads
+>           ctypes = Set.fold ((==) . all (uncurry checkLitType) . zip types) True rows
+>           clength = Set.fold ((==) . (size ==) . length) True rows
 </pre>
-
-check the type of all rows
-
-<pre>
->       checkTypes :: Set.Set Row -> Bool
->       checkTypes rows = rowsSize == 0
->       	||  all checkTyp (Set.toList rows)
-</pre>
-
-check the type of one row
-
-<pre>
->       checkTyp :: Row -> Bool
->       checkTyp row = foldr (==) True (map
->       		(\(f,x) -> f x)
->       		(zip (map cmpLitType first) row))
->       	  	
-</pre>
-
-perhaps something like this is cooler for typecheking ;)
-
-<pre>
-> {-
-> all (all (== True)) $ 
->     map                                   -- for each raw
->         ((map (uncurry (==))) .           -- check the types of the pair list
->               ((zip ['a','b','c']) .      -- pairs are zipped out of the table type
->                     map head))            -- and getType map of the row
->         [["a","b","c"],["a","a","c"]] 
-> 
->         -- ['a','b','c']->types, head->getType, [[],[]]->table
-> -}
-</pre>
-
 
 
 <h2>UnitTesting:</h2>
@@ -331,7 +299,7 @@ perhaps something like this is cooler for typecheking ;)
 </pre>
 
 <pre>
-> table1 = mkTable ["ID", "Name"] [
+> table1 = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [IntLit 42, StrLit "daniel"]  ]
 </pre>
@@ -339,17 +307,17 @@ perhaps something like this is cooler for typecheking ;)
 Yes, those two are valid!
 
 <pre>
-> table2 = mkTable ["ID", "Name"] [
+> table2 = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [Null, StrLit "daniel"]  ]
 >
-> table3 = mkTable ["ID", "Name"] [
+> table3 = mkTable [("ID",Number), ("Name",String)] [
 >       [Null, StrLit "fb"],
 >       [IntLit 42, StrLit "daniel"]  ]
 </pre>
 
 <pre>
-> tableInvalid = mkTable ["ID", "Name"] [
+> tableInvalid = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [CharLit 'a', StrLit "daniel"]  ]
 </pre>
@@ -375,6 +343,5 @@ License foo:
 >       "redistribute it under certain conditions; type LGPL.txt for " ++
 >       "details.\n"
 </pre>
-
   </body>
 </html>

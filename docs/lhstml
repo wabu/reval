@@ -14,44 +14,54 @@
 s,^- \(.*\) -$,<h1>\1</h1>, 
 s,^-- \(.*\) --$,<h2>\1</h2>, 
 s,^--- \(.*\) ---$,<h3>\1</h3>, 
-s,^---- \(.*\) ----$,<h3>\1</h3>, 
+s,^---- \(.*\) ----$,<h4>\1</h4>, 
 
 # lists
 /^\* /{
     s,^\* ,<ul>\n<li>,
-    :item
-        :line
+    :i
+        :nl
+            ${  s,$,\n</li>\n<ul>,
+                be
+            }
             n
             s,^\s,,
-        tline
+        tnl
         s,^\* ,</li>\n<li>,
-    titem
+    ti
     s,^,</li></ul>\n,
 }
 
 # line
-s,_\+,<hl>,
+s,_\+,</hl>,
 
 # code
 /^>/{
     s,^>,<pre>\n>,
-    :code
+    :c
+        ${  s,$,\n</pre>,
+            be
+        }
         n
         s,^>,>,
-    tcode
+    tc
     s,^$,</pre>\n,
 }
 
 # pre
 /^  /{
     s,^  ,<pre>\n,
-    :pre
+    :p
+        ${  s,$,\n</pre>,
+            be
+        }
         n
         s,^  ,,
-    tpre
+    tp
     s,^$,</pre>\n,
 }
 
+:e
 $a\
   </body>\
 </html>
