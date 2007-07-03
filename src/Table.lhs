@@ -268,6 +268,21 @@ TODO: intersection untested (fb's fault)
 > intersection :: Table -> Table -> Table
 > intersection = applyOnTableSets Set.intersection
 
+cross-join
+
+cross table1 table2 -- looks good, imho...
+
+TODO: test draft,
+TOOD: optimize, Set.toList sux!
+
+> cross :: Table -> Table -> Table
+> cross (Tab h1 r1) (Tab h2 r2) =
+>	mkTable newHeader [ x++y | x <- l1, y <- l2]
+>	where
+>	newHeader = h1 ++ h2
+>	l1 = Set.toList r1
+>	l2 = Set.toList r2
+
 > select :: (Row -> Bool) -> Table -> Table
 > select p (Tab head rows) = mkTableFromSet head (Set.filter p rows)
 
@@ -495,7 +510,9 @@ projections on table23
 
 TODO: tests 2 + 11 fail
 
-> testCross = True
+> testCross = False
+
+TODO: impl.
 
 --- Putting it all together(tm) ---
 -----------------------------------
