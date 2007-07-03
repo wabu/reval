@@ -200,35 +200,34 @@ Note: mkTable [] [[]] is considered invalid
 -- Primitive Relation Algebra Operations --
 -------------------------------------------
 
-union/difference only do some base sanity checks and relies
+applyOnTableSets is a abstract higer order function used to
+build union, difference etc. It boils down to "Building
+Abstraction by Functions" as outlined in SICP.
+
+applyOnTableSets only do some base sanity checks and relies
 mostly on mkTable to create only valid tables.
 The reason for this is, that I (fb) want it to be leazy
 (as in operate on infinite tables).
 
-> union :: Table -> Table -> Table
-> union t1@(Tab [] rows) t2 = 
+> applyOnTableSets :: (Set.Set Row -> Set.Set Row -> Set.Set Row) -> Table -> Table -> Table
+> applyOnTableSets _ t1@(Tab [] rows) t2 = 
 >	if Set.null rows then
 >		t2
 >	else
->		error ("union: Invalid table: " ++ show t2
+>		error ("applyOnTableSets: Invalid table: " ++ show t2
 >			++ "schema is empty but rows are not!" ) 
-> union t1 t2@(Tab [] rows) = union t2 t1
-> union (Tab head1 rows1) (Tab _ rows2) =
->	mkTableFromSet head1 (Set.union rows1 rows2)
+> applyOnTableSets f t1 t2@(Tab [] rows) = applyOnTableSets f t2 t1
+> applyOnTableSets f (Tab head1 rows1) (Tab _ rows2) =
+>	mkTableFromSet head1 (f rows1 rows2)
+
+> union :: Table -> Table -> Table
+> union = applyOnTableSets Set.union
+
+> difference :: Table -> Table -> Table
+> difference = applyOnTableSets Set.difference
 
 TODO: impl. $foo type class to have op + and - 
 	as table union and diffrence
-
-> difference :: Table -> Table -> Table
-> difference t1@(Tab [] rows) t2 = 
->	if Set.null rows then
->		t2
->	else
->		error ("difference: Invalid table: " ++ show t2
->			++ "schema is empty but rows are not!" ) 
-> difference t1 t2@(Tab [] rows) = difference t2 t1
-> difference (Tab head1 rows1) (Tab _ rows2) =
->	mkTableFromSet head1 (Set.difference rows1 rows2)
 
 -- UnitTesting --
 ------------------
