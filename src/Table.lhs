@@ -182,7 +182,7 @@ check the types when createing or changeing a Table at runtime.
 > type TableHeader = [ColumHeader]
 >
 > data Table = Tab TableHeader (Set.Set Row) 
->       deriving (Show, Eq)
+>       deriving (Eq)
 
 > mkTable :: TableHeader -> [Row] -> Table
 > mkTable header rows = Tab header (Set.fromList rows)
@@ -216,7 +216,32 @@ getters for Table ADT
 > columNames :: Table -> [ColumName]
 > columNames (Tab header _) = map (\(name,_) -> name) header
 
-read instance for the table
+show and read instance for the table
+
+> showsTable :: Table -> ShowS
+> showsTable (Tab header rows) = heads . alls (map mapscell (Set.toList rows))
+>       where 
+>           sp = (' ':)
+>           nl = ('\n':)
+>           cs = ('|':) . sp
+>           ls = ('|':) . nl
+>           hs = (':':) . sp
+>           ss = (++)
+>
+>           folds :: (a -> ShowS) -> [a] -> ShowS
+>           folds fs = foldr ((.) . fs) id
+>
+>           cheads (n, t) = (ss n) . hs . (shows t)
+>           heads = folds ((cs .) . (. sp) . cheads) header . ls
+>           max = map (\h -> length $ cheads h " ") header
+>
+>           mapscell :: (Show a) => [a] -> [ShowS]
+>           mapscell = map (\(n,s) -> ss (take n $ (show s) ++ (repeat ' '))) . zip max
+>           lines :: [ShowS] -> ShowS
+>           lines = folds (cs .)
+>           alls :: [[ShowS]] -> ShowS
+>           alls = folds ((. ls) . lines)
+> instance Show Table where showsPrec _ = showsTable
 
 > readsColumHeader :: ReadS ColumHeader
 > readsColumHeader s =
@@ -305,9 +330,9 @@ TODO: optimize! this is insanley slow :-(
 TODO: return Maybe Table to handle cases, when projection is invalid?
 
 > project :: [ColumName] -> Table -> Table
-> project [] (Tab schema _) = mkTable schema [] 
+> project [] (Tab schema _) = mkTable [] [] 
 > project wantedNames (Tab header rows) =
-> 	mkTable newHeader newRows
+> 	Tab newHeader newRows
 >	where
 >	names = [n | (n,_) <- header]
 
@@ -316,7 +341,7 @@ posList is a List of postions needed to do the projection
 >	posList :: [Int]
 >	posList = map (`pos` names) wantedNames
 >	newHeader = [header!!i | i <- posList]
->	newRows = map (\row -> [row!!i | i <- posList ]) (Set.toList rows)
+>	newRows = Set.map (\row -> [row!!i | i <- posList ]) rows
 
 find postion of an elemt in a List
 
