@@ -182,25 +182,7 @@ check the types when createing or changeing a Table at runtime.
 > type TableHeader = [ColumHeader]
 >
 > data Table = Tab TableHeader (Set.Set Row) 
->       deriving (Show, Eq) -- , Read)
-
-FIXME:
- =>  No instance for (Read (Data.Set.Set Row))
-     arising from the 'deriving' clause of a data type declaration at Table.lhs:127:6
-     Probable fix: add an instance declaration for (Read (Data.Set.Set Row))
-     When deriving the `Read' instance for type `Table'
-
-TODO: impl. own Show and Read ...
-
-> readsRow s = 
->       [ (l:r,w) | ("|", u) <- lex s, (l, v) <- readsLit u,(r, w) <- readsRow v] ++
->       [ ([],u) | ("|",u) <- lex s, ("|",v) <- lex u] ++
->       [ ([],u) | ("|",u) <- lex s, ("",v) <- lex u] ++
->       [ ([],'|':u) | ("||",u) <- lex s]
-> readsRows s = 
->       [ (r:rs , v ) | (r,u) <- readsRow s, (rs,v) <- readsRows u ] ++
->       [ ([],u) | ("",u) <- lex s]
-
+>       deriving (Show, Eq)
 
 > mkTable :: TableHeader -> [Row] -> Table
 > mkTable header rows = Tab header (Set.fromList rows)
@@ -233,6 +215,32 @@ getters for Table ADT
 
 > columNames :: Table -> [ColumName]
 > columNames (Tab header _) = map (\(name,_) -> name) header
+
+read instance for the table
+
+> readsColumHeader :: ReadS ColumHeader
+> readsColumHeader s =
+>       [ ((n,t),w) | (n,u) <- lex s, (":",v) <- lex u, (t,w) <- reads v ]
+> readsTableHeader :: ReadS TableHeader
+> readsTableHeader s =
+>       [ (l:r,w) | ("|", u) <- lex s, (l, v) <- readsColumHeader u,(r, w) <- readsTableHeader v] ++
+>       [ ([],u) | ("|",u) <- lex s, ("|",v) <- lex u] ++
+>       [ ([],u) | ("|",u) <- lex s, ("",v) <- lex u] ++
+>       [ ([],'|':u) | ("||",u) <- lex s]
+> readsRow :: ReadS Row
+> readsRow s = 
+>       [ (l:r,w) | ("|", u) <- lex s, (l, v) <- readsLit u,(r, w) <- readsRow v] ++
+>       [ ([],u) | ("|",u) <- lex s, ("|",v) <- lex u] ++
+>       [ ([],u) | ("|",u) <- lex s, ("",v) <- lex u] ++
+>       [ ([],'|':u) | ("||",u) <- lex s]
+> readsRows :: ReadS [Row]
+> readsRows s = 
+>       [ (r:rs , v ) | (r,u) <- readsRow s, (rs,v) <- readsRows u ] ++
+>       [ ([],u) | ("",u) <- lex s]
+> readsTable :: ReadS Table
+> readsTable s =
+>       [ (mkTable h r, w) | (h,u) <- readsTableHeader s, (r,w) <- readsRows u]
+> instance Read Table where readsPrec _ = readsTable
 
 -- Primitive Relation Algebra Operations --
 -------------------------------------------
