@@ -541,7 +541,7 @@ TODO: impl.
 
 > testAll = testCheckTypes && testCheckTable
 >	&& testSchema && testColumNames
->	&& testUnion && testDifference
+>	&& testUnion && testDifference && testIntersection
 >	&& testSelect && testProject
 >	&& testCross
 
