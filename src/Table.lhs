@@ -532,9 +532,34 @@ projections on table23
 
 TODO: tests 2 + 11 fail
 
-> testCross = False
+> table1Xtable1 = mkTable
+>	[("ID",Number),("Name",String),("ID",Number),("Name",String)]
+>	[[IntLit 23, StrLit "fb", IntLit 23, StrLit "fb"],
+>	 [IntLit 23, StrLit "fb", IntLit 42, StrLit "daniel"],
+>	 [IntLit 42, StrLit "daniel", IntLit 23, StrLit "fb"],
+>	 [IntLit 42, StrLit "daniel", IntLit 42, StrLit "daniel"]] 
 
-TODO: impl.
+> testCross = assertfun2 cross "cross"
+>	[ (tableEmpty, tableEmpty, tableEmpty),
+>	  (table123Empty, table1, Tab [("ID",Number), ("Name",String),
+>				       ("ID",Number),("Name",String)]
+>		                       (Set.fromList [])),
+>	  (table1, table123Empty, Tab [("ID",Number), ("Name",String),
+>				       ("ID",Number),("Name",String)]
+>		                       (Set.fromList [])),
+
+>	  (table1, table1, table1Xtable1),
+>	  (table123Empty, table123Empty, mkTable
+>		[("ID",Number), ("Name",String), ("ID",Number),
+>		 ("Name",String)]
+>		[])
+>	  -- TODO:
+>	  -- (table1, table1, XXX),
+>	  -- (table2, table2, XXX),
+>	  -- (table3, table3, XXX),
+>	  -- (table23, table3, XXX),
+>	  -- (table23, table2, XXX)
+>	]
 
 --- Putting it all together(tm) ---
 -----------------------------------
