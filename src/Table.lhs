@@ -176,8 +176,11 @@ TODO: impl. own Show and Read ...
 > mkTable :: TableHeader -> [Row] -> Table
 > mkTable header rows = Tab header (Set.fromList rows)
 
-error will fuck up unit test :(
-and infinite Tables won't be possible if we check them first :(
+> mkTableFromSet :: TableHeader -> Set.Set Row -> Table
+> mkTableFromSet header rows = Tab header rows
+
+TODO: error will fuck up unit test :(
+      and infinite Tables won't be possible if we check them first :(
 
 >-- mkTable header rows = if checkTable tab then tab
 >--       else error "the table contains invalid valuse"
@@ -197,6 +200,11 @@ Note: mkTable [] [[]] is considered invalid
 -- Primitive Relation Algebra Operations --
 -------------------------------------------
 
+union only does some base sanity checks and relies mostly on mkTable
+to create only valid tables.
+The reason for this is, that I (fb) want it to be leazy (as in operate
+on infinite tables).
+
 > union :: Table -> Table -> Table
 > union t1@(Tab [] rows) t2 = 
 >	if Set.null rows then
@@ -205,6 +213,8 @@ Note: mkTable [] [[]] is considered invalid
 >		error ("Invalid table: " ++ show t2
 >			++ "schema is empty but rows are not!" ) 
 > union t1 t2@(Tab [] rows) = union t2 t1
+> union (Tab head1 rows1) (Tab heads2 rows2) =
+>	mkTableFromSet head1 (Set.union rows1 rows2)
 
 TODO: add other cases ...
 
@@ -274,6 +284,7 @@ union of table 2 and table 3
 > table23 = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [Null, StrLit "fb"],
+>       [Null, StrLit "daniel"], 
 >       [IntLit 42, StrLit "daniel"]  ]
 
 > tableInvalid = mkTable [("ID",Number), ("Name",String)] [
