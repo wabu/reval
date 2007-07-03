@@ -89,7 +89,7 @@ TODO: impl. own Show and Read ...
 
 > data Lit = Null | IntLit Int | StrLit String | CharLit Char |
 >       BoolLit Bool
->       deriving (Show, Eq, Read)
+>       deriving (Eq)
 
 Type is used to store Type information in the table schema.
 Note: Null has Type Any.
@@ -116,6 +116,24 @@ Ord for Lit needed to stuff Lits in Sets
 >       compare _ (StrLit _) = GT
 >       compare (CharLit _) _ = LT
 >       compare _ (CharLit _) = GT
+
+Own Show and Read for Lits
+
+> showsLit :: Lit -> ShowS
+> showsLit Null = ("Null" ++)
+> showsLit (IntLit l) = shows l
+> showsLit (StrLit l) = shows l
+> showsLit (CharLit l) = shows l
+> showsLit (BoolLit l) = shows l
+> instance Show Lit where showsPrec _ = showsLit
+
+> readsLit :: ReadS Lit
+> readsLit s = [(Null,s) | ("Null", s) <- lex s ] ++
+>              [(IntLit l, s) | (l,s) <- reads s ] ++
+>              [(StrLit l, s) | (l,s) <- reads s ] ++
+>              [(CharLit l, s) | (l,s) <- reads s ] ++
+>              [(BoolLit l, s) | (l,s) <- reads s ]
+> instance Read Lit where readsPrec _ = readsLit
 
 check it two types are compatilbe
 
