@@ -243,6 +243,14 @@ selection
 > select :: [ColumName] -> Table -> Table
 > select [] (Tab schema _) = mkTable schema [] 
 
+broken draft:
+
+ > select selectedNames (Tab header rows) =
+ >	map (filter (\(name,_) -> name `elem` selectedNames) . (\(n,v) -> v)) namedRows
+ >	where 
+ >	(names,_) = header 
+ >	namedRows = map (zip names) rows
+
 FIXME: is there a diffrence in a Set {{}} and {} in relation algebra?
 	'cause if so, the above code, is incorrect!
 	s. http://en.wikipedia.org/wiki/Relational_algebra
