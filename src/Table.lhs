@@ -231,7 +231,7 @@ show and read instance for the table
 >
 >           cheads (n, t) = (ss n) . (':':) . sp . (shows t)        -- column header -> [ShowS]
 >           heads = folds ((cs .) . (. sp) . cheads) header . ls    -- | cheader | cheader ... |\n
->           headlength = map (\h -> length $ cheads h " ") header
+>           headlength = (map (\h -> length $ cheads h " ") header) ++ repeat 13
 >
 >           mapcells :: (Show a) => [a] -> [ShowS]                  -- row -> [ShowS]
 >           mapcells = map (\(n,s) -> ss (take n $ (show s) ++ (repeat ' '))) . zip headlength
