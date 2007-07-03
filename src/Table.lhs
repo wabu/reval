@@ -271,18 +271,64 @@ The reason for this is, that I (fb) want it to be leazy
 > difference :: Table -> Table -> Table
 > difference = applyOnTableSets Set.difference
 
+TODO: intersection untested (fb's fault)
+
+> intersection :: Table -> Table -> Table
+> intersection = applyOnTableSets Set.intersection
+
+cross-join
+
+cross table1 table2 -- looks good, imho...
+
+TODO: test draft,
+TOOD: optimize, Set.toList sux!
+
+> cross :: Table -> Table -> Table
+> cross (Tab h1 r1) (Tab h2 r2) =
+>	mkTable newHeader [ x++y | x <- l1, y <- l2]
+>	where
+>	newHeader = h1 ++ h2
+>	l1 = Set.toList r1
+>	l2 = Set.toList r2
+
 > select :: (Row -> Bool) -> Table -> Table
 > select p (Tab head rows) = mkTableFromSet head (Set.filter p rows)
 
-TODO: impl. $foo type class to have ops lie + and - 
-	as table union and diffrence?
+FIXME: is there a diffrence in a Set {{}} and {} in relation algebra?
+	'cause if so, the above code, is incorrect!
+	s. http://en.wikipedia.org/wiki/Relational_algebra
 
 Projection
 
+TODO: cleanup this mess, 2 testcases fail ...
+TODO: optimize! this is insanley slow :-(
+TODO: return Maybe Table to handle cases, when projection is invalid?
+
 > project :: [ColumName] -> Table -> Table
 > project [] (Tab schema _) = mkTable schema [] 
+> project wantedNames (Tab header rows) =
+> 	mkTable newHeader newRows
+>	where
+>	names = [n | (n,_) <- header]
 
-broken draft:
+posList is a List of postions needed to do the projection
+
+>	posList :: [Int]
+>	posList = map (`pos` names) wantedNames
+>	newHeader = [header!!i | i <- posList]
+>	newRows = map (\row -> [row!!i | i <- posList ]) (Set.toList rows)
+
+find postion of an elemt in a List
+
+> pos :: (Eq a, Show a) => a -> [a] -> Int
+> pos e xs = pos' xs 0
+>	where
+>	pos' [] _ = error ("project: pos: not found: " ++ show e)
+>	pos' (x:xs) i =
+>		if e == x then 
+>			i
+>		else
+>			pos' xs (i + 1)
 
  > project projectedNames (Tab header rows) =
  >	map (filter (\(name,_) -> name `elem` projectedNames) . (\(n,v) -> v)) namedRows
@@ -290,9 +336,8 @@ broken draft:
  >	(names,_) = header 
  >	namedRows = map (zip names) rows
 
-FIXME: is there a diffrence in a Set {{}} and {} in relation algebra?
-	'cause if so, the above code, is incorrect!
-	s. http://en.wikipedia.org/wiki/Relational_algebra
+TODO: impl. $foo type class to have ops like + and - 
+	as table union and diffrence?
 
 -- UnitTesting --
 ------------------
@@ -471,7 +516,11 @@ projections on table23
 >	  -- TODO: add more tests
 >	]
 
-TODO: test fails
+TODO: tests 2 + 11 fail
+
+> testCross = False
+
+TODO: impl.
 
 --- Putting it all together(tm) ---
 -----------------------------------
@@ -479,7 +528,8 @@ TODO: test fails
 > testAll = testCheckTypes && testCheckTable
 >	&& testSchema && testColumNames
 >	&& testUnion && testDifference
->	&& testSelect -- && testProject
+>	&& testSelect && testProject
+>	&& testCross
 
 
 --- Legal Foo ---
