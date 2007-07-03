@@ -204,8 +204,24 @@ Note: mkTable [] [[]] is considered invalid
 >           ctypes = Set.fold ((==) . all (uncurry checkLitType) . zip types) True rows
 >           clength = Set.fold ((==) . (size ==) . length) True rows
 
+-- Primitive Relation Algebra Operations --
+-------------------------------------------
 
--- UnitTesting: --
+> union :: Table -> Table -> Table
+> union t1@(Tab ([], rows)) t2 = 
+>	if Set.null rows then
+>		t2
+>	else
+>		error ("Invalid table: " ++ show t2
+>			++ "schema is empty but rows are not!" ) 
+> union t1 t2@(Tab ([], rows)) = union t2 t1
+
+TODO: add other cases ...
+
+TODO: impl. $foo type class to have op + and - 
+	as table union and diffrence
+
+-- UnitTesting --
 ------------------
 
 --- Type System ---
@@ -245,6 +261,8 @@ Note: mkTable [] [[]] is considered invalid
 --- Table ---
 -------------
 
+sample tables used for testing:
+
 > tableEmpty = mkTable [] []
 
 > table1 = mkTable [("ID",Number), ("Name",String)] [
@@ -261,15 +279,46 @@ Yes, those two are valid!
 >       [Null, StrLit "fb"],
 >       [IntLit 42, StrLit "daniel"]  ]
 
+union of table 2 and table 3
+
+> table23 = mkTable [("ID",Number), ("Name",String)] [
+>       [IntLit 23, StrLit "fb"],
+>       [Null, StrLit "fb"],
+>       [IntLit 42, StrLit "daniel"]  ]
+
 > tableInvalid = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [CharLit 'a', StrLit "daniel"]  ]
+
+unit test of checkTable
 
 > testCheckTable = afun1 checkTable "checktab"
 >       [tableEmpty, table1, tableInvalid, table2, table3]
 >       [True, True, False, True, True]
 
-> testAll = testCheckTypes && testCheckTable
+--- Primitive Relational Algebra Operatations ---
+-------------------------------------------------
+
+Format of assertfun2 is:
+assertfun f name_of_f [ (param1, param2, expected) ]
+
+> testUnion = assertfun2 union "union" 
+>	[ (tableEmpty, tableEmpty, tableEmpty),
+>	  (tableEmpty, table1, table1),
+>	  (table1,tableEmpty,  table1),
+>	  (tableEmpty, table2, table2),
+>	  (table2,tableEmpty,  table2),
+>	  (table1, table1, table1),
+>	  (table2, table2, table2),
+>	  (table3, table3, table3),
+>	  (table2, table3, table23),
+>	  (table3, table2, table23)
+>	]
+
+--- Putting it all together(tm) ---
+-----------------------------------
+
+> testAll = testCheckTypes && testCheckTable && testUnion
 
 
 License foo:
