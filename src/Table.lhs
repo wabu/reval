@@ -192,6 +192,12 @@ FIXME:
 
 TODO: impl. own Show and Read ...
 
+> readsRow s = [ (l:r,w) | ("|", u) <- lex s ,
+>                          (l, v) <- readsLit u,
+>                          (r, w) <- readsRow v] ++
+>              [ ([],u) | ("|",u) <- lex s, ("|",v) <- lex u] ++
+>              [ ([],u) | ("|",u) <- lex s, ("",v) <- lex u]
+
 > mkTable :: TableHeader -> [Row] -> Table
 > mkTable header rows = Tab header (Set.fromList rows)
 
