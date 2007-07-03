@@ -200,26 +200,35 @@ Note: mkTable [] [[]] is considered invalid
 -- Primitive Relation Algebra Operations --
 -------------------------------------------
 
-union only does some base sanity checks and relies mostly on mkTable
-to create only valid tables.
-The reason for this is, that I (fb) want it to be leazy (as in operate
-on infinite tables).
+union/difference only do some base sanity checks and relies
+mostly on mkTable to create only valid tables.
+The reason for this is, that I (fb) want it to be leazy
+(as in operate on infinite tables).
 
 > union :: Table -> Table -> Table
 > union t1@(Tab [] rows) t2 = 
 >	if Set.null rows then
 >		t2
 >	else
->		error ("Invalid table: " ++ show t2
+>		error ("union: Invalid table: " ++ show t2
 >			++ "schema is empty but rows are not!" ) 
 > union t1 t2@(Tab [] rows) = union t2 t1
-> union (Tab head1 rows1) (Tab heads2 rows2) =
+> union (Tab head1 rows1) (Tab _ rows2) =
 >	mkTableFromSet head1 (Set.union rows1 rows2)
-
-TODO: add other cases ...
 
 TODO: impl. $foo type class to have op + and - 
 	as table union and diffrence
+
+> difference :: Table -> Table -> Table
+> difference t1@(Tab [] rows) t2 = 
+>	if Set.null rows then
+>		t2
+>	else
+>		error ("difference: Invalid table: " ++ show t2
+>			++ "schema is empty but rows are not!" ) 
+> difference t1 t2@(Tab [] rows) = union t2 t1
+> difference (Tab head1 rows1) (Tab _ rows2) =
+>	mkTableFromSet head1 (Set.difference rows1 rows2)
 
 -- UnitTesting --
 ------------------
@@ -306,9 +315,9 @@ assertfun f name_of_f [ (param1, param2, expected) ]
 > testUnion = assertfun2 union "union" 
 >	[ (tableEmpty, tableEmpty, tableEmpty),
 >	  (tableEmpty, table1, table1),
->	  (table1,tableEmpty,  table1),
+>	  (table1, tableEmpty, table1),
 >	  (tableEmpty, table2, table2),
->	  (table2,tableEmpty,  table2),
+>	  (table2, tableEmpty, table2),
 >	  (table1, table1, table1),
 >	  (table2, table2, table2),
 >	  (table3, table3, table3),
@@ -316,10 +325,26 @@ assertfun f name_of_f [ (param1, param2, expected) ]
 >	  (table3, table2, table23)
 >	]
 
+> testDifference = assertfun2 difference "difference"
+>	[ (tableEmpty, tableEmpty, tableEmpty),
+>	  (tableEmpty, table1, tableEmpty),
+>	  (table1, tableEmpty, table1),
+>	  (tableEmpty, table2, tableEmpty),
+>	  (table2, tableEmpty, table2),
+>	  (table1, table1, tableEmpty),
+>	  (table2, table2, tableEmpty),
+>	  (table3, table3, tableEmpty),
+>	  (table23, table3, table2),
+>	  (table23, table2, table3)
+>	]
+
+FIXME: some tests fail, why?
+
 --- Putting it all together(tm) ---
 -----------------------------------
 
-> testAll = testCheckTypes && testCheckTable && testUnion
+> testAll = testCheckTypes && testCheckTable
+>	&& testUnion && testDifference
 
 
 License foo:
