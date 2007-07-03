@@ -197,6 +197,9 @@ TODO: impl. own Show and Read ...
 >       [ ([],u) | ("|",u) <- lex s, ("|",v) <- lex u] ++
 >       [ ([],u) | ("|",u) <- lex s, ("",v) <- lex u] ++
 >       [ ([],'|':u) | ("||",u) <- lex s]
+> readsRows s = 
+>       [ (r:rs , v ) | (r,u) <- readsRow s, (rs,v) <- readsRows u ] ++
+>       [ ([],u) | ("",u) <- lex s]
 
 
 > mkTable :: TableHeader -> [Row] -> Table
@@ -269,6 +272,7 @@ FIXME: is there a diffrence in a Set {{}} and {} in relation algebra?
 
 Projection
 
+TODO: cleanup this mess, 2 testcases fail ...
 TODO: optimize! this is insanley slow :-(
 TODO: return Maybe Table to handle cases, when projection is invalid?
 
@@ -283,15 +287,20 @@ posList is a List of postions needed to do the projection
 
 >	posList :: [Int]
 >	posList = map (`pos` names) wantedNames
->	newHeader = [header!!i | i <- posList ]
->	newRows = [(Set.toList rows)!!i | i <- posList ]
->	pos e xs = pos' e xs 0
->	pos' e [] _ = error ("project: pos: not found: " ++ show e)
->	pos' e (x:xs) i =
+>	newHeader = [header!!i | i <- posList]
+>	newRows = map (\row -> [row!!i | i <- posList ]) (Set.toList rows)
+
+find postion of an elemt in a List
+
+> pos :: (Eq a, Show a) => a -> [a] -> Int
+> pos e xs = pos' xs 0
+>	where
+>	pos' [] _ = error ("project: pos: not found: " ++ show e)
+>	pos' (x:xs) i =
 >		if e == x then 
 >			i
 >		else
->			pos' e xs (i + 1)
+>			pos' xs (i + 1)
 
  > project projectedNames (Tab header rows) =
  >	map (filter (\(name,_) -> name `elem` projectedNames) . (\(n,v) -> v)) namedRows
@@ -479,7 +488,7 @@ projections on table23
 >	  -- TODO: add more tests
 >	]
 
-TODO: test fails
+TODO: tests 2 + 11 fail
 
 --- Putting it all together(tm) ---
 -----------------------------------
@@ -487,7 +496,7 @@ TODO: test fails
 > testAll = testCheckTypes && testCheckTable
 >	&& testSchema && testColumNames
 >	&& testUnion && testDifference
->	&& testSelect -- && testProject
+>	&& testSelect && testProject
 
 
 --- Legal Foo ---
