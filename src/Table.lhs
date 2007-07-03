@@ -510,8 +510,7 @@ projections on table23
 >
 > table23Name = mkTable [("Name",String)] [
 >       [StrLit "fb"],
->       [StrLit "daniel"], 
->	[Null] ]
+>       [StrLit "daniel"] ]
 
 > testProject = assertfun2 project "project"
 >	[ ([], tableEmpty, tableEmpty),
