@@ -219,24 +219,22 @@ getters for Table ADT
 show and read instance for the table
 
 > showsTable :: Table -> ShowS
-> showsTable (Tab header rows) = heads . alls (map mapscell (Set.toList rows))
+> showsTable (Tab header rows) = heads . alls (map mapcells (Set.toList rows))
 >       where 
->           sp = (' ':)
->           nl = ('\n':)
->           cs = ('|':) . sp
->           ls = ('|':) . nl
->           hs = (':':) . sp
->           ss = (++)
+>           sp = (' ':)             -- space ShowS
+>           cs = ('|':) . sp        -- column sperator
+>           ls = ('|':) . ('\n':)   -- line
+>           ss = (++)               -- string -> ShowS
 >
 >           folds :: (a -> ShowS) -> [a] -> ShowS
 >           folds fs = foldr ((.) . fs) id
 >
->           cheads (n, t) = (ss n) . hs . (shows t)
->           heads = folds ((cs .) . (. sp) . cheads) header . ls
->           max = map (\h -> length $ cheads h " ") header
+>           cheads (n, t) = (ss n) . (':':) . sp . (shows t)        -- column header -> [ShowS]
+>           heads = folds ((cs .) . (. sp) . cheads) header . ls    -- | cheader | cheader ... |\n
+>           headlength = map (\h -> length $ cheads h " ") header
 >
->           mapscell :: (Show a) => [a] -> [ShowS]
->           mapscell = map (\(n,s) -> ss (take n $ (show s) ++ (repeat ' '))) . zip max
+>           mapcells :: (Show a) => [a] -> [ShowS]                  -- row -> [ShowS]
+>           mapcells = map (\(n,s) -> ss (take n $ (show s) ++ (repeat ' '))) . zip headlength
 >           lines :: [ShowS] -> ShowS
 >           lines = folds (cs .)
 >           alls :: [[ShowS]] -> ShowS
