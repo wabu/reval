@@ -256,15 +256,15 @@ The reason for this is, that I (fb) want it to be leazy
 TODO: impl. $foo type class to have op + and - 
 	as table union and diffrence?
 
-selection
+Projection
 
-> select :: [ColumName] -> Table -> Table
-> select [] (Tab schema _) = mkTable schema [] 
+> project :: [ColumName] -> Table -> Table
+> project [] (Tab schema _) = mkTable schema [] 
 
 broken draft:
 
- > select selectedNames (Tab header rows) =
- >	map (filter (\(name,_) -> name `elem` selectedNames) . (\(n,v) -> v)) namedRows
+ > project projectedNames (Tab header rows) =
+ >	map (filter (\(name,_) -> name `elem` projectedNames) . (\(n,v) -> v)) namedRows
  >	where 
  >	(names,_) = header 
  >	namedRows = map (zip names) rows
@@ -411,7 +411,7 @@ selections on table23
 >       [StrLit "daniel"], 
 >	[Null] ]
 
-> testSelect = assertfun2 select "select"
+> testProject= assertfun2 project "project"
 >	[ ([], tableEmpty, tableEmpty),
 >	  ([], table123Empty, tableEmpty),
 >	  (["ID"], table123Empty, mkTable [("ID", Number)] []),
@@ -433,7 +433,7 @@ selections on table23
 
 > testAll = testCheckTypes && testCheckTable
 >	&& testSchema && testColumNames
->	&& testUnion && testDifference && testSelect
+>	&& testUnion && testDifference && testProject
 
 
 --- Legal Foo ---
