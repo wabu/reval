@@ -198,6 +198,14 @@ Note: mkTable [] [[]] is considered invalid
 >           ctypes = Set.fold ((==) . all (uncurry checkLitType) . zip types) True rows
 >           clength = Set.fold ((==) . (size ==) . length) True rows
 
+getters for Table ADT
+
+> schema :: Table -> [Type]
+> schema (Tab header _) = map (\(_,t) -> t) header
+
+> columNames :: Table -> [ColumName]
+> columNames (Tab header _) = map (\(name,_) -> name) header
+
 -- Primitive Relation Algebra Operations --
 -------------------------------------------
 
@@ -315,6 +323,20 @@ unit test of checkTable
 >       [tableEmpty, table1, tableInvalid, table2, table3]
 >       [True, True, False, True, True]
 
+--- Getters for Table ADT ---
+-----------------------------
+
+> testSchema = afun1 schema "schema"
+>       [tableEmpty, table1, table2, table3, table123Empty]
+>       [ [], [Number, String],[Number, String],
+>	  [Number, String],[Number, String] ]
+
+> testColumNames = afun1 columNames "columNames"
+>       [tableEmpty, table1, table2, table3, table123Empty]
+>       [ [], ["ID", "Name"], ["ID", "Name"], ["ID", "Name"],
+>	  ["ID", "Name"] ]
+
+
 --- Primitive Relational Algebra Operatations ---
 -------------------------------------------------
 
@@ -351,6 +373,18 @@ empty table with schema of table1,2,3 .
 >	  (table23, table2, table3)
 >	]
 
+selections on table23
+
+> table23ID = mkTable [("ID",Number)] [
+>       [IntLit 23],
+>       [Null],
+>       [IntLit 42] ] 
+>
+> table23Name = mkTable [("Name",String)] [
+>       [StrLit "fb"],
+>       [StrLit "daniel"], 
+>	[Null] ]
+
 > testSelect = assertfun2 select "select"
 >	[ ([], tableEmpty, tableEmpty),
 >	  ([], table123Empty, tableEmpty),
@@ -362,18 +396,24 @@ empty table with schema of table1,2,3 .
 >		[("Name", String), ("ID", Number)] []),
 >	  (["ID", "Name"], table1, table1),
 >	  (["ID", "Name"], table2, table2),
->	  (["ID", "Name"], table23, table23)
->	-- TODO: insert more tests
+>	  (["ID", "Name"], table23, table23),
+>	  (["ID"], table23, table23ID),	
+>	  (["Name"], table23, table23Name)
+>	  -- TODO: add more tests
 >	]
 
 --- Putting it all together(tm) ---
 -----------------------------------
 
 > testAll = testCheckTypes && testCheckTable
+>	&& testSchema && testColumNames
 >	&& testUnion && testDifference && testSelect
 
 
-License foo:
+--- Legal Foo ---
+-----------------
+
+TODO: print Note on startup?
 
 > licenseNote = "rel-eval \tCopyright (C) 2007 \tDaniel Waeber, Fabian Bieker\n" ++
 >       "This program comes with ABSOLUTELY NO WARRANTY; for details " ++
