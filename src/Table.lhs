@@ -351,13 +351,26 @@ empty table with schema of table1,2,3 .
 >	  (table23, table2, table3)
 >	]
 
-FIXME: some tests fail, why?
+> testSelect = assertfun2 select "select"
+>	[ ([], tableEmpty, tableEmpty),
+>	  ([], table123Empty, tableEmpty),
+>	  (["ID"], table123Empty, mkTable [("ID", Number)] []),
+>	  (["Name"], table123Empty, mkTable [("Name", String)] []),
+>	  (["ID", "Name"], table123Empty, mkTable
+>		[("ID", Number), ("Name", String)] []),
+>	  (["Name", "ID"], table123Empty, mkTable
+>		[("Name", String), ("ID", Number)] []),
+>	  (["ID", "Name"], table1, table1),
+>	  (["ID", "Name"], table2, table2),
+>	  (["ID", "Name"], table23, table23)
+>	-- TODO: insert more tests
+>	]
 
 --- Putting it all together(tm) ---
 -----------------------------------
 
 > testAll = testCheckTypes && testCheckTable
->	&& testUnion && testDifference
+>	&& testUnion && testDifference && testSelect
 
 
 License foo:
