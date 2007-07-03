@@ -305,7 +305,7 @@ TODO: optimize! this is insanley slow :-(
 TODO: return Maybe Table to handle cases, when projection is invalid?
 
 > project :: [ColumName] -> Table -> Table
-> project [] (Tab schema _) = mkTable schema [] 
+> project [] (Tab _ _) = mkTable [] [] 
 > project wantedNames (Tab header rows) =
 > 	mkTable newHeader newRows
 >	where
