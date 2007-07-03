@@ -198,13 +198,13 @@ Note: mkTable [] [[]] is considered invalid
 -------------------------------------------
 
 > union :: Table -> Table -> Table
-> union t1@(Tab ([], rows)) t2 = 
+> union t1@(Tab [] rows) t2 = 
 >	if Set.null rows then
 >		t2
 >	else
 >		error ("Invalid table: " ++ show t2
 >			++ "schema is empty but rows are not!" ) 
-> union t1 t2@(Tab ([], rows)) = union t2 t1
+> union t1 t2@(Tab [] rows) = union t2 t1
 
 TODO: add other cases ...
 
