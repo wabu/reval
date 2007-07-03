@@ -197,6 +197,9 @@ TODO: impl. own Show and Read ...
 >       [ ([],u) | ("|",u) <- lex s, ("|",v) <- lex u] ++
 >       [ ([],u) | ("|",u) <- lex s, ("",v) <- lex u] ++
 >       [ ([],'|':u) | ("||",u) <- lex s]
+> readsRows s = 
+>       [ (r:rs , v ) | (r,u) <- readsRow s, (rs,v) <- readsRows u ] ++
+>       [ ([],u) | ("",u) <- lex s]
 
 
 > mkTable :: TableHeader -> [Row] -> Table
