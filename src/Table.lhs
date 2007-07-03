@@ -263,15 +263,35 @@ The reason for this is, that I (fb) want it to be leazy
 > select :: (Row -> Bool) -> Table -> Table
 > select p (Tab head rows) = mkTableFromSet head (Set.filter p rows)
 
-TODO: impl. $foo type class to have ops lie + and - 
-	as table union and diffrence?
+FIXME: is there a diffrence in a Set {{}} and {} in relation algebra?
+	'cause if so, the above code, is incorrect!
+	s. http://en.wikipedia.org/wiki/Relational_algebra
 
 Projection
 
+TODO: optimize! this is insanley slow :-(
+TODO: return Maybe Table to handle cases, when projection is invalid?
+
 > project :: [ColumName] -> Table -> Table
 > project [] (Tab schema _) = mkTable schema [] 
+> project wantedNames (Tab header rows) =
+> 	mkTable newHeader newRows
+>	where
+>	names = [n | (n,_) <- header]
 
-broken draft:
+posList is a List of postions needed to do the projection
+
+>	posList :: [Int]
+>	posList = map (`pos` names) wantedNames
+>	newHeader = [header!!i | i <- posList ]
+>	newRows = [(Set.toList rows)!!i | i <- posList ]
+>	pos e xs = pos' e xs 0
+>	pos' e [] _ = error ("project: pos: not found: " ++ show e)
+>	pos' e (x:xs) i =
+>		if e == x then 
+>			i
+>		else
+>			pos' e xs (i + 1)
 
  > project projectedNames (Tab header rows) =
  >	map (filter (\(name,_) -> name `elem` projectedNames) . (\(n,v) -> v)) namedRows
@@ -279,9 +299,8 @@ broken draft:
  >	(names,_) = header 
  >	namedRows = map (zip names) rows
 
-FIXME: is there a diffrence in a Set {{}} and {} in relation algebra?
-	'cause if so, the above code, is incorrect!
-	s. http://en.wikipedia.org/wiki/Relational_algebra
+TODO: impl. $foo type class to have ops like + and - 
+	as table union and diffrence?
 
 -- UnitTesting --
 ------------------
