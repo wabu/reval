@@ -159,7 +159,8 @@ Now Rows and Tables are easy, as we just can use a Set of List. We only have to
 check the types when createing or changeing a Table at runtime.
 
 > type Row = [Lit]
-> type ColumHeader = (String, Type)
+> type ColumName = String
+> type ColumHeader = (ColumName, Type)
 > type TableHeader = [ColumHeader]
 >
 > data Table = Tab TableHeader (Set.Set Row) 
@@ -227,7 +228,16 @@ The reason for this is, that I (fb) want it to be leazy
 > difference = applyOnTableSets Set.difference
 
 TODO: impl. $foo type class to have op + and - 
-	as table union and diffrence
+	as table union and diffrence?
+
+selection
+
+> select :: [ColumName] -> Table -> Table
+> select [] (Tab schema _) = mkTable schema [] 
+
+FIXME: is there a diffrence in a Set {{}} and {} in relation algebra?
+	'cause if so, the above code, is incorrect!
+	s. http://en.wikipedia.org/wiki/Relational_algebra
 
 -- UnitTesting --
 ------------------
