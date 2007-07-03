@@ -263,6 +263,9 @@ The reason for this is, that I (fb) want it to be leazy
 > difference :: Table -> Table -> Table
 > difference = applyOnTableSets Set.difference
 
+> select :: (Row -> Bool) -> Table -> Table
+> select p (Tab head rows) = mkTableFromSet head (Set.filter p rows)
+
 TODO: impl. $foo type class to have ops lie + and - 
 	as table union and diffrence?
 
@@ -376,6 +379,8 @@ unit test of checkTable
 --- Primitive Relational Algebra Operatations ---
 -------------------------------------------------
 
+TODO: unit tests are way to coupled on test tables!
+
 Format of assertfun2 is:
 assertfun f name_of_f [ (param1, param2, expected) ]
 
@@ -409,6 +414,26 @@ empty table with schema of table1,2,3 .
 >	  (table23, table2, table3)
 >	]
 
+just to be able to unit test the predicates in select...
+
+> instance Show (a -> b) where
+> 	show _ = "(\a -> b) :: (a -> b)"
+
+selections on table2
+
+> table2onlyFB = mkTable [("ID",Number), ("Name",String)] [
+>       [IntLit 23, StrLit "fb"] ]
+
+> testSelect = assertfun2 select "select"
+>	[ ( (\_ -> False), tableEmpty, tableEmpty),
+>	  ( (\_ -> False), table1, table123Empty),
+>	  ( (\_ -> False), table23, table123Empty),
+>	  ( (\_ -> True), tableEmpty, tableEmpty),
+>	  ( (\_ -> True), table23, table23),
+>	  ( (\x -> x!!0 == IntLit 64), table2, table123Empty),
+>	  ( (\x -> x!!0 == IntLit 23), table2, table2onlyFB)
+>	]
+
 projections on table23
 
 > table23ID = mkTable [("ID",Number)] [
@@ -421,7 +446,7 @@ projections on table23
 >       [StrLit "daniel"], 
 >	[Null] ]
 
-> testProject= assertfun2 project "project"
+> testProject = assertfun2 project "project"
 >	[ ([], tableEmpty, tableEmpty),
 >	  ([], table123Empty, tableEmpty),
 >	  (["ID"], table123Empty, mkTable [("ID", Number)] []),
@@ -438,12 +463,15 @@ projections on table23
 >	  -- TODO: add more tests
 >	]
 
+TODO: test fails
+
 --- Putting it all together(tm) ---
 -----------------------------------
 
 > testAll = testCheckTypes && testCheckTable
 >	&& testSchema && testColumNames
->	&& testUnion && testDifference && testProject
+>	&& testUnion && testDifference
+>	&& testSelect -- && testProject
 
 
 --- Legal Foo ---
