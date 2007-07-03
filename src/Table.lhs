@@ -263,6 +263,11 @@ The reason for this is, that I (fb) want it to be leazy
 > difference :: Table -> Table -> Table
 > difference = applyOnTableSets Set.difference
 
+TODO: intersection untested (fb's fault)
+
+> intersection :: Table -> Table -> Table
+> intersection = applyOnTableSets Set.intersection
+
 > select :: (Row -> Bool) -> Table -> Table
 > select p (Tab head rows) = mkTableFromSet head (Set.filter p rows)
 
@@ -490,6 +495,8 @@ projections on table23
 
 TODO: tests 2 + 11 fail
 
+> testCross = True
+
 --- Putting it all together(tm) ---
 -----------------------------------
 
@@ -497,6 +504,7 @@ TODO: tests 2 + 11 fail
 >	&& testSchema && testColumNames
 >	&& testUnion && testDifference
 >	&& testSelect && testProject
+>	&& testCross
 
 
 --- Legal Foo ---
