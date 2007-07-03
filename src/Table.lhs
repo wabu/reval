@@ -260,18 +260,18 @@ The reason for this is, that I (fb) want it to be leazy
 > difference :: Table -> Table -> Table
 > difference = applyOnTableSets Set.difference
 
-TODO: impl. $foo type class to have op + and - 
+TODO: impl. $foo type class to have ops lie + and - 
 	as table union and diffrence?
 
-selection
+Projection
 
-> select :: [ColumName] -> Table -> Table
-> select [] (Tab schema _) = mkTable schema [] 
+> project :: [ColumName] -> Table -> Table
+> project [] (Tab schema _) = mkTable schema [] 
 
 broken draft:
 
- > select selectedNames (Tab header rows) =
- >	map (filter (\(name,_) -> name `elem` selectedNames) . (\(n,v) -> v)) namedRows
+ > project projectedNames (Tab header rows) =
+ >	map (filter (\(name,_) -> name `elem` projectedNames) . (\(n,v) -> v)) namedRows
  >	where 
  >	(names,_) = header 
  >	namedRows = map (zip names) rows
@@ -406,7 +406,7 @@ empty table with schema of table1,2,3 .
 >	  (table23, table2, table3)
 >	]
 
-selections on table23
+projections on table23
 
 > table23ID = mkTable [("ID",Number)] [
 >       [IntLit 23],
@@ -418,7 +418,7 @@ selections on table23
 >       [StrLit "daniel"], 
 >	[Null] ]
 
-> testSelect = assertfun2 select "select"
+> testProject= assertfun2 project "project"
 >	[ ([], tableEmpty, tableEmpty),
 >	  ([], table123Empty, tableEmpty),
 >	  (["ID"], table123Empty, mkTable [("ID", Number)] []),
@@ -440,7 +440,7 @@ selections on table23
 
 > testAll = testCheckTypes && testCheckTable
 >	&& testSchema && testColumNames
->	&& testUnion && testDifference && testSelect
+>	&& testUnion && testDifference && testProject
 
 
 --- Legal Foo ---
