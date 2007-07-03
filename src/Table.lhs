@@ -330,7 +330,7 @@ TODO: optimize! this is insanley slow :-(
 TODO: return Maybe Table to handle cases, when projection is invalid?
 
 > project :: [ColumName] -> Table -> Table
-> project [] (Tab schema _) = mkTable [] [] 
+> project [] (Tab _ _) = mkTable [] [] 
 > project wantedNames (Tab header rows) =
 > 	Tab newHeader newRows
 >	where
@@ -492,6 +492,20 @@ empty table with schema of table1,2,3 .
 >	  (table23, table2, table3)
 >	]
 
+> testIntersection = assertfun2 intersection "intersection"
+>	[ (tableEmpty, tableEmpty, tableEmpty),
+>	  (table123Empty, table1, table123Empty),
+>	  (table1, table123Empty, table123Empty),
+>	  (table123Empty, table2, table123Empty),
+>	  (table2, table123Empty, table123Empty),
+>	  (table1, table1, table1),
+>	  (table2, table2, table2),
+>	  (table3, table3, table3),
+>	  (table23, table3, table3),
+>	  (table23, table2, table2)
+>	]
+
+
 just to be able to unit test the predicates in select...
 
 > instance Show (a -> b) where
@@ -521,8 +535,7 @@ projections on table23
 >
 > table23Name = mkTable [("Name",String)] [
 >       [StrLit "fb"],
->       [StrLit "daniel"], 
->	[Null] ]
+>       [StrLit "daniel"] ]
 
 > testProject = assertfun2 project "project"
 >	[ ([], tableEmpty, tableEmpty),
@@ -543,16 +556,41 @@ projections on table23
 
 TODO: tests 2 + 11 fail
 
-> testCross = False
+> table1Xtable1 = mkTable
+>	[("ID",Number),("Name",String),("ID",Number),("Name",String)]
+>	[[IntLit 23, StrLit "fb", IntLit 23, StrLit "fb"],
+>	 [IntLit 23, StrLit "fb", IntLit 42, StrLit "daniel"],
+>	 [IntLit 42, StrLit "daniel", IntLit 23, StrLit "fb"],
+>	 [IntLit 42, StrLit "daniel", IntLit 42, StrLit "daniel"]] 
 
-TODO: impl.
+> testCross = assertfun2 cross "cross"
+>	[ (tableEmpty, tableEmpty, tableEmpty),
+>	  (table123Empty, table1, Tab [("ID",Number), ("Name",String),
+>				       ("ID",Number),("Name",String)]
+>		                       (Set.fromList [])),
+>	  (table1, table123Empty, Tab [("ID",Number), ("Name",String),
+>				       ("ID",Number),("Name",String)]
+>		                       (Set.fromList [])),
+
+>	  (table1, table1, table1Xtable1),
+>	  (table123Empty, table123Empty, mkTable
+>		[("ID",Number), ("Name",String), ("ID",Number),
+>		 ("Name",String)]
+>		[])
+>	  -- TODO:
+>	  -- (table1, table1, XXX),
+>	  -- (table2, table2, XXX),
+>	  -- (table3, table3, XXX),
+>	  -- (table23, table3, XXX),
+>	  -- (table23, table2, XXX)
+>	]
 
 --- Putting it all together(tm) ---
 -----------------------------------
 
 > testAll = testCheckTypes && testCheckTable
 >	&& testSchema && testColumNames
->	&& testUnion && testDifference
+>	&& testUnion && testDifference && testIntersection
 >	&& testSelect && testProject
 >	&& testCross
 
