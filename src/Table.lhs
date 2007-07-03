@@ -253,7 +253,7 @@ The reason for this is, that I (fb) want it to be leazy
 > difference :: Table -> Table -> Table
 > difference = applyOnTableSets Set.difference
 
-TODO: impl. $foo type class to have op + and - 
+TODO: impl. $foo type class to have ops lie + and - 
 	as table union and diffrence?
 
 Projection
@@ -399,7 +399,7 @@ empty table with schema of table1,2,3 .
 >	  (table23, table2, table3)
 >	]
 
-selections on table23
+projections on table23
 
 > table23ID = mkTable [("ID",Number)] [
 >       [IntLit 23],
