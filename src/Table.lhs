@@ -467,6 +467,20 @@ empty table with schema of table1,2,3 .
 >	  (table23, table2, table3)
 >	]
 
+> testIntersection = assertfun2 intersection "intersection"
+>	[ (tableEmpty, tableEmpty, tableEmpty),
+>	  (table123Empty, table1, table123Empty),
+>	  (table1, table123Empty, table123Empty),
+>	  (table123Empty, table2, table123Empty),
+>	  (table2, table123Empty, table123Empty),
+>	  (table1, table1, table1),
+>	  (table2, table2, table2),
+>	  (table3, table3, table3),
+>	  (table23, table3, table3),
+>	  (table23, table2, table2)
+>	]
+
+
 just to be able to unit test the predicates in select...
 
 > instance Show (a -> b) where
