@@ -226,7 +226,7 @@ TODO: impl. $foo type class to have op + and -
 >	else
 >		error ("difference: Invalid table: " ++ show t2
 >			++ "schema is empty but rows are not!" ) 
-> difference t1 t2@(Tab [] rows) = union t2 t1
+> difference t1 t2@(Tab [] rows) = difference t2 t1
 > difference (Tab head1 rows1) (Tab _ rows2) =
 >	mkTableFromSet head1 (Set.difference rows1 rows2)
 
@@ -312,12 +312,16 @@ unit test of checkTable
 Format of assertfun2 is:
 assertfun f name_of_f [ (param1, param2, expected) ]
 
+empty table with schema of table1,2,3 .
+
+> table123Empty = mkTable [("ID",Number), ("Name",String)] []
+
 > testUnion = assertfun2 union "union" 
 >	[ (tableEmpty, tableEmpty, tableEmpty),
->	  (tableEmpty, table1, table1),
->	  (table1, tableEmpty, table1),
->	  (tableEmpty, table2, table2),
->	  (table2, tableEmpty, table2),
+>	  (table123Empty, table1, table1),
+>	  (table1, table123Empty, table1),
+>	  (table123Empty, table2, table2),
+>	  (table2, table123Empty, table2),
 >	  (table1, table1, table1),
 >	  (table2, table2, table2),
 >	  (table3, table3, table3),
@@ -327,13 +331,13 @@ assertfun f name_of_f [ (param1, param2, expected) ]
 
 > testDifference = assertfun2 difference "difference"
 >	[ (tableEmpty, tableEmpty, tableEmpty),
->	  (tableEmpty, table1, tableEmpty),
->	  (table1, tableEmpty, table1),
->	  (tableEmpty, table2, tableEmpty),
->	  (table2, tableEmpty, table2),
->	  (table1, table1, tableEmpty),
->	  (table2, table2, tableEmpty),
->	  (table3, table3, tableEmpty),
+>	  (table123Empty, table1, table123Empty),
+>	  (table1, table123Empty, table1),
+>	  (table123Empty, table2, table123Empty),
+>	  (table2, table123Empty, table2),
+>	  (table1, table1, table123Empty),
+>	  (table2, table2, table123Empty),
+>	  (table3, table3, table123Empty),
 >	  (table23, table3, table2),
 >	  (table23, table2, table3)
 >	]
