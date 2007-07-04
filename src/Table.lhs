@@ -185,17 +185,18 @@ check the types when createing or changeing a Table at runtime.
 >       deriving (Eq)
 
 > mkTable :: TableHeader -> [Row] -> Table
-> mkTable header rows = Tab header (Set.fromList rows)
+> mkTable header rows = if checkTable tab then tab
+>      else error "the table contains invalid values"
+>      where tab = mkTableLeazy header rows
 
 > mkTableFromSet :: TableHeader -> Set.Set Row -> Table
 > mkTableFromSet header rows = Tab header rows
 
-TODO: error will fuck up unit test :(
-      and infinite Tables won't be possible if we check them first :(
+creates a Table without checking the schema. This allows to create
+infinite leazy tables ...
 
->-- mkTable header rows = if checkTable tab then tab
->--       else error "the table contains invalid valuse"
->--       where tab = 
+> mkTableLeazy :: TableHeader -> [Row] -> Table
+> mkTableLeazy header rows = Tab header (Set.fromList rows)
 
 Note: mkTable [] [[]] is considered invalid
 
@@ -428,7 +429,7 @@ union of table 2 and table 3
 >       [Null, StrLit "daniel"], 
 >       [IntLit 42, StrLit "daniel"]  ]
 
-> tableInvalid = mkTable [("ID",Number), ("Name",String)] [
+> tableInvalid = mkTableLeazy [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [CharLit 'a', StrLit "daniel"]  ]
 
