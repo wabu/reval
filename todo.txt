@@ -16,7 +16,11 @@ format: **{0,*} <TODO-ITEM> (<USERNAME-WHO-ADDED-IT>) [<USERNAME-OF-PERSON-TO-DO
 ** renaming (fb)
 
 * nice to have
+** read tables from file (wabu)
 ** mkLeazyTable (fb) - done!
+** build a DSL using (fb)
+*** evalate template haskell:
+**** http://www.haskell.org/hawiki/TemplateHaskellTutorial
 
 * misc (fb)
 ** Update spec (fb) [fb]
