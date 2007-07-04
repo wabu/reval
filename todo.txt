@@ -15,6 +15,10 @@ format: **{0,*} <TODO-ITEM> (<USERNAME-WHO-ADDED-IT>) [<USERNAME-OF-PERSON-TO-DO
 ** pi/selection (fb) - done!
 ** renaming (fb)
 
+* non-functional features
+** performance
+*** evalute -prof profiling (fb)
+
 * nice to have
 ** read tables from file (wabu)
 ** mkLeazyTable (fb) - done!
