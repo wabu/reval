@@ -27,8 +27,6 @@ column, but with arbitrary length.
 > import qualified Data.Set as Set
 
 
-
-
 -- Our First Try --
 -------------------
 
@@ -85,7 +83,6 @@ Well, screw it, just use ASTs
 --- Basic AST Types ---
 -----------------------
 Lit is a Literal.
-TODO: impl. own Show and Read ...
 
 > data Lit = Null | IntLit Int | StrLit String | CharLit Char |
 >       BoolLit Bool
@@ -295,8 +292,6 @@ The reason for this is, that I (fb) want it to be leazy
 > difference :: Table -> Table -> Table
 > difference = applyOnTableSets Set.difference
 
-TODO: intersection untested (fb's fault)
-
 > intersection :: Table -> Table -> Table
 > intersection = applyOnTableSets Set.intersection
 
@@ -304,7 +299,6 @@ cross-join
 
 cross table1 table2 -- looks good, imho...
 
-TODO: test draft,
 TOOD: optimize, Set.toList sux!
 
 > cross :: Table -> Table -> Table
@@ -324,7 +318,6 @@ FIXME: is there a diffrence in a Set {{}} and {} in relation algebra?
 
 Projection
 
-TODO: cleanup this mess, 2 testcases fail ...
 TODO: optimize! this is insanley slow :-(
 TODO: return Maybe Table to handle cases, when projection is invalid?
 
@@ -354,14 +347,12 @@ find postion of an elemt in a List
 >		else
 >			pos' xs (i + 1)
 
- > project projectedNames (Tab header rows) =
- >	map (filter (\(name,_) -> name `elem` projectedNames) . (\(n,v) -> v)) namedRows
- >	where 
- >	(names,_) = header 
- >	namedRows = map (zip names) rows
+syntatic sugar
 
-TODO: impl. $foo type class to have ops like + and - 
-	as table union and diffrence?
+> (&&&) = intersection
+> (|||) = union
+> (***) = cross
+> -- () = difference -- TODO: find nice op
 
 -- UnitTesting --
 ------------------
@@ -508,7 +499,7 @@ empty table with schema of table1,2,3 .
 just to be able to unit test the predicates in select...
 
 > instance Show (a -> b) where
-> 	show _ = "(\a -> b) :: (a -> b)"
+> 	show _ = "(\\a -> b) :: (a -> b)"
 
 selections on table2
 
