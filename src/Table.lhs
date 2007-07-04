@@ -275,6 +275,11 @@ mostly on mkTable to create only valid tables.
 The reason for this is, that I (fb) want it to be leazy
 (as in operate on infinite tables).
 
+TODO: think about error handling
+	1. use Maybe or return empty tables?
+	2. use error?
+	3. when to use Maybe and when to use error?
+
 > applyOnTableSets :: (Set.Set Row -> Set.Set Row -> Set.Set Row) -> Table -> Table -> Table
 > applyOnTableSets _ t1@(Tab [] rows) t2 = 
 >	if Set.null rows then
@@ -319,7 +324,6 @@ FIXME: is there a diffrence in a Set {{}} and {} in relation algebra?
 Projection
 
 TODO: optimize! this is insanley slow :-(
-TODO: return Maybe Table to handle cases, when projection is invalid?
 
 > project :: [ColumName] -> Table -> Table
 > project [] (Tab _ _) = mkTable [] [] 
