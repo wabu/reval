@@ -22,6 +22,10 @@
 >   project,
 >   select,
 >   testPrimeOps,
+>   (|||),
+>   (\\\),
+>   (&&&),
+>   (***),
 > )
 > where
 >
@@ -121,7 +125,7 @@ syntatic sugar
 > (&&&) = intersection
 > (|||) = union
 > (***) = cross
-> -- () = difference -- TODO: find nice op
+> (\\\) = difference
 
 -- UnitTesting --
 ------------------

@@ -15,7 +15,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 > module Reval where
->
+> -- TODO: declare exports + export testAll
 > import Primes
 > import Table
 > import PrimeOps

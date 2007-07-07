@@ -4,19 +4,26 @@ format: **{0,*} <TODO-ITEM> (<USERNAME-WHO-ADDED-IT>) [<USERNAME-OF-PERSON-TO-DO
 
 * basic features
 ** basic types
-*** show and read function (wabu)
-*** ?create an abstraction layer? (wabu)
-** intersection (fb)
-** union (fb)
-** substraction (fb)
-** cross join (fb)
-** sigma/projection (fb)
-** pi/selection (fb)
+*** show and read function (wabu) - mostly done
+*** use new Lit type for Table (wabu)
+** intersection (fb) - done!
+** union (fb) - done!
+** substraction (fb) - done!
+** cross join (fb) - done!
+** sigma/projection (fb) - done!
+** pi/selection (fb) - done!
 ** renaming (fb)
 
+* non-functional features
+** performance
+*** evalute -prof profiling (fb)
+
 * nice to have
-** read Tables form files
-** mkLeazyTable (fb)
+** read tables from file (wabu)
+** mkLeazyTable (fb) - done!
+** build a DSL using (fb)
+*** evalate template haskell:
+**** http://www.haskell.org/hawiki/TemplateHaskellTutorial
 
 * misc (fb)
 ** Update spec (fb) [fb]
