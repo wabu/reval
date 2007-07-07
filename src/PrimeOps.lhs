@@ -22,10 +22,10 @@
 >   project,
 >   select,
 >   testPrimeOps,
->--   (|||),
->--   (\\\),
->--   (&&&),
->--   (***),
+>   (|||),
+>   (\\\),
+>   (&&&),
+>   (***),
 > )
 > where
 >
@@ -124,10 +124,14 @@ find postion of an elemt in a List
 
 syntatic sugar
 
->-- (&&&) = intersection
->-- (|||) = union
->-- (***) = cross
->-- (\\\) = difference
+> (&&&) :: (Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
+> (&&&) = intersection
+> (|||) :: (Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
+> (|||) = union
+> (***) :: (Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
+> (***) = cross
+> (\\\) :: (Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
+> (\\\) = difference
 
 -- UnitTesting --
 ------------------
