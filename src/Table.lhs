@@ -44,9 +44,9 @@ column, but with arbitrary length.
 Now Rows and Tables are easy, as we just can use a Set of List. We only have to
 check the types when createing or changeing a Table at runtime.
 
-> type Row = [Lit]
+> type Row = [SimpleLit]
 > type ColumnName = String
-> type ColumnHeader = (ColumnName, Type)
+> type ColumnHeader = (ColumnName, SimpleType)
 > type TableHeader = [ColumnHeader]
 >
 > data Table = Tab TableHeader (Set.Set Row) 
@@ -74,12 +74,12 @@ Note: mkTable [] [[]] is considered invalid
 >       where 
 >           types = map snd heads
 >           size = length heads
->           ctypes = Set.fold ((==) . all (uncurry checkLitType) . zip types) True rows
+>           ctypes = Set.fold ((==) . all (uncurry checkType) . zip types) True rows
 >           clength = Set.fold ((==) . (size ==) . length) True rows
 
 getters for Table ADT
 
-> schema :: Table -> [Type]
+> schema :: Table -> [SimpleType]
 > schema (Tab header _) = map (\(_,t) -> t) header
 
 > columNames :: Table -> [ColumnName]
@@ -121,7 +121,7 @@ show and read instance for the table
 >       [ ([],'|':u) | ("||",u) <- lex s]
 > readsRow :: ReadS Row
 > readsRow s = 
->       [ (l:r,w) | ("|", u) <- lex s, (l, v) <- readsLit u,(r, w) <- readsRow v] ++
+>       [ (l:r,w) | ("|", u) <- lex s, (l, v) <- reads u,(r, w) <- readsRow v] ++
 >       [ ([],u) | ("|",u) <- lex s, ("|",v) <- lex u] ++
 >       [ ([],u) | ("|",u) <- lex s, ("",v) <- lex u] ++
 >       [ ([],'|':u) | ("||",u) <- lex s]

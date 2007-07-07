@@ -1,11 +1,24 @@
+- rel-eval is a leazy relational algebra interpreter written in haskell. -
+
+  Copyright (C) 2007  Daniel Waeber, Fabian Bieker
+  
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as 
+  published by the Free Software Foundation, version 3 of the License.
+  
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 > module Primes (
 >   Type(..),
->   readsLit, -- TODO: abstraction!
->   Lit(..),
->   checkType,
->   getLitType,
->   checkLitType,
->   cmpLitType,
+>   Literal(..),
+>   SimpleType(..),
+>   SimpleLit(..),
 >   testPrimes,
 > )
 > where
@@ -71,21 +84,42 @@ Well, screw it, just use ASTs
 -----------------------
 Lit is a Literal.
 
-> data Lit = Null | IntLit Int | StrLit String | CharLit Char |
+> data SimpleLit = Null | IntLit Int | StrLit String | CharLit Char |
 >       BoolLit Bool
 >       deriving (Eq)
 
 Type is used to store Type information in the table schema.
 Note: Null has Type Any.
 
-> data Type = Any | Number | String | Char | Bool
+> data SimpleType = Any | Number | String | Char | Bool
 >       deriving (Show, Eq, Read)
 
 Now we can just use Lists as rows, as all data just has the type Lit.
 
-Ord for Lit needed to stuff Lits in Sets
+--- Type System Classes ---
+---------------------------
 
-> instance Ord Lit where
+As these Types are just not only a short list, we give the user the abillity to
+create his own typesystem
+
+> class (Eq t, Show t, Read t) => Type t where
+>       -- check if to types Are compatible
+>       check :: t -> t -> Bool
+
+> class (Ord l, Show l, Read l, Type t) => Literal l t where
+>       -- get the type of a literal
+>       getType :: l -> t
+>
+>       -- check if the Litral is compatible to type
+>       checkType :: t -> l -> Bool
+>       checkType typ lit = check typ (getType lit)
+
+--- Implmentation ---
+---------------------
+
+Ord for SimpleLit needed to stuff SimpleLits in Sets
+
+> instance Ord SimpleLit where
 >       compare Null Null = EQ
 >       compare (IntLit a) (IntLit b) = compare a b 
 >       compare (StrLit a) (StrLit b) = compare a b 
@@ -101,58 +135,42 @@ Ord for Lit needed to stuff Lits in Sets
 >       compare (CharLit _) _ = LT
 >       compare _ (CharLit _) = GT
 
-Own Show and Read for Lits
+Own Show and Read for SimpleLits
 
-> showsLit :: Lit -> ShowS
+> showsLit :: SimpleLit -> ShowS
 > showsLit Null = ("Null" ++)
 > showsLit (IntLit l) = shows l
 > showsLit (StrLit l) = shows l
 > showsLit (CharLit l) = shows l
 > showsLit (BoolLit l) = shows l
-> instance Show Lit where showsPrec _ = showsLit
+> instance Show SimpleLit where showsPrec _ = showsLit
 
-> readsLit :: ReadS Lit
-> readsLit s = [(Null,s) | ("Null", s) <- lex s ] ++
->              [(IntLit l, s) | (l,s) <- reads s ] ++
->              [(StrLit l, s) | (l,s) <- reads s ] ++
->              [(CharLit l, s) | (l,s) <- reads s ] ++
->              [(BoolLit l, s) | (l,s) <- reads s ]
-> instance Read Lit where readsPrec _ = readsLit
+> readsLit :: ReadS SimpleLit
+> readsLit s = 
+>       [(IntLit l, s) | (l,s) <- reads s ] ++
+>       [(StrLit l, s) | (l,s) <- reads s ] ++
+>       [(CharLit l, s) | (l,s) <- reads s ] ++
+>       [(BoolLit l, s) | (l,s) <- reads s ] ++
+>       [(Null,s) | ("Null", s) <- lex s ]
+> instance Read SimpleLit where readsPrec _ = readsLit
 
 check it two types are compatilbe
 
-> checkType :: Type -> Type -> Bool
-> checkType Any _ = True
-> checkType _ Any = True
-> checkType Number Number = True
-> checkType String String = True
-> checkType Char Char = True
-> checkType Bool Bool = True
-> checkType _ _ = False
+> instance Type SimpleType where
+>       check Any _ = True
+>       check _ Any = True
+>       check Number Number = True
+>       check String String = True
+>       check Char Char = True
+>       check Bool Bool = True
+>       check _ _ = False
 
-get type information
-
-> getLitType :: Lit -> Type
-> getLitType Null = Any
-> getLitType (IntLit _) = Number
-> getLitType (StrLit _) = String
-> getLitType (CharLit _) = Char
-> getLitType (BoolLit _) = Bool
-
-check for right type
-
-> checkLitType :: Type -> Lit -> Bool
-> checkLitType t l = checkType t $ getLitType l
-
-compare the Type of two Lits
-
-> cmpLitType :: Lit -> Lit -> Bool
-> cmpLitType Null Null = True
-> cmpLitType (IntLit _) (IntLit _) = True
-> cmpLitType (StrLit _) (StrLit _) = True
-> cmpLitType (CharLit _) (CharLit _) = True
-> cmpLitType (BoolLit _) (BoolLit _) = True
-> cmpLitType _ _ = False
+> instance Literal SimpleLit SimpleType where
+>       getType Null = Any
+>       getType (IntLit _) = Number
+>       getType (StrLit _) = String
+>       getType (CharLit _) = Char
+>       getType (BoolLit _) = Bool
 
 -- UnitTesting --
 ------------------
@@ -165,25 +183,18 @@ compare the Type of two Lits
 > types = [Number, String, Char, Bool]
 > lits  = [int, str, chr, bool]
 
-> testCheckTypeEq = assertfun2 checkType "checkType"
+> testCheckCheck = assertfun2 check "check"
 >       ( [(a,a,True) | a <- types] ++
 >         [(a,Any,True) | a <- types] ++
 >         [(a,Bool,False) | a <- [String,Number,Char]] ++
->         [(a,b,checkType b a) | a <- types, b <- types] ++
+>         [(a,b,check b a) | a <- types, b <- types] ++
 >         [(Any,Any,True)] )
 
-> testCheckLitType = assertfun2 checkLitType "checkLitType"
+> testCheckCheckType = assertfun2 checkType "checkType"
 >       ( [(t,l,True) | (t,l) <- zip types lits] ++
 >         [(t,l,False) | i <- [1..4], l <- drop i lits, t <- take i types] ++
 >         [(t,l,False) | i <- [1..4], l <- take i lits, t <- drop i types] ++
 >         [(Any,l,True) | l <- lits] )
 
-> testCheckCmpType = assertfun2 cmpLitType "cmpLitType"
->       ( [(a,b,True) | (a,b) <- zip lits lits] ++
->         [(a,b,False) | i <- [1..4], a <- drop i lits, b <- take i lits] ++
->         [(a,b,False) | i <- [1..4], a <- take i lits, b <- drop i lits] ++
->         [(a,b,cmpLitType b a) | a <- lits, b <- lits] ++
->         [(Null,l,False) | l <- lits] ++ [(Null,Null,True)] )
-
-> testPrimes = testCheckTypeEq && testCheckLitType && testCheckCmpType
+> testPrimes = testCheckCheck && testCheckCheckType
 
