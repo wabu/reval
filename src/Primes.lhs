@@ -106,7 +106,7 @@ create his own typesystem
 >       -- check if to types Are compatible
 >       check :: t -> t -> Bool
 
-> class (Ord l, Show l, Read l, Type t) => Literal l t where
+> class (Eq l, Ord l, Show l, Read l, Type t) => Literal l t where
 >       -- get the type of a literal
 >       getType :: l -> t
 >

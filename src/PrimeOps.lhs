@@ -22,10 +22,10 @@
 >   project,
 >   select,
 >   testPrimeOps,
->   (|||),
->   (\\\),
->   (&&&),
->   (***),
+>--   (|||),
+>--   (\\\),
+>--   (&&&),
+>--   (***),
 > )
 > where
 >
@@ -48,7 +48,9 @@ The reason for this is, that I (fb) want it to be leazy
 
 TODO: rename
 
-> applyOnTableSets :: (Set.Set Row -> Set.Set Row -> Set.Set Row) -> Table -> Table -> Table
+> applyOnTableSets :: (Literal l t) =>
+>       (Set.Set (Row l t) -> Set.Set (Row l t) -> Set.Set (Row l t)) 
+>       -> (Table l t) -> (Table l t) -> (Table l t)
 > applyOnTableSets _ t1@(Tab [] rows) t2 = 
 >	if Set.null rows then
 >		t2
@@ -59,13 +61,13 @@ TODO: rename
 > applyOnTableSets f (Tab head1 rows1) (Tab _ rows2) =
 >	mkTableFromSet head1 (f rows1 rows2)
 
-> union :: Table -> Table -> Table
+> union :: (Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
 > union = applyOnTableSets Set.union
 
-> difference :: Table -> Table -> Table
+> difference :: (Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
 > difference = applyOnTableSets Set.difference
 
-> intersection :: Table -> Table -> Table
+> intersection :: (Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
 > intersection = applyOnTableSets Set.intersection
 
 cross-join
@@ -74,7 +76,7 @@ cross table1 table2 -- looks good, imho...
 
 TOOD: optimize, Set.toList sux!
 
-> cross :: Table -> Table -> Table
+> cross :: (Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
 > cross (Tab h1 r1) (Tab h2 r2) =
 >	mkTable newHeader [ x++y | x <- l1, y <- l2]
 >	where
@@ -82,7 +84,7 @@ TOOD: optimize, Set.toList sux!
 >	l1 = Set.toList r1
 >	l2 = Set.toList r2
 
-> select :: (Row -> Bool) -> Table -> Table
+> select :: (Literal l t) => ((Row l t) -> Bool) -> (Table l t) -> (Table l t)
 > select p (Tab head rows) = mkTableFromSet head (Set.filter p rows)
 
 FIXME: is there a diffrence in a Set {{}} and {} in relation algebra?
@@ -94,7 +96,7 @@ Projection
 TODO: optimize! this is insanley slow :-(
 TODO: return Maybe Table to handle cases, when projection is invalid?
 
-> project :: [ColumnName] -> Table -> Table
+> project :: (Literal l t) => [ColumnName] -> (Table l t) -> (Table l t)
 > project [] (Tab _ _) = mkTable [] [] 
 > project wantedNames (Tab header rows) =
 > 	Tab newHeader newRows
@@ -122,10 +124,10 @@ find postion of an elemt in a List
 
 syntatic sugar
 
-> (&&&) = intersection
-> (|||) = union
-> (***) = cross
-> (\\\) = difference
+>-- (&&&) = intersection
+>-- (|||) = union
+>-- (***) = cross
+>-- (\\\) = difference
 
 -- UnitTesting --
 ------------------

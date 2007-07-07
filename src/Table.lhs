@@ -44,31 +44,31 @@ column, but with arbitrary length.
 Now Rows and Tables are easy, as we just can use a Set of List. We only have to
 check the types when createing or changeing a Table at runtime.
 
-> type Row = [SimpleLit]
+> type Row l t = [l]
 > type ColumnName = String
-> type ColumnHeader = (ColumnName, SimpleType)
-> type TableHeader = [ColumnHeader]
+> type ColumnHeader l t = (ColumnName, t)
+> type TableHeader l t = [ColumnHeader l t]
 >
-> data Table = Tab TableHeader (Set.Set Row) 
+> data (Literal l t) => Table l t = Tab (TableHeader l t) (Set.Set (Row l t)) 
 >       deriving (Eq)
 
-> mkTable :: TableHeader -> [Row] -> Table
+> mkTable :: (Literal l t) => (TableHeader l t) -> [(Row l t)] -> (Table l t)
 > mkTable header rows = if checkTable tab then tab
 >      else error "the table contains invalid values"
 >      where tab = mkTableLazy header rows
 
-> mkTableFromSet :: TableHeader -> Set.Set Row -> Table
+> mkTableFromSet :: (Literal l t) => (TableHeader l t) -> Set.Set (Row l t) -> (Table l t)
 > mkTableFromSet header rows = Tab header rows
 
 creates a Table without checking the schema. This allows to create
 infinite leazy tables ...
 
-> mkTableLazy :: TableHeader -> [Row] -> Table
+> mkTableLazy :: (Literal l t) => (TableHeader l t) -> [Row l t] -> (Table l t)
 > mkTableLazy header rows = Tab header (Set.fromList rows)
 
 Note: mkTable [] [[]] is considered invalid
 
-> checkTable :: Table -> Bool
+> checkTable :: (Literal l t) => (Table l t) -> Bool
 > checkTable (Tab [] rows) = Set.null rows
 > checkTable (Tab heads rows) = ctypes && clength
 >       where 
@@ -79,15 +79,15 @@ Note: mkTable [] [[]] is considered invalid
 
 getters for Table ADT
 
-> schema :: Table -> [SimpleType]
+> schema :: (Literal l t) => (Table l t) -> [t]
 > schema (Tab header _) = map (\(_,t) -> t) header
 
-> columNames :: Table -> [ColumnName]
+> columNames :: (Literal l t) => (Table l t) -> [ColumnName]
 > columNames (Tab header _) = map (\(name,_) -> name) header
 
 show and read instance for the table
 
-> showsTable :: Table -> ShowS
+> showsTable :: (Literal l t) => (Table l t)-> ShowS
 > showsTable (Tab header rows) = heads . alls (map mapcells (Set.toList rows))
 >       where 
 >           sp = (' ':)             -- space ShowS
@@ -108,31 +108,31 @@ show and read instance for the table
 >           lines = folds (cs .)
 >           alls :: [[ShowS]] -> ShowS
 >           alls = folds ((. ls) . lines)
-> instance Show Table where showsPrec _ = showsTable
+> instance (Literal l t) => Show (Table l t) where showsPrec _ = showsTable
 
-> readsColumnHeader :: ReadS ColumnHeader
+> readsColumnHeader :: (Read t) => ReadS (ColumnHeader l t)
 > readsColumnHeader s =
 >       [ ((n,t),w) | (n,u) <- lex s, (":",v) <- lex u, (t,w) <- reads v ]
-> readsTableHeader :: ReadS TableHeader
+> readsTableHeader :: (Read t) => ReadS (TableHeader l t)
 > readsTableHeader s =
 >       [ (l:r,w) | ("|", u) <- lex s, (l, v) <- readsColumnHeader u,(r, w) <- readsTableHeader v] ++
 >       [ ([],u) | ("|",u) <- lex s, ("|",v) <- lex u] ++
 >       [ ([],u) | ("|",u) <- lex s, ("",v) <- lex u] ++
 >       [ ([],'|':u) | ("||",u) <- lex s]
-> readsRow :: ReadS Row
+> readsRow :: (Read l) => ReadS (Row l t)
 > readsRow s = 
 >       [ (l:r,w) | ("|", u) <- lex s, (l, v) <- reads u,(r, w) <- readsRow v] ++
 >       [ ([],u) | ("|",u) <- lex s, ("|",v) <- lex u] ++
 >       [ ([],u) | ("|",u) <- lex s, ("",v) <- lex u] ++
 >       [ ([],'|':u) | ("||",u) <- lex s]
-> readsRows :: ReadS [Row]
+> readsRows :: (Read l) => ReadS [Row l t]
 > readsRows s = 
 >       [ (r:rs , v ) | (r,u) <- readsRow s, (rs,v) <- readsRows u ] ++
 >       [ ([],u) | ("",u) <- lex s]
-> readsTable :: ReadS Table
+> readsTable :: (Literal l t) => ReadS (Table l t)
 > readsTable s =
 >       [ (mkTable h r, w) | (h,u) <- readsTableHeader s, (r,w) <- readsRows u]
-> instance Read Table where readsPrec _ = readsTable
+> instance (Literal l t) => Read (Table l t) where readsPrec _ = readsTable
 
 -- UnitTesting --
 ------------------
