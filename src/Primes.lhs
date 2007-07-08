@@ -154,8 +154,6 @@ Own Show and Read for SimpleLits
 >       [(Null,s) | ("Null", s) <- lex s ]
 > instance Read SimpleLit where readsPrec _ = readsLit
 
-check it two types are compatilbe
-
 > instance Type SimpleType where
 >       check Any _ = True
 >       check _ Any = True
