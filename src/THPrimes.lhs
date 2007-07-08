@@ -34,11 +34,8 @@
 > data THType = THType TypeQ
 > data THLit  = THLit  ExpQ
 
-> printAST :: ExpQ -> IO ()
-> printAST  ast = runQ ast >>= putStrLn . show
->
-> printCode :: ExpQ -> IO ()
-> printCode ast = (runQ ast) >>= (putStrLn . pprint)
+> instance Primes.Type THType where
+>       check a b = a == b
 
 hm, this sucks, all these thing are evil Monard, how shold we implement read/show
 

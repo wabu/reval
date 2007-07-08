@@ -23,13 +23,10 @@ column, but with arbitrary length.
 
 > module Table (
 >   -- TODO: hide stuff, write getters
->   Table(Tab),
+>   Table(..),
+>   SimpleTable,
 >   Row,
->   ColumnName,
 >   TableHeader,
->   mkTable,
->   mkTableFromSet,
->   mkTableLazy,
 >   testTable,
 > )
 > where
@@ -48,46 +45,53 @@ check the types when createing or changeing a Table at runtime.
 > type ColumnName = String
 > type ColumnHeader l t = (ColumnName, t)
 > type TableHeader l t = [ColumnHeader l t]
+
+> class (Ord l, Literal l t) => Table table l t where
+>       header :: table -> TableHeader l t
+>       schema :: table -> [t]
+>       columnNames :: table -> [String]
+>       rows :: table -> [Row l t]
 >
-> data (Literal l t) => Table l t = Tab (TableHeader l t) (Set.Set (Row l t)) 
->       deriving (Eq)
+>       foldTable :: (l -> b -> b) -> b -> table -> b
+>       mapTable :: (l -> l) -> table -> Bool
+>       allTable :: (l -> Bool) -> table -> Bool
+>
+>       checkTable :: table -> Bool
+>       mkTableLazy :: (TableHeader l t) -> [(Row l t)] -> table
+>       mkTable :: (TableHeader l t) -> [(Row l t)] -> table
+>       mkTable = checkTab . mkTableLazy
+>           where 
+>               checkTab :: table -> Bool
+>               checkTab tab = if check tab then tab else error "not a valid table"
 
-> mkTable :: (Literal l t) => (TableHeader l t) -> [(Row l t)] -> (Table l t)
-> mkTable header rows = if checkTable tab then tab
->      else error "the table contains invalid values"
->      where tab = mkTableLazy header rows
+> data (Ord l, Literal l t) => SimpleTable l t = Tab (TableHeader l t) (Set.Set (Row l t)) 
 
-> mkTableFromSet :: (Literal l t) => (TableHeader l t) -> Set.Set (Row l t) -> (Table l t)
-> mkTableFromSet header rows = Tab header rows
+> instance (Ord l, Literal l t) => Table (SimpleTable l t) l t where
+>       mapTable f (Tab _ rows) = Set.map f rows
+>       foldTable f i (Tab _ rows) = Set.fold f i rows
+>       allTable f = Set.fold ((==) . f) True
 
-creates a Table without checking the schema. This allows to create
-infinite leazy tables ...
+>       schema = map snd . header
+>       columnNames (Tab header _) = map (\(name,_) -> name) header
 
-> mkTableLazy :: (Literal l t) => (TableHeader l t) -> [Row l t] -> (Table l t)
-> mkTableLazy header rows = Tab header (Set.fromList rows)
+
+>       mkTableLazy header rows = Tab header (Set.fromList rows)
 
 Note: mkTable [] [[]] is considered invalid
 
-> checkTable :: (Literal l t) => (Table l t) -> Bool
-> checkTable (Tab [] rows) = Set.null rows
-> checkTable (Tab heads rows) = ctypes && clength
->       where 
->           types = map snd heads
->           size = length heads
->           ctypes = Set.fold ((==) . all (uncurry checkType) . zip types) True rows
->           clength = Set.fold ((==) . (size ==) . length) True rows
+>       checkTable (Tab [] rows) = Set.null rows
+>       checkTable tab = ctypes && clength
+>           where 
+>               size = length $ header tab
+>               ctypes = Set.fold ((==) . all (uncurry checkType) . zip header) True tab
+>               clength = Set.fold ((==) . (size ==) . length) True tab
 
-getters for Table ADT
-
-> schema :: (Literal l t) => (Table l t) -> [t]
-> schema (Tab header _) = map (\(_,t) -> t) header
-
-> columNames :: (Literal l t) => (Table l t) -> [ColumnName]
-> columNames (Tab header _) = map (\(name,_) -> name) header
+> mkTableFromSet :: (Literal l t) => (TableHeader l t) -> Set.Set (Row l t) -> (SimpleTable l t)
+> mkTableFromSet header rows = Tab header rows
 
 show and read instance for the table
 
-> showsTable :: (Literal l t) => (Table l t)-> ShowS
+> showsTable :: (Show l, Show t, Literal l t) => (SimpleTable l t)-> ShowS
 > showsTable (Tab header rows) = heads . alls (map mapcells (Set.toList rows))
 >       where 
 >           sp = (' ':)             -- space ShowS
@@ -108,7 +112,7 @@ show and read instance for the table
 >           lines = folds (cs .)
 >           alls :: [[ShowS]] -> ShowS
 >           alls = folds ((. ls) . lines)
-> instance (Literal l t) => Show (Table l t) where showsPrec _ = showsTable
+> instance (Show l, Show t, Literal l t) => Show (SimpleTable l t) where showsPrec _ = showsTable
 
 > readsColumnHeader :: (Read t) => ReadS (ColumnHeader l t)
 > readsColumnHeader s =
@@ -129,10 +133,10 @@ show and read instance for the table
 > readsRows s = 
 >       [ (r:rs , v ) | (r,u) <- readsRow s, (rs,v) <- readsRows u ] ++
 >       [ ([],u) | ("",u) <- lex s]
-> readsTable :: (Literal l t) => ReadS (Table l t)
+> readsTable :: (Ord l, Read l, Read t, Literal l t) => ReadS (SimpleTable l t)
 > readsTable s =
 >       [ (mkTable h r, w) | (h,u) <- readsTableHeader s, (r,w) <- readsRows u]
-> instance (Literal l t) => Read (Table l t) where readsPrec _ = readsTable
+> instance (Ord l, Read l, Read t, Literal l t) => Read (SimpleTable l t) where readsPrec _ = readsTable
 
 -- UnitTesting --
 ------------------
@@ -185,7 +189,7 @@ union of table 2 and table 3
 >       [ [], [Number, String],[Number, String],
 >	  [Number, String],[Number, String] ]
 
-> testColumnNames = afun1 columNames "columNames"
+> testColumnNames = afun1 columnNames "columNames"
 >       [tableEmpty, table1, table2, table3, table123Empty]
 >       [ [], ["ID", "Name"], ["ID", "Name"], ["ID", "Name"],
 >	  ["ID", "Name"] ]

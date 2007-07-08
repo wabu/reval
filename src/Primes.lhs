@@ -102,11 +102,11 @@ Now we can just use Lists as rows, as all data just has the type Lit.
 As these Types are just not only a short list, we give the user the abillity to
 create his own typesystem
 
-> class (Eq t, Show t, Read t) => Type t where
+> class Type t where
 >       -- check if to types Are compatible
 >       check :: t -> t -> Bool
 
-> class (Eq l, Ord l, Show l, Read l, Type t) => Literal l t where
+> class (Type t) => Literal l t where
 >       -- get the type of a literal
 >       getType :: l -> t
 >

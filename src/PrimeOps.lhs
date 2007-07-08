@@ -48,26 +48,26 @@ The reason for this is, that I (fb) want it to be leazy
 
 TODO: rename
 
-> applyOnTableSets :: (Literal l t) =>
+> applyOnTableSets :: (Ord l, Literal l t) =>
 >       (Set.Set (Row l t) -> Set.Set (Row l t) -> Set.Set (Row l t)) 
 >       -> (Table l t) -> (Table l t) -> (Table l t)
 > applyOnTableSets _ t1@(Tab [] rows) t2 = 
 >	if Set.null rows then
 >		t2
 >	else
->		error ("applyOnTableSets: Invalid table: " ++ show t2
+>		error ("applyOnTableSets: Invalid table: " -- ++ show t2
 >			++ "schema is empty but rows are not!" ) 
 > applyOnTableSets f t1 t2@(Tab [] rows) = applyOnTableSets f t2 t1
 > applyOnTableSets f (Tab head1 rows1) (Tab _ rows2) =
 >	mkTableFromSet head1 (f rows1 rows2)
 
-> union :: (Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
+> union :: (Ord l, Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
 > union = applyOnTableSets Set.union
 
-> difference :: (Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
+> difference :: (Ord l, Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
 > difference = applyOnTableSets Set.difference
 
-> intersection :: (Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
+> intersection :: (Ord l, Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
 > intersection = applyOnTableSets Set.intersection
 
 cross-join
@@ -76,7 +76,7 @@ cross table1 table2 -- looks good, imho...
 
 TOOD: optimize, Set.toList sux!
 
-> cross :: (Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
+> cross :: (Ord l, Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
 > cross (Tab h1 r1) (Tab h2 r2) =
 >	mkTable newHeader [ x++y | x <- l1, y <- l2]
 >	where
@@ -84,7 +84,7 @@ TOOD: optimize, Set.toList sux!
 >	l1 = Set.toList r1
 >	l2 = Set.toList r2
 
-> select :: (Literal l t) => ((Row l t) -> Bool) -> (Table l t) -> (Table l t)
+> select :: (Ord l, Literal l t) => ((Row l t) -> Bool) -> (Table l t) -> (Table l t)
 > select p (Tab head rows) = mkTableFromSet head (Set.filter p rows)
 
 FIXME: is there a diffrence in a Set {{}} and {} in relation algebra?
@@ -96,7 +96,7 @@ Projection
 TODO: optimize! this is insanley slow :-(
 TODO: return Maybe Table to handle cases, when projection is invalid?
 
-> project :: (Literal l t) => [ColumnName] -> (Table l t) -> (Table l t)
+> project :: (Ord l, Literal l t) => [ColumnName] -> (Table l t) -> (Table l t)
 > project [] (Tab _ _) = mkTable [] [] 
 > project wantedNames (Tab header rows) =
 > 	Tab newHeader newRows
@@ -124,13 +124,13 @@ find postion of an elemt in a List
 
 syntatic sugar
 
-> (&&&) :: (Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
+> (&&&) :: (Ord l, Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
 > (&&&) = intersection
-> (|||) :: (Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
+> (|||) :: (Ord l, Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
 > (|||) = union
-> (***) :: (Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
+> (***) :: (Ord l, Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
 > (***) = cross
-> (\\\) :: (Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
+> (\\\) :: (Ord l, Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
 > (\\\) = difference
 
 -- UnitTesting --
