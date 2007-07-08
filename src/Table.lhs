@@ -23,10 +23,13 @@ column, but with arbitrary length.
 
 > module Table (
 >   -- TODO: hide stuff, write getters
->   Table(..),
->   SetTable,
 >   Row,
+>   ColumnName,
+>   ColumnHeader,
 >   TableHeader,
+>   Table(..),
+>   SetTable(..),
+>   mkTableFromSet,
 >   testTable,
 > )
 > where
@@ -46,7 +49,7 @@ check the types when createing or changeing a Table at runtime.
 > type ColumnHeader t = (ColumnName, t)
 > type TableHeader t = [ColumnHeader t]
 
-> class (Ord l, Type t, Literal l t) => Table tab l t | tab -> l t where
+> class (Eq t, Type t, Eq l, Ord l, Literal l t, Eq tab) => Table tab l t | tab -> l t where
 >       header :: tab -> TableHeader t
 >       schema :: tab -> [t]
 >       columnNames :: tab -> [String]
@@ -64,38 +67,39 @@ check the types when createing or changeing a Table at runtime.
 >               checkedTable t = if checkTable t then t else error "invalid table"
 
 > data (Ord l, Literal l t) => SetTable l t = SetTab (TableHeader t) (Set.Set (Row l)) 
+>       deriving Eq
 
 > instance (Ord l, Literal l t) => Table (SetTable l t) l t where
->       mapRows f (Tab head rows) = (Tab head (Set.map f rows))
->       foldRows f i (Tab _ rows) = Set.fold f i rows
->       allRows f (Tab _ rows) = Set.fold ((==) . f) True rows
+>       mapRows f (SetTab head rows) = (SetTab head (Set.map f rows))
+>       foldRows f i (SetTab _ rows) = Set.fold f i rows
+>       allRows f (SetTab _ rows) = Set.fold ((==) . f) True rows
 
->       header (Tab head _) = head 
->       schema (Tab head _) = map snd head
->       columnNames (Tab head _) = map fst head
->       rows (Tab _ rows) = Set.toList rows
+>       header (SetTab head _) = head 
+>       schema (SetTab head _) = map snd head
+>       columnNames (SetTab head _) = map fst head
+>       rows (SetTab _ rows) = Set.toList rows
 
->       mkTableUnsave h r = Tab h (Set.fromList r) 
+>       mkTableUnsave h r = SetTab h (Set.fromList r) 
 >       mkTable h r = checkedTable (mkTableUnsave h r)
 >          where 
 >               checkedTable t = if checkTable t then t else error "invalid table"
 
 Note: mkTable [] [[]] is considered invalid
 
->       checkTable (Tab [] rows) = Set.null rows
->       checkTable tab = clength -- && ctypes
+>       checkTable (SetTab [] rows) = Set.null rows
+>       checkTable tab = clength && ctypes
 >           where 
 >               size = length (header tab)
 >               clength = allRows ((size ==) . length) tab
 >               ctypes = allRows (all (uncurry checkType) . zip (schema tab)) tab
 
 > mkTableFromSet :: (Ord l, Literal l t) => (TableHeader t) -> Set.Set (Row l) -> (SetTable l t)
-> mkTableFromSet header rows = Tab header rows
+> mkTableFromSet header rows = SetTab header rows
 
 show and read instance for the table
 
 > showsTable :: (Ord l, Show l, Show t, Literal l t) => (SetTable l t)-> ShowS
-> showsTable (Tab header rows) = heads . alls (map mapcells (Set.toList rows))
+> showsTable (SetTab header rows) = heads . alls (map mapcells (Set.toList rows))
 >       where 
 >           sp = (' ':)             -- space ShowS
 >           cs = ('|':) . sp        -- column sperator

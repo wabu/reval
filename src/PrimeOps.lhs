@@ -49,25 +49,25 @@ The reason for this is, that I (fb) want it to be leazy
 TODO: rename
 
 > applyOnTableSets :: (Ord l, Literal l t) =>
->       (Set.Set (Row l t) -> Set.Set (Row l t) -> Set.Set (Row l t)) 
->       -> (Table l t) -> (Table l t) -> (Table l t)
-> applyOnTableSets _ t1@(Tab [] rows) t2 = 
+>       (Set.Set (Row l) -> Set.Set (Row l) -> Set.Set (Row l)) 
+>       -> (SetTable l t) -> (SetTable l t) -> (SetTable l t)
+> applyOnTableSets _ t1@(SetTab [] rows) t2 = 
 >	if Set.null rows then
 >		t2
 >	else
 >		error ("applyOnTableSets: Invalid table: " -- ++ show t2
 >			++ "schema is empty but rows are not!" ) 
-> applyOnTableSets f t1 t2@(Tab [] rows) = applyOnTableSets f t2 t1
-> applyOnTableSets f (Tab head1 rows1) (Tab _ rows2) =
+> applyOnTableSets f t1 t2@(SetTab [] rows) = applyOnTableSets f t2 t1
+> applyOnTableSets f (SetTab head1 rows1) (SetTab _ rows2) =
 >	mkTableFromSet head1 (f rows1 rows2)
 
-> union :: (Ord l, Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
+> union :: (Ord l, Literal l t) => (SetTable l t) -> (SetTable l t) -> (SetTable l t)
 > union = applyOnTableSets Set.union
 
-> difference :: (Ord l, Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
+> difference :: (Ord l, Literal l t) => (SetTable l t) -> (SetTable l t) -> (SetTable l t)
 > difference = applyOnTableSets Set.difference
 
-> intersection :: (Ord l, Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
+> intersection :: (Ord l, Literal l t) => (SetTable l t) -> (SetTable l t) -> (SetTable l t)
 > intersection = applyOnTableSets Set.intersection
 
 cross-join
@@ -76,16 +76,16 @@ cross table1 table2 -- looks good, imho...
 
 TOOD: optimize, Set.toList sux!
 
-> cross :: (Ord l, Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
-> cross (Tab h1 r1) (Tab h2 r2) =
+> cross :: (Ord l, Literal l t) => (SetTable l t) -> (SetTable l t) -> (SetTable l t)
+> cross (SetTab h1 r1) (SetTab h2 r2) =
 >	mkTable newHeader [ x++y | x <- l1, y <- l2]
 >	where
 >	newHeader = h1 ++ h2
 >	l1 = Set.toList r1
 >	l2 = Set.toList r2
 
-> select :: (Ord l, Literal l t) => ((Row l t) -> Bool) -> (Table l t) -> (Table l t)
-> select p (Tab head rows) = mkTableFromSet head (Set.filter p rows)
+> select :: (Ord l, Literal l t) => ((Row l) -> Bool) -> (SetTable l t) -> (SetTable l t)
+> select p (SetTab head rows) = mkTableFromSet head (Set.filter p rows)
 
 FIXME: is there a diffrence in a Set {{}} and {} in relation algebra?
 	'cause if so, the above code, is incorrect!
@@ -96,10 +96,10 @@ Projection
 TODO: optimize! this is insanley slow :-(
 TODO: return Maybe Table to handle cases, when projection is invalid?
 
-> project :: (Ord l, Literal l t) => [ColumnName] -> (Table l t) -> (Table l t)
-> project [] (Tab _ _) = mkTable [] [] 
-> project wantedNames (Tab header rows) =
-> 	Tab newHeader newRows
+> project :: (Ord l, Literal l t) => [ColumnName] -> (SetTable l t) -> (SetTable l t)
+> project [] (SetTab _ _) = mkTable [] [] 
+> project wantedNames (SetTab header rows) =
+> 	SetTab newHeader newRows
 >	where
 >	names = [n | (n,_) <- header]
 
@@ -124,13 +124,13 @@ find postion of an elemt in a List
 
 syntatic sugar
 
-> (&&&) :: (Ord l, Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
+> (&&&) :: (Ord l, Literal l t) => (SetTable l t) -> (SetTable l t) -> (SetTable l t)
 > (&&&) = intersection
-> (|||) :: (Ord l, Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
+> (|||) :: (Ord l, Literal l t) => (SetTable l t) -> (SetTable l t) -> (SetTable l t)
 > (|||) = union
-> (***) :: (Ord l, Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
+> (***) :: (Ord l, Literal l t) => (SetTable l t) -> (SetTable l t) -> (SetTable l t)
 > (***) = cross
-> (\\\) :: (Ord l, Literal l t) => (Table l t) -> (Table l t) -> (Table l t)
+> (\\\) :: (Ord l, Literal l t) => (SetTable l t) -> (SetTable l t) -> (SetTable l t)
 > (\\\) = difference
 
 -- UnitTesting --
@@ -168,9 +168,9 @@ union of table 2 and table 3
 >       [Null, StrLit "daniel"], 
 >       [IntLit 42, StrLit "daniel"]  ]
 
-> tableInvalid = mkTableLazy [("ID",Number), ("Name",String)] [
+> tableInvalid = mkTableUnsave [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
->       [CharLit 'a', StrLit "daniel"]  ]
+>       [CharLit 'a', StrLit "daniel"]  ] :: (SetTable SimpleLit SimpleType)
 
 > table123Empty = mkTable [("ID",Number), ("Name",String)] []
 
@@ -201,17 +201,17 @@ union of table 2 and table 3
 >	]
 
 > testIntersection = assertfun2 intersection "intersection"
->	[ (tableEmpty, tableEmpty, tableEmpty),
->	  (table123Empty, table1, table123Empty),
->	  (table1, table123Empty, table123Empty),
->	  (table123Empty, table2, table123Empty),
->	  (table2, table123Empty, table123Empty),
->	  (table1, table1, table1),
->	  (table2, table2, table2),
->	  (table3, table3, table3),
->	  (table23, table3, table3),
->	  (table23, table2, table2)
->	]
+> 	[ (tableEmpty, tableEmpty, tableEmpty),
+> 	  (table123Empty, table1, table123Empty),
+> 	  (table1, table123Empty, table123Empty),
+> 	  (table123Empty, table2, table123Empty),
+> 	  (table2, table123Empty, table123Empty),
+> 	  (table1, table1, table1),
+> 	  (table2, table2, table2),
+> 	  (table3, table3, table3),
+> 	  (table23, table3, table3),
+> 	  (table23, table2, table2)
+> 	]
 
 
 just to be able to unit test the predicates in select...
@@ -270,10 +270,10 @@ projections on table23
 
 > testCross = assertfun2 cross "cross"
 >	[ (tableEmpty, tableEmpty, tableEmpty),
->	  (table123Empty, table1, Tab [("ID",Number), ("Name",String),
+>	  (table123Empty, table1, SetTab [("ID",Number), ("Name",String),
 >				       ("ID",Number),("Name",String)]
 >		                       (Set.fromList [])),
->	  (table1, table123Empty, Tab [("ID",Number), ("Name",String),
+>	  (table1, table123Empty, SetTab [("ID",Number), ("Name",String),
 >				       ("ID",Number),("Name",String)]
 >		                       (Set.fromList [])),
 

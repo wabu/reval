@@ -102,7 +102,7 @@ Now we can just use Lists as rows, as all data just has the type Lit.
 As these Types are just not only a short list, we give the user the abillity to
 create his own typesystem
 
-> class Type t where
+> class (Eq t) => Type t where
 >       -- check if to types Are compatible
 >       check :: t -> t -> Bool
 
