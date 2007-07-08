@@ -27,7 +27,7 @@ column, but with arbitrary length.
 >   SimpleTable,
 >   Row,
 >   TableHeader,
->   testTable,
+>   -- testTable,
 > )
 > where
 > 
@@ -52,30 +52,30 @@ check the types when createing or changeing a Table at runtime.
 >       columnNames :: table -> [String]
 >       rows :: table -> [Row l t]
 >
->       foldTable :: (l -> b -> b) -> b -> table -> b
->       mapTable :: (l -> l) -> table -> Bool
->       allTable :: (l -> Bool) -> table -> Bool
+>       foldRows :: ((Row l t) -> b -> b) -> b -> table -> b
+>       mapRows :: ((Row l t) -> (Row l t)) -> table -> table
+>       allRows :: ((Row l t) -> Bool) -> table -> Bool
 >
 >       checkTable :: table -> Bool
 >       mkTableLazy :: (TableHeader l t) -> [(Row l t)] -> table
 >       mkTable :: (TableHeader l t) -> [(Row l t)] -> table
->       mkTable = checkTab . mkTableLazy
->           where 
->               checkTab :: table -> Bool
->               checkTab tab = if check tab then tab else error "not a valid table"
 
 > data (Ord l, Literal l t) => SimpleTable l t = Tab (TableHeader l t) (Set.Set (Row l t)) 
 
 > instance (Ord l, Literal l t) => Table (SimpleTable l t) l t where
->       mapTable f (Tab _ rows) = Set.map f rows
->       foldTable f i (Tab _ rows) = Set.fold f i rows
->       allTable f = Set.fold ((==) . f) True
+>       mapRows f (Tab head rows) = (Tab head (Set.map f rows))
+>       foldRows f i (Tab _ rows) = Set.fold f i rows
+>       allRows f (Tab _ rows) = Set.fold ((==) . f) True rows
 
->       schema = map snd . header
->       columnNames (Tab header _) = map (\(name,_) -> name) header
-
+>       header (Tab head _) = head 
+>       schema (Tab head _) = map snd head
+>       columnNames (Tab head _) = map fst head
+>       rows (Tab _ rows) = Set.toList rows
 
 >       mkTableLazy header rows = Tab header (Set.fromList rows)
+>       mkTable h r = if True --checkTable $ Tab h (Set.fromList r) 
+>                       then Tab h (Set.fromList r) 
+>                       else error "invalid table"
 
 Note: mkTable [] [[]] is considered invalid
 
@@ -86,7 +86,7 @@ Note: mkTable [] [[]] is considered invalid
 >               ctypes = Set.fold ((==) . all (uncurry checkType) . zip header) True tab
 >               clength = Set.fold ((==) . (size ==) . length) True tab
 
-> mkTableFromSet :: (Literal l t) => (TableHeader l t) -> Set.Set (Row l t) -> (SimpleTable l t)
+> {- mkT-- ableFromSet :: (Literal l t) => (TableHeader l t) -> Set.Set (Row l t) -> (SimpleTable l t)
 > mkTableFromSet header rows = Tab header rows
 
 show and read instance for the table
@@ -212,3 +212,4 @@ TODO: print Note on startup?
 >       "This is free software, and you are welcome to " ++
 >       "redistribute it under certain conditions; type LGPL.txt for " ++
 >       "details.\n"
+> -}
