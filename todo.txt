@@ -17,10 +17,13 @@ format: **{0,*} <TODO-ITEM> (<USERNAME-WHO-ADDED-IT>) [<USERNAME-OF-PERSON-TO-DO
 * non-functional features
 ** performance
 *** evalute -prof profiling (fb)
+** error handling: perhaps use: 
+??? data Info t = Success t (Info t) | Warning t String (Info t) | Error ...
 
 * nice to have
 ** read tables from file (wabu)
 ** mkLeazyTable (fb) - done!
+??? perhaps implement LazyTable as instance of Table
 ** build a DSL using (fb)
 *** evalate template haskell:
 **** http://www.haskell.org/hawiki/TemplateHaskellTutorial
