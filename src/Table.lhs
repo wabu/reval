@@ -49,7 +49,7 @@ check the types when createing or changeing a Table at runtime.
 > type ColumnHeader t = (ColumnName, t)
 > type TableHeader t = [ColumnHeader t]
 
-> class (Eq t, Type t, Eq l, Ord l, Literal l t, Eq tab) => Table tab l t | tab -> l t where
+> class (Type t, Ord l, Literal l t, Eq tab) => Table tab l t | tab -> l t where
 >       header :: tab -> TableHeader t
 >       schema :: tab -> [t]
 >       columnNames :: tab -> [String]
@@ -58,33 +58,37 @@ check the types when createing or changeing a Table at runtime.
 >       foldRows :: ((Row l) -> b -> b) -> b -> tab -> b
 >       mapRows :: ((Row l) -> (Row l)) -> tab -> tab
 >       allRows :: ((Row l) -> Bool) -> tab -> Bool
+>       allRows f = foldRows ((==) . f) True
 >
 >       checkTable :: tab -> Bool
 >       mkTableUnsave :: (TableHeader t) -> [(Row l)] -> tab
 >       mkTable :: (TableHeader t) -> [(Row l)] -> tab
 >       mkTable h r = checkedTable (mkTableUnsave h r)
->          where 
->               checkedTable t = if checkTable t then t else error "invalid table"
+>          where checkedTable t = if checkTable t 
+>                                 then t 
+>                                 else error "invalid table"
 
 > data (Ord l, Literal l t) => SetTable l t = SetTab (TableHeader t) (Set.Set (Row l)) 
 >       deriving Eq
 
+> rowSet :: (Ord l, Literal l t) => (SetTable l t) -> (Set.Set (Row l))
+> rowSet (SetTab _ rows) = rows
+
+> mkTableFromSet :: (Ord l, Literal l t) => (TableHeader t) -> Set.Set (Row l) -> (SetTable l t)
+> mkTableFromSet header rows = SetTab header rows
+
 > instance (Ord l, Literal l t) => Table (SetTable l t) l t where
 >       mapRows f (SetTab head rows) = (SetTab head (Set.map f rows))
->       foldRows f i (SetTab _ rows) = Set.fold f i rows
->       allRows f (SetTab _ rows) = Set.fold ((==) . f) True rows
+>       foldRows f i = Set.fold f i . rowSet
 
 >       header (SetTab head _) = head 
 >       schema (SetTab head _) = map snd head
 >       columnNames (SetTab head _) = map fst head
 >       rows (SetTab _ rows) = Set.toList rows
 
->       mkTableUnsave h r = SetTab h (Set.fromList r) 
->       mkTable h r = checkedTable (mkTableUnsave h r)
->          where 
->               checkedTable t = if checkTable t then t else error "invalid table"
-
 Note: mkTable [] [[]] is considered invalid
+
+>       mkTableUnsave h r = SetTab h (Set.fromList r) 
 
 >       checkTable (SetTab [] rows) = Set.null rows
 >       checkTable tab = clength && ctypes
@@ -93,8 +97,6 @@ Note: mkTable [] [[]] is considered invalid
 >               clength = allRows ((size ==) . length) tab
 >               ctypes = allRows (all (uncurry checkType) . zip (schema tab)) tab
 
-> mkTableFromSet :: (Ord l, Literal l t) => (TableHeader t) -> Set.Set (Row l) -> (SetTable l t)
-> mkTableFromSet header rows = SetTab header rows
 
 show and read instance for the table
 
