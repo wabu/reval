@@ -181,6 +181,8 @@ Own Show and Read for SimpleLits
 > types = [Number, String, Char, Bool]
 > lits  = [int, str, chr, bool]
 
+FIXME: why "CheckCheck" ? vim :%s/.../.../ snafu? (fb)
+
 > testCheckCheck = assertfun2 check "check"
 >       ( [(a,a,True) | a <- types] ++
 >         [(a,Any,True) | a <- types] ++
