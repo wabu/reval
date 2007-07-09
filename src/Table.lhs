@@ -57,8 +57,12 @@ check the types when createing or changeing a Table at runtime.
 >
 >       foldRows :: ((Row l) -> b -> b) -> b -> tab -> b
 >       mapRows :: ((Row l) -> (Row l)) -> tab -> tab
+>	-- TODO: impl. filterRows? map + filter would be nice to have
+>       -- filterRows :: ((Row l) -> (Row l)) -> tab -> tab
 >       allRows :: ((Row l) -> Bool) -> tab -> Bool
 >       allRows f = foldRows ((==) . f) True
+>       anyRow :: ((Row l) -> Bool) -> tab -> Bool
+>       anyRow f = foldRows ((||) . f) False
 >
 >       checkTable :: tab -> Bool
 >       mkTableUnsave :: (TableHeader t) -> [(Row l)] -> tab
@@ -208,11 +212,33 @@ union of table 2 and table 3
 >       [ [], ["ID", "Name"], ["ID", "Name"], ["ID", "Name"],
 >	  ["ID", "Name"] ]
 
+FIXME: more unit tests! mapRows, allRows ...
+
+show instance needed for unit testing ...
+
+> instance Show ((Row r) -> Bool)  where
+>	show _ = "(\\(Row r) -> Bool)"
+
+> testAnyRow = True
+
+FIXME: tab not Show-able, can not unit test using assertfun2 ...
+
+ > testAnyRow = assertfun2 anyRow "anyRow" [
+ >	((\x -> True), tableEmpty, False), -- by def
+ >	((\x -> True), tableEmpty, False),
+ >	((\x -> False), table2, False),
+ >	((\x -> True), table2, True),
+ >	((\x:xs -> x == Null), table2, True),
+ >	((\x:xs -> x == 2342), table2, False)
+ >	-- TODO: add more ...
+ >	]
+
 
 --- Putting it all together(tm) ---
 -----------------------------------
 
-> testTable = testCheckTable && testSchema && testColumnNames
+> testTable = testCheckTable && testSchema && testColumnNames 
+>	&& testAnyRow
 
 
 --- Legal Foo ---
