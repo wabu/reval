@@ -3,6 +3,9 @@ TODO-List for rel-eval
 format: **{0,*} <TODO-ITEM> (<USERNAME-WHO-ADDED-IT>) [<USERNAME-OF-PERSON-TO-DO-IT>]
 
 ? move done items to eof
+?? feel free :> (fb)
+
+* TESTING! (fb)
 
 * basic features
 ** basic types
@@ -24,6 +27,7 @@ format: **{0,*} <TODO-ITEM> (<USERNAME-WHO-ADDED-IT>) [<USERNAME-OF-PERSON-TO-DO
 *** evalute -prof profiling (fb)
 ** error handling: perhaps use: 
 ??? data Info t = Success t (Info t) | Warning t String (Info t) | Error ...
+???? hm, feels strange/unelegant (fb)
 
 * nice to have
 ** read tables from file (wabu)
