@@ -27,6 +27,7 @@ column, but with arbitrary length.
 >   ColumnName,
 >   ColumnHeader,
 >   TableHeader,
+>   Tab,
 >   Table(..),
 >   SetTable(..),
 >   mkTableFromSet,
@@ -74,6 +75,8 @@ check the types when createing or changeing a Table at runtime.
 
 > data (Ord l, Literal l t) => SetTable l t = SetTab (TableHeader t) (Set.Set (Row l)) 
 >       deriving Eq
+
+> type Tab = (SetTable SimpleLit SimpleType)
 
 > rowSet :: (Ord l, Literal l t) => (SetTable l t) -> (Set.Set (Row l))
 > rowSet (SetTab _ rows) = rows
@@ -182,13 +185,13 @@ union of table 2 and table 3
 >       [IntLit 23, StrLit "fb"],
 >       [Null, StrLit "fb"],
 >       [Null, StrLit "daniel"], 
->       [IntLit 42, StrLit "daniel"]  ] :: (SetTable SimpleLit SimpleType)
+>       [IntLit 42, StrLit "daniel"]  ] :: Tab
 
 > tableInvalid = mkTableUnsave [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [CharLit 'a', StrLit "daniel"]  ]
 
-> table123Empty = mkTable [("ID",Number), ("Name",String)] [] :: (SetTable SimpleLit SimpleType)
+> table123Empty = mkTable [("ID",Number), ("Name",String)] [] :: Tab
 
 
 
@@ -219,19 +222,15 @@ show instance needed for unit testing ...
 > instance Show ((Row r) -> Bool)  where
 >	show _ = "(\\(Row r) -> Bool)"
 
-> testAnyRow = True
-
-FIXME: tab not Show-able, can not unit test using assertfun2 ...
-
- > testAnyRow = assertfun2 anyRow "anyRow" [
- >	((\x -> True), tableEmpty, False), -- by def
- >	((\x -> True), tableEmpty, False),
- >	((\x -> False), table2, False),
- >	((\x -> True), table2, True),
- >	((\x:xs -> x == Null), table2, True),
- >	((\x:xs -> x == 2342), table2, False)
- >	-- TODO: add more ...
- >	]
+> testAnyRow = assertfun2 anyRow "anyRow" [
+>	((\x -> True), tableEmpty, False), -- by def
+>	((\x -> False), tableEmpty, False),
+>	((\x -> False), table2, False),
+>	((\x -> True), table2, True),
+>	((\(x:xs) -> x == Null), table2, True),
+>	((\(x:xs) -> x == (IntLit 2342)), table2, False)
+>	-- TODO: add more ...
+>	]
 
 
 --- Putting it all together(tm) ---
@@ -239,17 +238,3 @@ FIXME: tab not Show-able, can not unit test using assertfun2 ...
 
 > testTable = testCheckTable && testSchema && testColumnNames 
 >	&& testAnyRow
-
-
---- Legal Foo ---
------------------
-
-TODO: print Note on startup?
-
-> licenseNote = "rel-eval \tCopyright (C) 2007 \tDaniel Waeber, Fabian Bieker\n" ++
->       "This program comes with ABSOLUTELY NO WARRANTY; for details " ++
->       "read the LICENSE.txt file.\n" ++
->       "This is free software, and you are welcome to " ++
->       "redistribute it under certain conditions; type LGPL.txt for " ++
->       "details.\n"
-> 

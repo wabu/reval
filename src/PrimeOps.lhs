@@ -170,7 +170,7 @@ union of table 2 and table 3
 
 > tableInvalid = mkTableUnsave [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
->       [CharLit 'a', StrLit "daniel"]  ] :: (SetTable SimpleLit SimpleType)
+>       [CharLit 'a', StrLit "daniel"]  ] :: Tab
 
 > table123Empty = mkTable [("ID",Number), ("Name",String)] []
 
@@ -213,11 +213,6 @@ union of table 2 and table 3
 > 	  (table23, table2, table2)
 > 	]
 
-
-just to be able to unit test the predicates in select...
-
-> instance Show (a -> b) where
-> 	show _ = "(\\a -> b) :: (a -> b)"
 
 selections on table2
 
