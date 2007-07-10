@@ -27,6 +27,7 @@ column, but with arbitrary length.
 >   ColumnName,
 >   ColumnHeader,
 >   TableHeader,
+>   Tab,
 >   Table(..),
 >   SetTable(..),
 >   mkTableFromSet,
@@ -61,7 +62,7 @@ check the types when createing or changeing a Table at runtime.
 >       -- filterRows :: ((Row l) -> Bool) -> tab -> tab
 >	-- filterRows f = foldRows (\xs x -> if f x then x++xs else xs) []
 >       allRows :: ((Row l) -> Bool) -> tab -> Bool
->       allRows f = foldRows ((==) . f) True
+>       allRows f = foldRows ((&&) . f) True
 >       anyRow :: ((Row l) -> Bool) -> tab -> Bool
 >       anyRow f = foldRows ((||) . f) False
 >
@@ -75,6 +76,8 @@ check the types when createing or changeing a Table at runtime.
 
 > data (Ord l, Literal l t) => SetTable l t = SetTab (TableHeader t) (Set.Set (Row l)) 
 >       deriving Eq
+
+> type Tab = (SetTable SimpleLit SimpleType)
 
 > rowSet :: (Ord l, Literal l t) => (SetTable l t) -> (Set.Set (Row l))
 > rowSet (SetTab _ rows) = rows
@@ -118,10 +121,12 @@ show and read instance for the table
 >
 >           cheads (n, t) = (ss n) . (':':) . sp . (shows t)        -- column header -> [ShowS]
 >           heads = folds ((cs .) . (. sp) . cheads) header . ls    -- | cheader | cheader ... |\n
->           headlength = (map (\h -> length $ cheads h " ") header) ++ repeat 13
+>           headlength = (map (\h -> length $ cheads h "") header)
 >
 >           mapcells :: (Show a) => [a] -> [ShowS]                  -- row -> [ShowS]
->           mapcells = map (\(n,s) -> ss (take n $ (show s) ++ (repeat ' '))) . zip headlength
+>           mapcells = map 
+>                   (\(n,s) -> ((take (1 + max n (length $ show s)) (show s ++ repeat ' '))++))
+>                   . zip headlength
 >           lines :: [ShowS] -> ShowS
 >           lines = folds (cs .)
 >           alls :: [[ShowS]] -> ShowS
@@ -149,7 +154,7 @@ show and read instance for the table
 >       [ ([],u) | ("",u) <- lex s]
 > readsTable :: (Ord l, Read l, Read t, Literal l t) => ReadS (SetTable l t)
 > readsTable s =
->       [ (mkTable h r, w) | (h,u) <- readsTableHeader s, (r,w) <- readsRows u]
+>       [ (mkTableUnsave h r, w) | (h,u) <- readsTableHeader s, (r,w) <- readsRows u]
 > instance (Ord l, Read l, Read t, Literal l t) => Read (SetTable l t) where readsPrec _ = readsTable
 
 -- UnitTesting --
@@ -157,25 +162,39 @@ show and read instance for the table
 
 sample tables used for testing:
 
-> tableEmpty = mkTable [] []
+> tableEmpty = mkTable [] [] :: Tab
+> tableEmptyS = "|\n"
 
 
 > table1 = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
->       [IntLit 42, StrLit "daniel"]  ]
-
+>       [IntLit 42, StrLit "daniel"]  ] :: Tab
+> table1S = 
+>       "| ID: Number | Name: String |\n" ++
+>       "| 23         | \"fb\"         |\n" ++
+>       "| 42         | \"daniel\"     |\n" ++
+>       ""
 
 Yes, those two are valid!
 
 > table2 = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
->       [Null, StrLit "daniel"]  ]
+>       [Null, StrLit "daniel"]  ] :: Tab
+> table2S = 
+>       "| ID: Number | Name: String |\n" ++
+>       "| Null       | \"daniel\"     |\n" ++
+>       "| 23         | \"fb\"         |\n" ++
+>       ""
 
 >
 > table3 = mkTable [("ID",Number), ("Name",String)] [
 >       [Null, StrLit "fb"],
->       [IntLit 42, StrLit "daniel"]  ]
-
+>       [IntLit 42, StrLit "daniel"]  ] :: Tab
+> table3S = 
+>       "| ID: Number | Name: String |\n" ++
+>       "| Null       | \"fb\"         |\n" ++
+>       "| 42         | \"daniel\"     |\n" ++
+>       ""
 
 union of table 2 and table 3
 
@@ -183,15 +202,47 @@ union of table 2 and table 3
 >       [IntLit 23, StrLit "fb"],
 >       [Null, StrLit "fb"],
 >       [Null, StrLit "daniel"], 
->       [IntLit 42, StrLit "daniel"]  ] :: (SetTable SimpleLit SimpleType)
+>       [IntLit 42, StrLit "daniel"]  ] :: Tab
+> table23S =
+>       "| ID: Number | Name: String |\n" ++
+>       "| 23         | \"fb\"         |\n" ++
+>       "| Null       | \"fb\"         |\n" ++
+>       "| Null       | \"daniel\"     |\n" ++
+>       "| 42         | \"daniel\"     |\n" ++
+>       ""
 
 > tableInvalid = mkTableUnsave [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
->       [CharLit 'a', StrLit "daniel"]  ]
+>       [CharLit 'a', StrLit "daniel"]  ] :: Tab
+> tableInvalidS = 
+>       "| ID: Number | Name: String |\n" ++
+>       "| 23         | \"fb\"         |\n" ++
+>       "| 'a'        | \"daniel\"     |\n" ++
+>       ""
 
-> table123Empty = mkTable [("ID",Number), ("Name",String)] [] :: (SetTable SimpleLit SimpleType)
+> table123Empty = mkTable [("ID",Number), ("Name",String)] [] :: Tab
+> table123EmptyS = 
+>       "| ID: Number | Name: String |\n" ++
+>       ""
 
+> tableLong = mkTable [("i",Number), ("Name",String)] [
+>       [IntLit (-100000000), StrLit "fb"],
+>       [IntLit 42, StrLit "Daniel Waeber\nCranachstr. 61\nBerlin"]  ] :: Tab
+> tableLongS = 
+>       "| i: Number | Name: String |\n" ++
+>       "| -100000000 | \"fb\"         |\n" ++
+>       "| 42        | \"Daniel Waeber\\nCranachstr. 61\\nBerlin\" |\n" ++
+>       ""
 
+--- Read Show Test ---
+----------------------
+
+> testShow = afun1 show "show"
+>   [tableEmpty, table1, table2, table3, tableInvalid, table123Empty, tableLong]
+>   [tableEmptyS,table1S,table2S,table3S,tableInvalidS,table123EmptyS,tableLongS]
+> testRead = afun1 read "read"
+>   [tableEmptyS,table1S,table2S,table3S,tableInvalidS,table123EmptyS,tableLongS]
+>   [tableEmpty, table1, table2, table3, tableInvalid, table123Empty, tableLong]
 
 --- CheckTable Unit Test ---
 ----------------------------
@@ -212,6 +263,8 @@ union of table 2 and table 3
 >       [tableEmpty, table1, table2, table3, table123Empty]
 >       [ [], ["ID", "Name"], ["ID", "Name"], ["ID", "Name"],
 >	  ["ID", "Name"] ]
+
+FIXME: more unit tests! mapRows, allRows ...
 
 show instance needed for unit testing ...
 
@@ -243,24 +296,8 @@ show instance needed for unit testing ...
 >	-- TODO: add more ...
 >	]
 
-
-
 --- Putting it all together(tm) ---
 -----------------------------------
 
-> testTable = testCheckTable && testSchema && testColumnNames 
+> testTable = testRead && testShow && testCheckTable && testSchema && testColumnNames 
 >	&& testAnyRow && testAllRows
-
-
---- Legal Foo ---
------------------
-
-TODO: print Note on startup?
-
-> licenseNote = "rel-eval \tCopyright (C) 2007 \tDaniel Waeber, Fabian Bieker\n" ++
->       "This program comes with ABSOLUTELY NO WARRANTY; for details " ++
->       "read the LICENSE.txt file.\n" ++
->       "This is free software, and you are welcome to " ++
->       "redistribute it under certain conditions; type LGPL.txt for " ++
->       "details.\n"
-> 
