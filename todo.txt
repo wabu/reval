@@ -6,19 +6,17 @@ PENDING
 
 * TESTING! (fb)
 
-* basic features
-** basic types
+* features
 ** renaming (fb)
+** natural join etc.
+** class Primeops 
+*** with default implementaion 
 
 * non-functional features
-?? class Primeops 
-??? with default implementaion 
-??? based on Table operation, which can be extended as needed
-** performance
-*** evalute -prof profiling (fb)
-** error handling: perhaps use: 
-??? data Info t = Success t (Info t) | Warning t String (Info t) | Error ...
-???? hm, feels strange/unelegant (fb)
+** error handling:
+??? perhaps use: 
+???? data Info t = Success t (Info t) | Warning t String (Info t) | Error ...
+????? hm, feels strange/unelegant (fb)
 
 * nice to have
 ** read tables from file (wabu)
@@ -27,16 +25,15 @@ PENDING
 ** build a DSL using (fb)
 *** evalate template haskell:
 **** http://www.haskell.org/hawiki/TemplateHaskellTutorial
+** performance
+*** evalute -prof profiling (fb)
 
 * misc (fb)
 ** Update spec (fb) [fb]
 *** remove performance, add leazyness (fb) [fb]
 ** send update of spec to Joos (fb) [fb]
 
-
-DONE
-
-* TESTING! (fb)
+DONE:
 
 * basic features
 ** basic types
