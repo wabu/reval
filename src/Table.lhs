@@ -270,26 +270,6 @@ show instance needed for unit testing ...
 > instance Show ((Row r) -> Bool)  where
 >	show _ = "(\\(Row r) -> Bool)"
 
- > testAnyRow = assertfun2 anyRow "anyRow" [
- >	((\x -> True), tableEmpty, False), -- by def
- >	((\x -> False), tableEmpty, False),
- >	((\x -> False), table2, False),
- >	((\x -> True), table2, True),
- >	((\(x:xs) -> x == Null), table2, True),
- >	((\(x:xs) -> x == (IntLit 2342)), table2, False)
- >	-- TODO: add more ...
- >	]
- 
- > testAllRows = assertfun2 allRows "allRows" [
- >	((\x -> True), tableEmpty, True),
- >	((\x -> False), tableEmpty, True),
- >	((\x -> False), table2, False),
- >	((\x -> True), table2, True),
- >	((\(x:xs) -> x == (IntLit 100)), table2, False),
- >	((checkType Any . head), table2, True)
- >	-- TODO: add more ...
- >	]
-
 > testAnyRow = assertfun2 anyRow "anyRow" [
 >	((\x -> True), tableEmpty, False), -- TODO: ok?
 >	((\x -> False), tableEmpty, False),
