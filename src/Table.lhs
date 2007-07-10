@@ -18,9 +18,6 @@
 - The Table Type -
 ------------------
 
-Or how to trick Haskell to get a Table with different data types inside each
-column, but with arbitrary length.
-
 > module Table (
 >   -- TODO: hide stuff, write getters
 >   Row,
@@ -50,7 +47,10 @@ check the types when createing or changeing a Table at runtime.
 > type ColumnHeader t = (ColumnName, t)
 > type TableHeader t = [ColumnHeader t]
 
-> class (Type t, Ord l, Literal l t, Eq tab) => Table tab l t | tab -> l t where
+The class table consists of the table data tab, and the type system l t, which
+if functional dependent on tab.
+
+> class (Type t, Literal l t, Eq tab) => Table tab l t | tab -> l t where
 >       header :: tab -> TableHeader t
 >       schema :: tab -> [t]
 >       columnNames :: tab -> [String]
@@ -73,9 +73,11 @@ check the types when createing or changeing a Table at runtime.
 >                                 then t 
 >                                 else error "invalid table"
 
+The default implementaion of the table is just a Header an a Set of lits. It
+can be used with any type system, but the literals has to be ordered.
+
 > data (Ord l, Literal l t) => SetTable l t = SetTab (TableHeader t) (Set.Set (Row l)) 
 >       deriving Eq
-
 > type Tab = (SetTable SimpleLit SimpleType)
 
 > rowSet :: (Ord l, Literal l t) => (SetTable l t) -> (Set.Set (Row l))
@@ -104,32 +106,31 @@ Note: mkTable [] [[]] is considered invalid
 >               clength = allRows ((size ==) . length) tab
 >               ctypes = allRows (all (uncurry checkType) . zip (schema tab)) tab
 
-
 show and read instance for the table
 
 > showsTable :: (Ord l, Show l, Show t, Literal l t) => (SetTable l t)-> ShowS
 > showsTable (SetTab header rows) = heads . alls (map mapcells (Set.toList rows))
 >       where 
->           sp = (' ':)             -- space ShowS
->           cs = ('|':) . sp        -- column sperator
->           ls = ('|':) . ('\n':)   -- line
->           ss = (++)               -- string -> ShowS
+>           space = (' ':)            -- space ShowS
+>           col = ('|':) . space      -- column sperator
+>           line = ('|':) . ('\n':)   -- line
+>           strings = (++)            -- string -> ShowS
 >
 >           folds :: (a -> ShowS) -> [a] -> ShowS
 >           folds fs = foldr ((.) . fs) id
 >
->           cheads (n, t) = (ss n) . (':':) . sp . (shows t)        -- column header -> [ShowS]
->           heads = folds ((cs .) . (. sp) . cheads) header . ls    -- | cheader | cheader ... |\n
+>           cheads (n, t) = (strings n) . (':':) . space . (shows t)    -- column header -> [ShowS]
+>           heads = folds ((col .) . (. space) . cheads) header . line  -- | cheader | cheader ... |\n
 >           headlength = (map (\h -> length $ cheads h "") header)
 >
->           mapcells :: (Show a) => [a] -> [ShowS]                  -- row -> [ShowS]
+>           mapcells :: (Show a) => [a] -> [ShowS]                      -- row -> [ShowS]
 >           mapcells = map 
->                   (\(n,s) -> ((take (1 + max n (length $ show s)) (show s ++ repeat ' '))++))
+>                   (\(n,s) -> strings (take (1 + max n (length $ show s)) (show s ++ repeat ' ')))
 >                   . zip headlength
 >           lines :: [ShowS] -> ShowS
->           lines = folds (cs .)
+>           lines = folds (col .)
 >           alls :: [[ShowS]] -> ShowS
->           alls = folds ((. ls) . lines)
+>           alls = folds ((. line) . lines)
 > instance (Ord l, Show l, Show t, Literal l t) => Show (SetTable l t) where showsPrec _ = showsTable
 
 > readsColumnHeader :: (Read t) => ReadS (ColumnHeader t)

@@ -27,6 +27,12 @@
 > import qualified Data.Set as Set
 
 
+- What to put into Tables -
+---------------------------
+
+Or how to trick Haskell to get a Table with different data types inside each
+column, but with arbitrary length.
+
 -- Our First Try --
 -------------------
 
@@ -105,6 +111,10 @@ create his own typesystem
 > class (Eq t) => Type t where
 >       -- check if to types Are compatible
 >       check :: t -> t -> Bool
+
+We need glasgow/98 extension because Literal is conjunct to its Type. So we
+define the Literal class to have a data l, the literal, and a data t, the type,
+where the literal l determinds the type it is based on.
 
 > class (Type t) => Literal l t | l -> t where
 >       -- get the type of a literal
