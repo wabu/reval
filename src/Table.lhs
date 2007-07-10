@@ -61,7 +61,7 @@ check the types when createing or changeing a Table at runtime.
 >	-- TODO: impl. filterRows? map + filter would be nice to have
 >       -- filterRows :: ((Row l) -> (Row l)) -> tab -> tab
 >       allRows :: ((Row l) -> Bool) -> tab -> Bool
->       allRows f = foldRows ((==) . f) True
+>       allRows f = foldRows ((&&) . f) True
 >       anyRow :: ((Row l) -> Bool) -> tab -> Bool
 >       anyRow f = foldRows ((||) . f) False
 >
@@ -280,9 +280,18 @@ show instance needed for unit testing ...
 >	-- TODO: add more ...
 >	]
 
+> testAllRows = assertfun2 allRows "allRows" [
+>	((\x -> True), tableEmpty, True),
+>	((\x -> False), tableEmpty, True),
+>	((\x -> False), table2, False),
+>	((\x -> True), table2, True),
+>	((\(x:xs) -> x == (IntLit 100)), table2, False),
+>	((checkType Any . head), table2, True)
+>	-- TODO: add more ...
+>	]
 
 --- Putting it all together(tm) ---
 -----------------------------------
 
 > testTable = testRead && testShow && testCheckTable && testSchema && testColumnNames 
->	&& testAnyRow
+>	&& testAnyRow && testAllRows
