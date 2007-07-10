@@ -57,8 +57,9 @@ check the types when createing or changeing a Table at runtime.
 >
 >       foldRows :: ((Row l) -> b -> b) -> b -> tab -> b
 >       mapRows :: ((Row l) -> (Row l)) -> tab -> tab
->	-- TODO: impl. filterRows? map + filter would be nice to have
->       -- filterRows :: ((Row l) -> (Row l)) -> tab -> tab
+>	-- TODO: filterRows would be nice to have, but no ++ defined
+>       -- filterRows :: ((Row l) -> Bool) -> tab -> tab
+>	-- filterRows f = foldRows (\xs x -> if f x then x++xs else xs) []
 >       allRows :: ((Row l) -> Bool) -> tab -> Bool
 >       allRows f = foldRows ((==) . f) True
 >       anyRow :: ((Row l) -> Bool) -> tab -> Bool
@@ -212,33 +213,43 @@ union of table 2 and table 3
 >       [ [], ["ID", "Name"], ["ID", "Name"], ["ID", "Name"],
 >	  ["ID", "Name"] ]
 
-FIXME: more unit tests! mapRows, allRows ...
-
 show instance needed for unit testing ...
 
 > instance Show ((Row r) -> Bool)  where
 >	show _ = "(\\(Row r) -> Bool)"
 
-> testAnyRow = True
+> testAnyRow = assertfun2 anyRow "anyRow" [
+>	((\x -> True), tableEmpty, False), -- TODO: ok?
+>	((\x -> False), tableEmpty, False),
+>	((\x -> False), table123Empty, False),
+>	((\x -> True), table123Empty, False),
+>	((\x -> False), table2, False),
+>	((\x -> True), table2, True),
+>	((\(x:_) -> x == Null), table2, True),
+>	((\(x:_) -> x == read "2342"), table2, False)
+>	-- TODO: add more ...
+>	]
 
-FIXME: tab not Show-able, can not unit test using assertfun2 ...
+> testAllRows = assertfun2 allRows "allRows" [
+>	((\x -> True), tableEmpty, True), -- by def
+>	((\x -> False), tableEmpty, True),
+>	((\x -> False), table123Empty, True),
+>	((\x -> True), table123Empty, True),
+>	((\x -> False), table2, False), -- TODO: FAILS!
+>	((\x -> True), table2, True),
+>	((\(x:_) -> x == Null), table2, False),
+>	((\(x:_) -> x /= Null), table2, False),
+>	((\(x:_) -> x /= read "2342"), table2, True)
+>	-- TODO: add more ...
+>	]
 
- > testAnyRow = assertfun2 anyRow "anyRow" [
- >	((\x -> True), tableEmpty, False), -- by def
- >	((\x -> True), tableEmpty, False),
- >	((\x -> False), table2, False),
- >	((\x -> True), table2, True),
- >	((\x:xs -> x == Null), table2, True),
- >	((\x:xs -> x == 2342), table2, False)
- >	-- TODO: add more ...
- >	]
 
 
 --- Putting it all together(tm) ---
 -----------------------------------
 
 > testTable = testCheckTable && testSchema && testColumnNames 
->	&& testAnyRow
+>	&& testAnyRow && testAllRows
 
 
 --- Legal Foo ---
