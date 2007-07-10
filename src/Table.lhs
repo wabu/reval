@@ -58,8 +58,9 @@ if functional dependent on tab.
 >
 >       foldRows :: ((Row l) -> b -> b) -> b -> tab -> b
 >       mapRows :: ((Row l) -> (Row l)) -> tab -> tab
->	-- TODO: impl. filterRows? map + filter would be nice to have
->       -- filterRows :: ((Row l) -> (Row l)) -> tab -> tab
+>	-- TODO: filterRows would be nice to have, but no ++ defined
+>       -- filterRows :: ((Row l) -> Bool) -> tab -> tab
+>	-- filterRows f = foldRows (\xs x -> if f x then x++xs else xs) []
 >       allRows :: ((Row l) -> Bool) -> tab -> Bool
 >       allRows f = foldRows ((&&) . f) True
 >       anyRow :: ((Row l) -> Bool) -> tab -> Bool
@@ -165,7 +166,6 @@ sample tables used for testing:
 > tableEmpty = mkTable [] [] :: Tab
 > tableEmptyS = "|\n"
 
-
 > table1 = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [IntLit 42, StrLit "daniel"]  ] :: Tab
@@ -186,7 +186,6 @@ Yes, those two are valid!
 >       "| 23         | \"fb\"         |\n" ++
 >       ""
 
->
 > table3 = mkTable [("ID",Number), ("Name",String)] [
 >       [Null, StrLit "fb"],
 >       [IntLit 42, StrLit "daniel"]  ] :: Tab
@@ -271,23 +270,48 @@ show instance needed for unit testing ...
 > instance Show ((Row r) -> Bool)  where
 >	show _ = "(\\(Row r) -> Bool)"
 
+ > testAnyRow = assertfun2 anyRow "anyRow" [
+ >	((\x -> True), tableEmpty, False), -- by def
+ >	((\x -> False), tableEmpty, False),
+ >	((\x -> False), table2, False),
+ >	((\x -> True), table2, True),
+ >	((\(x:xs) -> x == Null), table2, True),
+ >	((\(x:xs) -> x == (IntLit 2342)), table2, False)
+ >	-- TODO: add more ...
+ >	]
+ 
+ > testAllRows = assertfun2 allRows "allRows" [
+ >	((\x -> True), tableEmpty, True),
+ >	((\x -> False), tableEmpty, True),
+ >	((\x -> False), table2, False),
+ >	((\x -> True), table2, True),
+ >	((\(x:xs) -> x == (IntLit 100)), table2, False),
+ >	((checkType Any . head), table2, True)
+ >	-- TODO: add more ...
+ >	]
+
 > testAnyRow = assertfun2 anyRow "anyRow" [
->	((\x -> True), tableEmpty, False), -- by def
+>	((\x -> True), tableEmpty, False), -- TODO: ok?
 >	((\x -> False), tableEmpty, False),
+>	((\x -> False), table123Empty, False),
+>	((\x -> True), table123Empty, False),
 >	((\x -> False), table2, False),
 >	((\x -> True), table2, True),
->	((\(x:xs) -> x == Null), table2, True),
->	((\(x:xs) -> x == (IntLit 2342)), table2, False)
+>	((\(x:_) -> x == Null), table2, True),
+>	((\(x:_) -> x == read "2342"), table2, False)
 >	-- TODO: add more ...
 >	]
 
 > testAllRows = assertfun2 allRows "allRows" [
->	((\x -> True), tableEmpty, True),
+>	((\x -> True), tableEmpty, True), -- by def
 >	((\x -> False), tableEmpty, True),
->	((\x -> False), table2, False),
+>	((\x -> False), table123Empty, True),
+>	((\x -> True), table123Empty, True),
+>	((\x -> False), table2, False), -- TODO: FAILS!
 >	((\x -> True), table2, True),
->	((\(x:xs) -> x == (IntLit 100)), table2, False),
->	((checkType Any . head), table2, True)
+>	((\(x:_) -> x == Null), table2, False),
+>	((\(x:_) -> x /= Null), table2, False),
+>	((\(x:_) -> x /= read "2342"), table2, True)
 >	-- TODO: add more ...
 >	]
 
