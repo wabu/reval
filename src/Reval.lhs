@@ -21,3 +21,16 @@
 > import PrimeOps
 
 > testAll = testPrimes && testTable && testPrimeOps
+
+--- Legal Foo ---
+-----------------
+
+TODO: print Note on startup?
+
+> licenseNote = "rel-eval \tCopyright (C) 2007 \tDaniel Waeber, Fabian Bieker\n" ++
+>       "This program comes with ABSOLUTELY NO WARRANTY; for details " ++
+>       "read the LICENSE.txt file.\n" ++
+>       "This is free software, and you are welcome to " ++
+>       "redistribute it under certain conditions; type LGPL.txt for " ++
+>       "details.\n"
+> 

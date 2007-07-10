@@ -144,21 +144,21 @@ assertfun f name_of_f [ (param1, param2, expected) ]
 empty table with schema of table1,2,3 .
 
 
-> tableEmpty = mkTable [] []
+> tableEmpty = mkTable [] [] :: Tab
 
 > table1 = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
->       [IntLit 42, StrLit "daniel"]  ]
+>       [IntLit 42, StrLit "daniel"]  ] :: Tab
 
 Yes, those two are valid!
 
 > table2 = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
->       [Null, StrLit "daniel"]  ]
+>       [Null, StrLit "daniel"]  ] :: Tab
 >
 > table3 = mkTable [("ID",Number), ("Name",String)] [
 >       [Null, StrLit "fb"],
->       [IntLit 42, StrLit "daniel"]  ]
+>       [IntLit 42, StrLit "daniel"]  ] :: Tab
 
 union of table 2 and table 3
 
@@ -166,13 +166,13 @@ union of table 2 and table 3
 >       [IntLit 23, StrLit "fb"],
 >       [Null, StrLit "fb"],
 >       [Null, StrLit "daniel"], 
->       [IntLit 42, StrLit "daniel"]  ]
+>       [IntLit 42, StrLit "daniel"]  ] :: Tab
 
 > tableInvalid = mkTableUnsave [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
->       [CharLit 'a', StrLit "daniel"]  ] :: (SetTable SimpleLit SimpleType)
+>       [CharLit 'a', StrLit "daniel"]  ] :: Tab
 
-> table123Empty = mkTable [("ID",Number), ("Name",String)] []
+> table123Empty = mkTable [("ID",Number), ("Name",String)] [] :: Tab
 
 > testUnion = assertfun2 union "union" 
 >	[ (tableEmpty, tableEmpty, tableEmpty),
@@ -214,15 +214,10 @@ union of table 2 and table 3
 > 	]
 
 
-just to be able to unit test the predicates in select...
-
-> instance Show (a -> b) where
-> 	show _ = "(\\a -> b) :: (a -> b)"
-
 selections on table2
 
 > table2onlyFB = mkTable [("ID",Number), ("Name",String)] [
->       [IntLit 23, StrLit "fb"] ]
+>       [IntLit 23, StrLit "fb"] ] :: Tab
 
 > testSelect = assertfun2 select "select"
 >	[ ( (\_ -> False), tableEmpty, tableEmpty),
@@ -239,11 +234,11 @@ projections on table23
 > table23ID = mkTable [("ID",Number)] [
 >       [IntLit 23],
 >       [Null],
->       [IntLit 42] ] 
+>       [IntLit 42] ]  :: Tab
 >
 > table23Name = mkTable [("Name",String)] [
 >       [StrLit "fb"],
->       [StrLit "daniel"] ]
+>       [StrLit "daniel"] ] :: Tab
 
 > testProject = assertfun2 project "project"
 >	[ ([], tableEmpty, tableEmpty),
@@ -266,7 +261,7 @@ projections on table23
 >	[[IntLit 23, StrLit "fb", IntLit 23, StrLit "fb"],
 >	 [IntLit 23, StrLit "fb", IntLit 42, StrLit "daniel"],
 >	 [IntLit 42, StrLit "daniel", IntLit 23, StrLit "fb"],
->	 [IntLit 42, StrLit "daniel", IntLit 42, StrLit "daniel"]] 
+>	 [IntLit 42, StrLit "daniel", IntLit 42, StrLit "daniel"]]  :: Tab
 
 > testCross = assertfun2 cross "cross"
 >	[ (tableEmpty, tableEmpty, tableEmpty),

@@ -2,21 +2,12 @@ TODO-List for rel-eval
 
 format: **{0,*} <TODO-ITEM> (<USERNAME-WHO-ADDED-IT>) [<USERNAME-OF-PERSON-TO-DO-IT>]
 
-? move done items to eof
-?? feel free :> (fb)
+PENDING
 
 * TESTING! (fb)
 
 * basic features
 ** basic types
-*** show and read function (wabu) - mostly done
-*** use new Lit type for Table (wabu) - done!
-** intersection (fb) - done!
-** union (fb) - done!
-** substraction (fb) - done!
-** cross join (fb) - done!
-** sigma/projection (fb) - done!
-** pi/selection (fb) - done!
 ** renaming (fb)
 
 * non-functional features
@@ -41,3 +32,26 @@ format: **{0,*} <TODO-ITEM> (<USERNAME-WHO-ADDED-IT>) [<USERNAME-OF-PERSON-TO-DO
 ** Update spec (fb) [fb]
 *** remove performance, add leazyness (fb) [fb]
 ** send update of spec to Joos (fb) [fb]
+
+
+DONE
+
+* TESTING! (fb)
+
+* basic features
+** basic types
+*** show and read function (wabu) - done
+*** use new Lit type for Table (wabu) - done!
+** intersection (fb) - done!
+** union (fb) - done!
+** substraction (fb) - done!
+** cross join (fb) - done!
+** sigma/projection (fb) - done!
+** pi/selection (fb) - done!
+
+* non-functional features
+
+* nice to have
+** mkLeazyTable (fb) - done!
+
+* misc (fb)
