@@ -13,6 +13,7 @@ PENDING
 *** with default implementaion 
 
 * non-functional features
+** documentation
 ** error handling:
 ??? perhaps use: 
 ???? data Info t = Success t (Info t) | Warning t String (Info t) | Error ...
