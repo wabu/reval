@@ -61,12 +61,15 @@ Note: To Implement this class you need to implement either rows or
 Constructors and schema checking:
 
 >       checkTable :: tab -> Bool
->       checkTable t = allRows validRow t
+>       checkTable t = allRows validRow t && checkSize
 >		where
 >		sch = schema t
 >		validRow :: (Row l) -> Bool
 >		validRow r = all (uncurry checkType) (zip sch r)
+>		checkSize = allRows (\r -> length sch == length r) t
+>
 >       mkTableUnsave :: (TableHeader t) -> [(Row l)] -> tab
+>
 >       mkTable :: (TableHeader t) -> [(Row l)] -> tab
 >       mkTable h r = checkedTable (mkTableUnsave h r)
 >          where checkedTable t = if checkTable t 
@@ -131,6 +134,7 @@ can be used with any type system, but the literals has to be ordered.
 
 > instance (Ord l, Literal l t) => Table (SetTable l t) l t where
 >       mapRows f (SetTab head rows) = (SetTab head (Set.map f rows))
+>       filterRows f (SetTab head rows) = (SetTab head (Set.filter f rows))
 >       foldRows f i = Set.fold f i . rowSet
 
 >       header (SetTab head _) = head 
@@ -141,13 +145,6 @@ can be used with any type system, but the literals has to be ordered.
 Note: mkTable [] [[]] is considered invalid
 
 >       mkTableUnsave h r = SetTab h (Set.fromList r) 
-
->       checkTable (SetTab [] rows) = Set.null rows
->       checkTable tab = clength && ctypes
->           where 
->               size = length (header tab)
->               clength = allRows ((size ==) . length) tab
->               ctypes = allRows (all (uncurry checkType) . zip (schema tab)) tab
 
 show and read instance for the table
 
@@ -255,7 +252,10 @@ union of table 2 and table 3
 > tableInvalid = mkTableUnsave [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [CharLit 'a', StrLit "daniel"]  ] :: Tab
-> tableInvalidS = 
+> tableInvalidSize = mkTableUnsave [("ID",Number), ("Name",String)] [
+>       [IntLit 23, StrLit "fb"],
+>       [CharLit 'a', StrLit "daniel", Null]  ] :: Tab
+> tableInvalidS =
 >       "| ID: Number | Name: String |\n" ++
 >       "| 23         | \"fb\"         |\n" ++
 >       "| 'a'        | \"daniel\"     |\n" ++
@@ -289,8 +289,8 @@ union of table 2 and table 3
 ----------------------------
 
 > testCheckTable = afun1 checkTable "checktab"
->       [tableEmpty, table1, tableInvalid, table2, table3]
->       [True, True, False, True, True]
+>       [tableEmpty, table1, tableInvalid, tableInvalidSize, table2, table3]
+>       [True, True, False, False, True, True]
 
 --- Getters for Table ADT ---
 -----------------------------
@@ -305,7 +305,7 @@ union of table 2 and table 3
 >       [ [], ["ID", "Name"], ["ID", "Name"], ["ID", "Name"],
 >	  ["ID", "Name"] ]
 
-FIXME: more unit tests! mapRows, filterRows ...
+FIXME: more unit tests! mapRows, filterRows, size, ...
 
 show instance needed for unit testing ...
 
