@@ -104,6 +104,7 @@ Use mapRows unsafe if you want the table to be unchecked.
 >	 	(\row table -> cons (f row) table) 
 >		(mkTable (header t) [])
 >		t
+>	mapRows :: ((Row l) -> (Row l)) -> tab -> tab
 >	mapRows f t = if checkTable newTab then
 >			newTab
 >		else
