@@ -50,7 +50,7 @@ The reason for this is, that I (fb) want it to be leazy
 
 TODO: more sanity checking
 
-> applyOnTableSets :: (Ord l, Literal l t) =>
+> applyOnTableSets :: (Show l, Show t, Ord l, Literal l t) =>
 >       (Set.Set (Row l) -> Set.Set (Row l) -> Set.Set (Row l)) 
 >       -> (SetTable l t) -> (SetTable l t) -> (SetTable l t)
 > applyOnTableSets _ t1@(SetTab [] rows) t2 = 
@@ -63,13 +63,16 @@ TODO: more sanity checking
 > applyOnTableSets f (SetTab head1 rows1) (SetTab _ rows2) =
 >	mkTableFromSet head1 (f rows1 rows2)
 
-> union :: (Ord l, Literal l t) => (SetTable l t) -> (SetTable l t) -> (SetTable l t)
+> union :: (Show t, Show l, Ord l, Literal l t) =>
+>	(SetTable l t) -> (SetTable l t) -> (SetTable l t)
 > union = applyOnTableSets Set.union
 
-> difference :: (Ord l, Literal l t) => (SetTable l t) -> (SetTable l t) -> (SetTable l t)
+> difference :: (Show t, Show l, Ord l, Literal l t) =>
+>	(SetTable l t) -> (SetTable l t) -> (SetTable l t)
 > difference = applyOnTableSets Set.difference
 
-> intersection :: (Ord l, Literal l t) => (SetTable l t) -> (SetTable l t) -> (SetTable l t)
+> intersection :: (Show t, Show l, Ord l, Literal l t) =>
+>	(SetTable l t) -> (SetTable l t) -> (SetTable l t)
 > intersection = applyOnTableSets Set.intersection
 
 cross-join
