@@ -51,16 +51,36 @@ The class table consists of the table data tab, and the type system l t, which
 if functional dependent on tab.
 
 > class (Type t, Literal l t, Eq tab) => Table tab l t | tab -> l t where
+
+Getters:
+
 >       header :: tab -> TableHeader t
 >       schema :: tab -> [t]
 >       columnNames :: tab -> [String]
 >       rows :: tab -> [Row l]
->
+
+basic functional programming higher order functions:
+
 >       foldRows :: ((Row l) -> b -> b) -> b -> tab -> b
 >       mapRows :: ((Row l) -> (Row l)) -> tab -> tab
->	-- TODO: filterRows would be nice to have, but no ++ defined
->       -- filterRows :: ((Row l) -> Bool) -> tab -> tab
->	-- filterRows f = foldRows (\xs x -> if f x then x++xs else xs) []
+>       filterRows :: ((Row l) -> Bool) -> tab -> tab
+>	filterRows f t = foldRows
+>	 	(\row table -> if f row then cons row table else table) 
+>		(mkTable (header t) [])
+>		t
+
+Note: default impl. is really slow, should be overwriten.
+Basic list-like operations:
+
+>	cons :: (Row l) -> tab -> tab
+>	cons r t = mkTable (header t) (r : rows t) 
+>	size :: tab -> Int
+>	size = length . rows
+>	isEmpty :: tab -> Bool
+>	isEmpty = null . rows
+
+Basic logic operations:
+
 >       allRows :: ((Row l) -> Bool) -> tab -> Bool
 >       allRows f = foldRows ((&&) . f) True
 >       anyRow :: ((Row l) -> Bool) -> tab -> Bool
@@ -263,7 +283,7 @@ union of table 2 and table 3
 >       [ [], ["ID", "Name"], ["ID", "Name"], ["ID", "Name"],
 >	  ["ID", "Name"] ]
 
-FIXME: more unit tests! mapRows, allRows ...
+FIXME: more unit tests! mapRows, filterRows ...
 
 show instance needed for unit testing ...
 
@@ -271,7 +291,7 @@ show instance needed for unit testing ...
 >	show _ = "(\\(Row r) -> Bool)"
 
 > testAnyRow = assertfun2 anyRow "anyRow" [
->	((\x -> True), tableEmpty, False), -- TODO: ok?
+>	((\x -> True), tableEmpty, False), -- by def
 >	((\x -> False), tableEmpty, False),
 >	((\x -> False), table123Empty, False),
 >	((\x -> True), table123Empty, False),
