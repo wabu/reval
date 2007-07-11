@@ -104,10 +104,13 @@ Basic list-like operations:
 
 >	cons :: (Row l) -> tab -> tab
 >	cons r t = mkTable (header t) (r : rows t) 
->	size :: tab -> Int
->	size = length . rows
 >	isEmpty :: tab -> Bool
 >	isEmpty = null . rows
+
+Size returns (count of columns, count of rows)
+
+>	size :: tab -> (Int,Int)
+>	size t = (length (schema t), length (rows t))
 
 Basic logic operations:
 
@@ -343,8 +346,18 @@ show instance needed for unit testing ...
 >	((\(_:x:_) -> length (show x) > 1), table2, True)
 >	]
 
+> table1Xtable1 = mkTable
+>	[("ID",Number),("Name",String),("ID",Number),("Name",String)]
+>	[[IntLit 23, StrLit "fb", IntLit 23, StrLit "fb"],
+>	 [IntLit 23, StrLit "fb", IntLit 42, StrLit "daniel"],
+>	 [IntLit 42, StrLit "daniel", IntLit 23, StrLit "fb"],
+>	 [IntLit 42, StrLit "daniel", IntLit 42, StrLit "daniel"]]
+
 > testSize = assertfun1 size "size" [
->	(tableEmpty, 0)
+>	(tableEmpty, (0,0)),
+>	(table2, (2,2)),
+>	(table3, (2,2)),
+>	(table1Xtable1, (4,4))
 >	]
 
 > testMapRows = assertfun2 mapRows "mapRows" [
