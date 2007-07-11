@@ -364,7 +364,7 @@ show instance needed for unit testing ...
 > testMapRows = assertfun2 mapRows "mapRows" [
 >	(id, tableEmpty, tableEmpty),
 >	(id, table2, table2),
->	(id, table1Xtable1, table1Xtable1),
+>	(id, table1Xtable1, table1Xtable1)
 >	-- TODO: more tests
 >	]
 
