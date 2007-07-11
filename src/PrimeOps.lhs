@@ -34,6 +34,7 @@
 > import Table
 > import Lib.AssertFun
 > import qualified Data.Set as Set
+> import Data.List ((\\)) 
 
 -- Primitive Relation Algebra Operations --
 -------------------------------------------
@@ -46,8 +47,6 @@ applyOnTableSets only do some base sanity checks and relies
 mostly on mkTable to create only valid tables.
 The reason for this is, that I (fb) want it to be leazy
 (as in operate on infinite tables).
-
-TODO: rename
 
 > applyOnTableSets :: (Ord l, Literal l t) =>
 >       (Set.Set (Row l) -> Set.Set (Row l) -> Set.Set (Row l)) 
@@ -86,12 +85,14 @@ TODO: optimize, Set.toList sux!
 >	l1 = Set.toList r1
 >	l2 = Set.toList r2
 
+Note: A Table containing a Set like {{}} is considured invalid. Use a
+Table containg the empty Set {} (aka mkTable [] []) to represent the
+empty table. This might not be formaly correct, but having two
+representations of the empty table is not programtic and makes code
+more complex and less readable.
+
 > select :: (Ord l, Literal l t) => ((Row l) -> Bool) -> (SetTable l t) -> (SetTable l t)
 > select p (SetTab head rows) = mkTableFromSet head (Set.filter p rows)
-
-FIXME: is there a diffrence in a Set {{}} and {} in relation algebra?
-	'cause if so, the above code, is incorrect!
-	s. http://en.wikipedia.org/wiki/Relational_algebra
 
 Projection
 
@@ -126,11 +127,11 @@ find postion of an elemt in a List
 
 Renaming
 
-Syntax: rename [(oldName, newName)] table
+Syntax: rename{Unsafe} [(oldName, newName)] table
 
-> rename :: (Show l, Show t, Ord l, Literal l t) =>
+> renameUnsafe :: (Show l, Show t, Ord l, Literal l t) =>
 >	[(ColumnName,ColumnName)] -> (SetTable l t) -> (SetTable l t)
-> rename names tab@(SetTab sch _) = mkTable (replaceNames sch) (rows tab)
+> renameUnsafe names tab@(SetTab sch _) = mkTable (replaceNames sch) (rows tab)
 >	where
 >	-- TODO: check if oldName is in schema names if not error ...
 >	replaceNames = map (getNewName names)
@@ -138,6 +139,17 @@ Syntax: rename [(oldName, newName)] table
 >	getNewName ((old,new):xs) h@(name, ctype) = if name == old
 >		then (new, ctype)
 >		else getNewName xs h
+
+> rename :: (Show l, Show t, Ord l, Literal l t) =>
+>	[(ColumnName,ColumnName)] -> (SetTable l t) -> (SetTable l t)
+> rename names tab@(SetTab schema _) = if checkParams
+>	then renameUnsafe names tab
+>	else error ("invalid rename: names = " ++ show names 
+>			++ "\n table schema = " ++ show schema)
+>	where
+>	checkParams = null (oldNames \\ schemaNames)
+>	(oldNames,_) = unzip names
+>	(schemaNames, _) = unzip schema
 
 syntatic sugar
 
