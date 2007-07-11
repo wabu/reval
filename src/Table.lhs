@@ -51,8 +51,10 @@ The class table consists of the table data tab, and the type system l t, which
 if functional dependent on tab.
 
 Note: To Implement this class you need to implement either rows or
-	foldRows. We recommend implementing more functions if you care
-	about performance.
+	foldRows and the basic getters. basic getters are header,
+	schema and columnNames.
+	We recommend implementing more functions if you care about
+	performance.
 
 > class (Type t, Literal l t, Eq tab) => Table tab l t | tab -> l t where
 
