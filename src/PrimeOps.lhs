@@ -48,6 +48,8 @@ mostly on mkTable to create only valid tables.
 The reason for this is, that I (fb) want it to be leazy
 (as in operate on infinite tables).
 
+TODO: more sanity checking
+
 > applyOnTableSets :: (Ord l, Literal l t) =>
 >       (Set.Set (Row l) -> Set.Set (Row l) -> Set.Set (Row l)) 
 >       -> (SetTable l t) -> (SetTable l t) -> (SetTable l t)
@@ -55,7 +57,7 @@ The reason for this is, that I (fb) want it to be leazy
 >	if Set.null rows then
 >		t2
 >	else
->		error ("applyOnTableSets: Invalid table: " -- ++ show t2
+>		error ("applyOnTableSets: Invalid table: " ++ show t2
 >			++ "schema is empty but rows are not!" ) 
 > applyOnTableSets f t1 t2@(SetTab [] rows) = applyOnTableSets f t2 t1
 > applyOnTableSets f (SetTab head1 rows1) (SetTab _ rows2) =
@@ -96,6 +98,8 @@ more complex and less readable.
 
 Projection
 
+TODO: projectUnsafe?
+TODO: error handling
 TODO: optimize! this is insanley slow :-(
 
 > project :: (Show l, Show t, Ord l, Literal l t) =>
