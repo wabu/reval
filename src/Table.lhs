@@ -50,6 +50,10 @@ check the types when createing or changeing a Table at runtime.
 The class table consists of the table data tab, and the type system l t, which
 if functional dependent on tab.
 
+Note: To Implement this class you need to implement either rows or
+	foldRows. We recommend implementing more functions if you care
+	about performance.
+
 > class (Type t, Literal l t, Eq tab) => Table tab l t | tab -> l t where
 
 Getters:
@@ -58,18 +62,24 @@ Getters:
 >       schema :: tab -> [t]
 >       columnNames :: tab -> [String]
 >       rows :: tab -> [Row l]
+>	rows = foldRows (:) []
 
 basic functional programming higher order functions:
+Note: default impl. of foldRow is really slow, should be overwriten.
 
 >       foldRows :: ((Row l) -> b -> b) -> b -> tab -> b
+>	foldRows f init = foldr f init . rows 
 >       mapRows :: ((Row l) -> (Row l)) -> tab -> tab
+>	mapRows f t = foldRows
+>	 	(\row table -> cons (f row) table) 
+>		(mkTable (header t) [])
+>		t
 >       filterRows :: ((Row l) -> Bool) -> tab -> tab
 >	filterRows f t = foldRows
 >	 	(\row table -> if f row then cons row table else table) 
 >		(mkTable (header t) [])
 >		t
 
-Note: default impl. is really slow, should be overwriten.
 Basic list-like operations:
 
 >	cons :: (Row l) -> tab -> tab
