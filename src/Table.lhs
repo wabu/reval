@@ -89,16 +89,26 @@ Note: default impl. of foldRow is really slow, should be overwriten.
 
 >       foldRows :: ((Row l) -> b -> b) -> b -> tab -> b
 >	foldRows f init = foldr f init . rows 
->       mapRows :: ((Row l) -> (Row l)) -> tab -> tab
->	mapRows f t = foldRows
->	 	(\row table -> cons (f row) table) 
->		(mkTable (header t) [])
->		t
 >       filterRows :: ((Row l) -> Bool) -> tab -> tab
 >	filterRows f t = foldRows
 >	 	(\row table -> if f row then cons row table else table) 
 >		(mkTable (header t) [])
 >		t
+
+mapRowsUnsafe might invalidate the table.
+Use mapRows if you want the table to be validated against the schema.
+Use mapRows unsafe if you want the table to be unchecked.
+
+>       mapRowsUnsafe :: ((Row l) -> (Row l)) -> tab -> tab
+>	mapRowsUnsafe f t = foldRows
+>	 	(\row table -> cons (f row) table) 
+>		(mkTable (header t) [])
+>		t
+>	mapRows f t = if checkTable newTab then
+>			newTab
+>		else
+>			error "invalid table" -- TODO: make table Showable
+>		where newTab = mapRowsUnsafe f t
 
 Basic list-like operations:
 
