@@ -10,8 +10,8 @@ Wed Jul 11 13:47:20 CEST 2007
 *** template haskell?
 
 * error handling
-** eher error
-** projection nicht eindeutig -> error
+** error!
+** projection on equal named column -> error
 * performance vs. lazyness
 -> schweppe
 

@@ -21,9 +21,9 @@ PENDING
 * non-functional features
 ** documentation
 ** error handling:
-??? perhaps use: 
-???? data Info t = Success t (Info t) | Warning t String (Info t) | Error ...
-????? hm, feels strange/unelegant (fb)
+*** error!
+*** projection on equal named column -> error
+*** if in doubt use error and create an ...Unsafe method, too
 
 * nice to have
 ** read tables from file (wabu)
@@ -34,10 +34,9 @@ PENDING
 ** performance
 *** evalute -prof profiling (fb)
 
-* misc (fb)
-** Update spec (fb) [fb]
-*** remove performance, add leazyness (fb) [fb]
-** send update of spec to Joos (fb) [fb]
+* final
+** send doku + release to joos and schweppe
+** product to schweppe to get a 1.0
 
 DONE:
 
@@ -55,5 +54,10 @@ DONE:
 * non-functional features
 
 * nice to have
-** mkLeazyTable (fb) - done!
-** mkLeazyTable (fb) - done!
+
+OBSOLETE:
+
+* misc (fb)
+** Update spec (fb) [fb]
+*** remove performance, add leazyness (fb) [fb]
+** send update of spec to Joos (fb) [fb]
