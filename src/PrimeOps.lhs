@@ -60,8 +60,12 @@ TODO: more sanity checking
 >		error ("applyOnTableSets: Invalid table: " ++ show t2
 >			++ "schema is empty but rows are not!" ) 
 > applyOnTableSets f t1 t2@(SetTab [] rows) = applyOnTableSets f t2 t1
-> applyOnTableSets f (SetTab head1 rows1) (SetTab _ rows2) =
->	mkTableFromSet head1 (f rows1 rows2)
+> applyOnTableSets f (SetTab head1 rows1) (SetTab head2 rows2) =
+>       if head1 == head2 then
+>	    mkTableFromSet head1 (f rows1 rows2)
+>       else
+>           error ("applyOnTableSets: Invalid schmea: " ++ show head1 ++
+>                  " != " ++ show head2)
 
 > union :: (Show t, Show l, Ord l, Literal l t) =>
 >	(SetTable l t) -> (SetTable l t) -> (SetTable l t)
@@ -102,35 +106,54 @@ more complex and less readable.
 Projection
 
 TODO: projectUnsafe?
-TODO: error handling
 TODO: optimize! this is insanley slow :-(
 
 > project :: (Show l, Show t, Ord l, Literal l t) =>
 >	[ColumnName] -> (SetTable l t) -> (SetTable l t)
-> project [] (SetTab _ _) = mkTable [] [] 
-> project wantedNames (SetTab header rows) =
-> 	SetTab newHeader newRows
->	where
->	names = [n | (n,_) <- header]
 
-posList is a List of postions needed to do the projection
+> project wantedNames tab@(SetTab header rows) = if checkHeader
+>           then SetTab newHeader newRows
+>           else error "you cheat: this is not possible!"
+>   where
+>       checkHeader = all (\n -> checkSize n (length [a | (a,_) <- header, n == a])) wantedNames
+>       checkSize :: String -> Int -> Bool
+>       checkSize n s 
+>               | s == 0 = error ("project: could not project to " 
+>                       ++ show n ++ ": name unknown.")
+>               | s == 1 = True
+>               | otherwise = error ("project: could not project to " 
+>                       ++ show n ++ ": name is ambigious.")
+>       posList = [i | s <- wantedNames, (i,(n,_)) <- zip [1..] header, n==s ]
+>       newHeader = [h | p <- posList, (i,h) <- zip [1..] header, p==i ]
+>       newRows = Set.map 
+>               (\r -> [ l | p <- posList, (i,l) <- zip [1..] r, p==i] )
+>               rows
 
->	posList :: [Int]
->	posList = map (`pos` names) wantedNames
->	newHeader = [header!!i | i <- posList]
->	newRows = Set.map (\row -> [row!!i | i <- posList ]) rows
+ > project [] (SetTab _ _) = mkTable [] [] 
+ 
+ > project wantedNames (SetTab header rows) =
+ > 	SetTab newHeader newRows
+ >	where
+ >	names = [n | (n,_) <- header]
+ 
+ posList is a List of postions needed to do the projection
+ 
+ >	posList :: [Int]
+ >	posList = map (`pos` names) wantedNames
+ >	newHeader = [header!!i | i <- posList]
+ >	newRows = Set.map (\row -> [row!!i | i <- posList ]) rows
 
 find postion of an elemt in a List
 
-> pos :: (Eq a, Show a) => a -> [a] -> Int
-> pos e xs = pos' xs 0
->	where
->	pos' [] _ = error ("project: pos: not found: " ++ show e)
->	pos' (x:xs) i =
->		if e == x then 
->			i
->		else
->			pos' xs (i + 1)
+ > pos :: (Eq a, Show a) => a -> [a] -> Int
+ > pos e xs = pos' xs 0
+ >	where
+ >	pos' [] _ = error ("project: pos: not found: " ++ show e)
+ >	pos' (x:xs) i =
+ >		if e == x then 
+ >			i
+ >		else
+ >			pos' xs (i + 1)
 
 Renaming
 

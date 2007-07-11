@@ -166,7 +166,7 @@ Note: mkTable [] [[]] is considered invalid
 show and read instance for the table
 
 > showsTable :: (Ord l, Show l, Show t, Literal l t) => (SetTable l t)-> ShowS
-> showsTable (SetTab header rows) = heads . alls (map mapcells (Set.toList rows))
+> showsTable (SetTab header rows) = ('\n':) . heads . alls (map mapcells (Set.toList rows))
 >       where 
 >           space = (' ':)            -- space ShowS
 >           col = ('|':) . space      -- column sperator
@@ -220,12 +220,12 @@ show and read instance for the table
 sample tables used for testing:
 
 > tableEmpty = mkTable [] [] :: Tab
-> tableEmptyS = "|\n"
+> tableEmptyS = "\n|\n"
 
 > table1 = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [IntLit 42, StrLit "daniel"]  ] :: Tab
-> table1S = 
+> table1S = '\n':
 >       "| ID: Number | Name: String |\n" ++
 >       "| 23         | \"fb\"         |\n" ++
 >       "| 42         | \"daniel\"     |\n" ++
@@ -236,7 +236,7 @@ Yes, those two are valid!
 > table2 = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [Null, StrLit "daniel"]  ] :: Tab
-> table2S = 
+> table2S = '\n':
 >       "| ID: Number | Name: String |\n" ++
 >       "| Null       | \"daniel\"     |\n" ++
 >       "| 23         | \"fb\"         |\n" ++
@@ -245,7 +245,7 @@ Yes, those two are valid!
 > table3 = mkTable [("ID",Number), ("Name",String)] [
 >       [Null, StrLit "fb"],
 >       [IntLit 42, StrLit "daniel"]  ] :: Tab
-> table3S = 
+> table3S = '\n':
 >       "| ID: Number | Name: String |\n" ++
 >       "| Null       | \"fb\"         |\n" ++
 >       "| 42         | \"daniel\"     |\n" ++
@@ -258,7 +258,7 @@ union of table 2 and table 3
 >       [Null, StrLit "fb"],
 >       [Null, StrLit "daniel"], 
 >       [IntLit 42, StrLit "daniel"]  ] :: Tab
-> table23S =
+> table23S ='\n':
 >       "| ID: Number | Name: String |\n" ++
 >       "| 23         | \"fb\"         |\n" ++
 >       "| Null       | \"fb\"         |\n" ++
@@ -272,21 +272,21 @@ union of table 2 and table 3
 > tableInvalidSize = mkTableUnsave [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [CharLit 'a', StrLit "daniel", Null]  ] :: Tab
-> tableInvalidS =
+> tableInvalidS ='\n':
 >       "| ID: Number | Name: String |\n" ++
 >       "| 23         | \"fb\"         |\n" ++
 >       "| 'a'        | \"daniel\"     |\n" ++
 >       ""
 
 > table123Empty = mkTable [("ID",Number), ("Name",String)] [] :: Tab
-> table123EmptyS = 
+> table123EmptyS = '\n':
 >       "| ID: Number | Name: String |\n" ++
 >       ""
 
 > tableLong = mkTable [("i",Number), ("Name",String)] [
 >       [IntLit (-100000000), StrLit "fb"],
 >       [IntLit 42, StrLit "Daniel Waeber\nCranachstr. 61\nBerlin"]  ] :: Tab
-> tableLongS = 
+> tableLongS = '\n':
 >       "| i: Number | Name: String |\n" ++
 >       "| -100000000 | \"fb\"         |\n" ++
 >       "| 42        | \"Daniel Waeber\\nCranachstr. 61\\nBerlin\" |\n" ++
