@@ -67,14 +67,18 @@ Constructors and schema checking:
 >		validRow :: (Row l) -> Bool
 >		validRow r = all (uncurry checkType) (zip sch r)
 >		checkSize = allRows (\r -> length sch == length r) t
+
+check the Table and return it, if it is valid, otherwise genrate in error
+
+>       checkedTable :: tab -> tab
+>       checkedTable t = if checkTable t 
+>                        then t 
+>                        else error "Invalid unshowable table (you loose)."
 >
 >       mkTableUnsave :: (TableHeader t) -> [(Row l)] -> tab
 >
 >       mkTable :: (TableHeader t) -> [(Row l)] -> tab
 >       mkTable h r = checkedTable (mkTableUnsave h r)
->          where checkedTable t = if checkTable t 
->                                 then t 
->                                 else error "invalid table"
 
 Getters:
 
@@ -105,11 +109,7 @@ Use mapRows unsafe if you want the table to be unchecked.
 >		(mkTable (header t) [])
 >		t
 >	mapRows :: ((Row l) -> (Row l)) -> tab -> tab
->	mapRows f t = if checkTable newTab then
->			newTab
->		else
->			error "invalid table" -- TODO: make table Showable?
->		where newTab = mapRowsUnsafe f t
+>	mapRows f t = checkedTable (mapRowsUnsafe f t)
 
 Basic list-like operations:
 
@@ -146,7 +146,7 @@ can be used with any type system, but the literals has to be ordered.
 > mkTableFromSet :: (Ord l, Literal l t) => (TableHeader t) -> Set.Set (Row l) -> (SetTable l t)
 > mkTableFromSet header rows = SetTab header rows
 
-> instance (Ord l, Literal l t) => Table (SetTable l t) l t where
+> instance (Show l, Show t, Ord l, Literal l t) => Table (SetTable l t) l t where
 >       mapRows f (SetTab head rows) = (SetTab head (Set.map f rows))
 >       filterRows f (SetTab head rows) = (SetTab head (Set.filter f rows))
 >       foldRows f i = Set.fold f i . rowSet
@@ -155,6 +155,10 @@ can be used with any type system, but the literals has to be ordered.
 >       schema (SetTab head _) = map snd head
 >       columnNames (SetTab head _) = map fst head
 >       rows (SetTab _ rows) = Set.toList rows
+>       checkedTable t = if checkTable t 
+>                        then t 
+>                        else error("Invalid table:\n" ++
+>                                    show t)
 
 Note: mkTable [] [[]] is considered invalid
 
@@ -206,10 +210,10 @@ show and read instance for the table
 > readsRows s = 
 >       [ (r:rs , v ) | (r,u) <- readsRow s, (rs,v) <- readsRows u ] ++
 >       [ ([],u) | ("",u) <- lex s]
-> readsTable :: (Ord l, Read l, Read t, Literal l t) => ReadS (SetTable l t)
+> readsTable :: (Show l, Show t, Ord l, Read l, Read t, Literal l t) => ReadS (SetTable l t)
 > readsTable s =
 >       [ (mkTableUnsave h r, w) | (h,u) <- readsTableHeader s, (r,w) <- readsRows u]
-> instance (Ord l, Read l, Read t, Literal l t) => Read (SetTable l t) where readsPrec _ = readsTable
+> instance (Show l, Show t, Ord l, Read l, Read t, Literal l t) => Read (SetTable l t) where readsPrec _ = readsTable
 
 -- UnitTesting --
 ------------------
