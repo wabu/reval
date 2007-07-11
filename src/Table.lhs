@@ -51,12 +51,27 @@ The class table consists of the table data tab, and the type system l t, which
 if functional dependent on tab.
 
 Note: To Implement this class you need to implement either rows or
-	foldRows and the basic getters. basic getters are header,
-	schema and columnNames.
+	foldRows, mkTableUnsafe and the basic getters. Basic getters
+	are header, schema and columnNames.
 	We recommend implementing more functions if you care about
 	performance.
 
 > class (Type t, Literal l t, Eq tab) => Table tab l t | tab -> l t where
+
+Constructors and schema checking:
+
+>       checkTable :: tab -> Bool
+>       checkTable t = allRows validRow t
+>		where
+>		sch = schema t
+>		validRow :: (Row l) -> Bool
+>		validRow r = all (uncurry checkType) (zip sch r)
+>       mkTableUnsave :: (TableHeader t) -> [(Row l)] -> tab
+>       mkTable :: (TableHeader t) -> [(Row l)] -> tab
+>       mkTable h r = checkedTable (mkTableUnsave h r)
+>          where checkedTable t = if checkTable t 
+>                                 then t 
+>                                 else error "invalid table"
 
 Getters:
 
@@ -97,14 +112,9 @@ Basic logic operations:
 >       allRows f = foldRows ((&&) . f) True
 >       anyRow :: ((Row l) -> Bool) -> tab -> Bool
 >       anyRow f = foldRows ((||) . f) False
->
->       checkTable :: tab -> Bool
->       mkTableUnsave :: (TableHeader t) -> [(Row l)] -> tab
->       mkTable :: (TableHeader t) -> [(Row l)] -> tab
->       mkTable h r = checkedTable (mkTableUnsave h r)
->          where checkedTable t = if checkTable t 
->                                 then t 
->                                 else error "invalid table"
+
+--- A Table Implemation using Set ---
+-------------------------------------
 
 The default implementaion of the table is just a Header an a Set of lits. It
 can be used with any type system, but the literals has to be ordered.
