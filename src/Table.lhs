@@ -64,17 +64,20 @@ Constructors and schema checking:
 >       checkTable t = allRows validRow t && checkSize
 >		where
 >		sch = schema t
->		validRow :: (Row l) -> Bool
 >		validRow r = all (uncurry checkType) (zip sch r)
 >		checkSize = allRows (\r -> length sch == length r) t
+
+check the Table and return it, if it is valid, otherwise genrate in error
+
+>       checkedTable :: tab -> tab
+>       checkedTable t = if checkTable t 
+>                        then t 
+>                        else error "Invalid unshowable table (you loose)."
 >
 >       mkTableUnsave :: (TableHeader t) -> [(Row l)] -> tab
 >
 >       mkTable :: (TableHeader t) -> [(Row l)] -> tab
 >       mkTable h r = checkedTable (mkTableUnsave h r)
->          where checkedTable t = if checkTable t 
->                                 then t 
->                                 else error "invalid table"
 
 Getters:
 
@@ -105,11 +108,7 @@ Use mapRows unsafe if you want the table to be unchecked.
 >		(mkTable (header t) [])
 >		t
 >	mapRows :: ((Row l) -> (Row l)) -> tab -> tab
->	mapRows f t = if checkTable newTab then
->			newTab
->		else
->			error "invalid table" -- TODO: make table Showable?
->		where newTab = mapRowsUnsafe f t
+>	mapRows f t = checkedTable (mapRowsUnsafe f t)
 
 Basic list-like operations:
 
@@ -146,8 +145,8 @@ can be used with any type system, but the literals has to be ordered.
 > mkTableFromSet :: (Ord l, Literal l t) => (TableHeader t) -> Set.Set (Row l) -> (SetTable l t)
 > mkTableFromSet header rows = SetTab header rows
 
-> instance (Ord l, Literal l t) => Table (SetTable l t) l t where
->       mapRows f (SetTab head rows) = (SetTab head (Set.map f rows))
+> instance (Show l, Show t, Ord l, Literal l t) => Table (SetTable l t) l t where
+>       mapRowsUnsafe f (SetTab head rows) = (SetTab head (Set.map f rows))
 >       filterRows f (SetTab head rows) = (SetTab head (Set.filter f rows))
 >       foldRows f i = Set.fold f i . rowSet
 
@@ -155,6 +154,10 @@ can be used with any type system, but the literals has to be ordered.
 >       schema (SetTab head _) = map snd head
 >       columnNames (SetTab head _) = map fst head
 >       rows (SetTab _ rows) = Set.toList rows
+>       checkedTable t = if checkTable t 
+>                        then t 
+>                        else error("Invalid table:\n" ++
+>                                    show t)
 
 Note: mkTable [] [[]] is considered invalid
 
@@ -206,10 +209,10 @@ show and read instance for the table
 > readsRows s = 
 >       [ (r:rs , v ) | (r,u) <- readsRow s, (rs,v) <- readsRows u ] ++
 >       [ ([],u) | ("",u) <- lex s]
-> readsTable :: (Ord l, Read l, Read t, Literal l t) => ReadS (SetTable l t)
+> readsTable :: (Show l, Show t, Ord l, Read l, Read t, Literal l t) => ReadS (SetTable l t)
 > readsTable s =
 >       [ (mkTableUnsave h r, w) | (h,u) <- readsTableHeader s, (r,w) <- readsRows u]
-> instance (Ord l, Read l, Read t, Literal l t) => Read (SetTable l t) where readsPrec _ = readsTable
+> instance (Show l, Show t, Ord l, Read l, Read t, Literal l t) => Read (SetTable l t) where readsPrec _ = readsTable
 
 -- UnitTesting --
 ------------------
@@ -289,6 +292,13 @@ union of table 2 and table 3
 >       "| 42        | \"Daniel Waeber\\nCranachstr. 61\\nBerlin\" |\n" ++
 >       ""
 
+> table1Xtable1 = mkTable
+>	[("ID",Number),("Name",String),("ID",Number),("Name",String)]
+>	[[IntLit 23, StrLit "fb", IntLit 23, StrLit "fb"],
+>	 [IntLit 23, StrLit "fb", IntLit 42, StrLit "daniel"],
+>	 [IntLit 42, StrLit "daniel", IntLit 23, StrLit "fb"],
+>	 [IntLit 42, StrLit "daniel", IntLit 42, StrLit "daniel"]] :: Tab
+
 --- Read Show Test ---
 ----------------------
 
@@ -358,13 +368,6 @@ show instance needed for unit testing ...
 >	((\(_:x:_) -> length (show x) > 1), table2, True)
 >	]
 
-> table1Xtable1 = mkTable
->	[("ID",Number),("Name",String),("ID",Number),("Name",String)]
->	[[IntLit 23, StrLit "fb", IntLit 23, StrLit "fb"],
->	 [IntLit 23, StrLit "fb", IntLit 42, StrLit "daniel"],
->	 [IntLit 42, StrLit "daniel", IntLit 23, StrLit "fb"],
->	 [IntLit 42, StrLit "daniel", IntLit 42, StrLit "daniel"]]
-
 > testSize = assertfun1 size "size" [
 >	(tableEmpty, (0,0)),
 >	(table123Empty, (2,0)),
@@ -376,8 +379,11 @@ show instance needed for unit testing ...
 > testMapRows = assertfun2 mapRows "mapRows" [
 >	(id, tableEmpty, tableEmpty),
 >	(id, table2, table2),
->	(id, table1Xtable1, table1Xtable1)
->	-- TODO: more tests
+>	(id, table1Xtable1, table1Xtable1),
+>       ((\((IntLit n):xs) -> (IntLit (n+5)):xs), table1, 
+>           read "| ID: Number | Name: String || 28 | \"fb\" || 47  | \"daniel\" |"),
+>       ((\(x:(StrLit s):xs) -> x:(StrLit (s++"-")):xs), table1, 
+>           read "| ID: Number | Name: String || 23 | \"fb-\" || 42  | \"daniel-\" |")
 >	]
 
 > testFilterRows = assertfun2 filterRows "filterRows" [
