@@ -311,14 +311,16 @@ show instance needed for unit testing ...
 
 > instance Show ((Row r) -> Bool)  where
 >	show _ = "(\\(Row r) -> Bool)"
+> instance Show ((Row r) -> (Row r))  where
+>	show _ = "(\\(Row r) -> (Row r))"
 
 > testAnyRow = assertfun2 anyRow "anyRow" [
->	((\x -> True), tableEmpty, False), -- by def
->	((\x -> False), tableEmpty, False),
->	((\x -> False), table123Empty, False),
->	((\x -> True), table123Empty, False),
->	((\x -> False), table2, False),
->	((\x -> True), table2, True),
+>	((\_ -> True), tableEmpty, False), -- by def
+>	((\_ -> False), tableEmpty, False),
+>	((\_ -> False), table123Empty, False),
+>	((\_ -> True), table123Empty, False),
+>	((\_ -> False), table2, False),
+>	((\_ -> True), table2, True),
 >	((\(x:_) -> x == Null), table2, True),
 >	((\(x:_) -> x /= read "2342"), table2, True),
 >	((\(x:_) -> x == read "2342"), table2, False),
@@ -327,12 +329,12 @@ show instance needed for unit testing ...
 >	]
 
 > testAllRows = assertfun2 allRows "allRows" [
->	((\x -> True), tableEmpty, True), -- by def
->	((\x -> False), tableEmpty, True),
->	((\x -> False), table123Empty, True),
->	((\x -> True), table123Empty, True),
->	((\x -> False), table2, False),
->	((\x -> True), table2, True),
+>	((\_ -> True), tableEmpty, True), -- by def
+>	((\_ -> False), tableEmpty, True),
+>	((\_ -> False), table123Empty, True),
+>	((\_ -> True), table123Empty, True),
+>	((\_ -> False), table2, False),
+>	((\_ -> True), table2, True),
 >	((\(x:_) -> x == Null), table2, False),
 >	((\(x:_) -> x /= Null), table2, False),
 >	((\(x:_) -> x /= read "2342"), table2, True),
@@ -341,8 +343,17 @@ show instance needed for unit testing ...
 >	((\(_:x:_) -> length (show x) > 1), table2, True)
 >	]
 
---- Putting it all together(tm) ---
------------------------------------
+> testSize = assertfun1 size "size" [
+>	(tableEmpty, 0)
+>	]
+
+> testMapRows = assertfun2 mapRows "mapRows" [
+>	(id, tableEmpty, tableEmpty)
+>	]
+
+> testFilterRows = assertfun2 filterRows "filterRows" [
+>	((\_ -> True), tableEmpty, tableEmpty)
+>	]
 
 > testTable = testRead && testShow && testCheckTable && testSchema && testColumnNames 
->	&& testAnyRow && testAllRows
+>	&& testAnyRow && testAllRows && testSize && testMapRows && testFilterRows
