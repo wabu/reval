@@ -369,7 +369,12 @@ show instance needed for unit testing ...
 >	]
 
 > testFilterRows = assertfun2 filterRows "filterRows" [
->	((\_ -> True), tableEmpty, tableEmpty)
+>	((\_ -> True), tableEmpty, tableEmpty),
+>	((\_ -> True), table1, table1),
+>	((\_ -> False), table1, read "| ID: Number | Name: String |"),
+>       (((IntLit 23 ==) . head), table1, read "| ID: Number | Name: String || 23 | \"fb\" |"),
+>       (((IntLit 42 ==) . head), table1, read "| ID: Number | Name: String || 42 | \"daniel\" |"),
+>       (((Null /=) . head), table2, read "| ID: Number | Name: String || 23 | \"fb\" |")
 >	]
 
 > testTable = testRead && testShow && testCheckTable && testSchema && testColumnNames 
