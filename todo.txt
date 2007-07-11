@@ -7,7 +7,6 @@ PENDING
 * TESTING! (fb)
 
 * features
-** renaming (fb)
 ** natural join
 ** theta join
 ** class Primeops 
@@ -50,6 +49,7 @@ DONE:
 ** cross join (fb) - done!
 ** sigma/projection (fb) - done!
 ** pi/selection (fb) - done!
+** renaming (fb)
 
 * non-functional features
 
