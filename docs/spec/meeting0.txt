@@ -1,0 +1,15 @@
+Meeting 0 with Joos
+Wed Jul 11 13:47:20 CEST 2007
+
+* mkTable [] [[]] ?
+
+** read data (tables) from file
+** read instructions (code) from file
+*** implement as haskell code with some preprocessing?
+*** template haskell?
+
+* error handling:
+* performance vs. lazyness
+
+* note 1.0?
+* aufschub abgabe?, weil mehr features ...

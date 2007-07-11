@@ -27,7 +27,6 @@ PENDING
 
 * nice to have
 ** read tables from file (wabu)
-** mkLeazyTable (fb) - done!
 ??? perhaps implement LazyTable as instance of Table
 ** build a DSL using (fb)
 *** evalate template haskell:
@@ -57,5 +56,4 @@ DONE:
 
 * nice to have
 ** mkLeazyTable (fb) - done!
-
-* misc (fb)
+** mkLeazyTable (fb) - done!
