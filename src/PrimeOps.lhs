@@ -94,7 +94,6 @@ FIXME: is there a diffrence in a Set {{}} and {} in relation algebra?
 Projection
 
 TODO: optimize! this is insanley slow :-(
-TODO: return Maybe Table to handle cases, when projection is invalid?
 
 > project :: (Ord l, Literal l t) => [ColumnName] -> (SetTable l t) -> (SetTable l t)
 > project [] (SetTab _ _) = mkTable [] [] 
@@ -135,8 +134,6 @@ syntatic sugar
 
 -- UnitTesting --
 ------------------
-
-TODO: unit tests are way to coupled on test tables!
 
 Format of assertfun2 is:
 assertfun f name_of_f [ (param1, param2, expected) ]
@@ -276,13 +273,13 @@ projections on table23
 >	  (table123Empty, table123Empty, mkTable
 >		[("ID",Number), ("Name",String), ("ID",Number),
 >		 ("Name",String)]
->		[])
->	  -- TODO:
->	  -- (table1, table1, XXX),
->	  -- (table2, table2, XXX),
->	  -- (table3, table3, XXX),
->	  -- (table23, table3, XXX),
->	  -- (table23, table2, XXX)
+>		[]),
+>	  (table2, table2, read
+>		("| ID: Number | Name: String | ID: Number | Name: String |" ++
+> 		"| Null       | \"daniel\"     | Null       | \"daniel\"     |" ++
+>		"| Null       | \"daniel\"     | 23         | \"fb\"         |" ++
+>		"| 23         | \"fb\"         | Null       | \"daniel\"     |" ++
+>		"| 23         | \"fb\"         | 23         | \"fb\"         |")) 
 >	]
 
 

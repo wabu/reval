@@ -191,20 +191,18 @@ Own Show and Read for SimpleLits
 > types = [Number, String, Char, Bool]
 > lits  = [int, str, chr, bool]
 
-FIXME: why "CheckCheck" ? vim :%s/.../.../ snafu? (fb)
-
-> testCheckCheck = assertfun2 check "check"
+> testCheck = assertfun2 check "check"
 >       ( [(a,a,True) | a <- types] ++
 >         [(a,Any,True) | a <- types] ++
 >         [(a,Bool,False) | a <- [String,Number,Char]] ++
 >         [(a,b,check b a) | a <- types, b <- types] ++
 >         [(Any,Any,True)] )
 
-> testCheckCheckType = assertfun2 checkType "checkType"
+> testCheckType = assertfun2 checkType "checkType"
 >       ( [(t,l,True) | (t,l) <- zip types lits] ++
 >         [(t,l,False) | i <- [1..4], l <- drop i lits, t <- take i types] ++
 >         [(t,l,False) | i <- [1..4], l <- take i lits, t <- drop i types] ++
 >         [(Any,l,True) | l <- lits] )
 
-> testPrimes = testCheckCheck && testCheckCheckType
+> testPrimes = testCheck && testCheckType
 
