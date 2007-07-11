@@ -19,7 +19,7 @@
 ------------------
 
 > module Table (
->   -- TODO: hide stuff, write getters
+>   -- TODO: hide stuff
 >   Row,
 >   ColumnName,
 >   ColumnHeader,
@@ -108,7 +108,7 @@ Use mapRows unsafe if you want the table to be unchecked.
 >	mapRows f t = if checkTable newTab then
 >			newTab
 >		else
->			error "invalid table" -- TODO: make table Showable
+>			error "invalid table" -- TODO: make table Showable?
 >		where newTab = mapRowsUnsafe f t
 
 Basic list-like operations:
@@ -319,9 +319,10 @@ union of table 2 and table 3
 >       [ [], ["ID", "Name"], ["ID", "Name"], ["ID", "Name"],
 >	  ["ID", "Name"] ]
 
-FIXME: more unit tests! mapRows, filterRows, size, ...
-
 show instance needed for unit testing ...
+
+--- Basic Functions ---
+-----------------------------
 
 > instance Show ((Row r) -> Bool)  where
 >	show _ = "(\\(Row r) -> Bool)"
