@@ -1,0 +1,18 @@
+created by ./mk-tmp-todo-list.sh - Wed Jul 11 10:12:36 CEST 2007
+
+src/PrimeOps.lhs:49:TODO: rename
+src/PrimeOps.lhs:90:FIXME: is there a diffrence in a Set {{}} and {} in relation algebra?
+src/PrimeOps.lhs:96:TODO: optimize! this is insanley slow :-(
+src/PrimeOps.lhs:97:TODO: return Maybe Table to handle cases, when projection is invalid?
+src/PrimeOps.lhs:139:TODO: unit tests are way to coupled on test tables!
+src/PrimeOps.lhs:280:>	  -- TODO:
+src/Primes.lhs:194:FIXME: why "CheckCheck" ? vim :%s/.../.../ snafu? (fb)
+src/Reval.lhs:18:> -- TODO: declare exports + export testAll
+src/Reval.lhs:28:TODO: print Note on startup?
+src/Table.lhs:22:>   -- TODO: hide stuff, write getters
+src/Table.lhs:61:>	-- TODO: filterRows would be nice to have, but no ++ defined
+src/Table.lhs:266:FIXME: more unit tests! mapRows, allRows ...
+src/Table.lhs:274:>	((\x -> True), tableEmpty, False), -- TODO: ok?
+src/Table.lhs:282:>	-- TODO: add more ...
+src/Table.lhs:290:>	((\x -> False), table2, False), -- TODO: FAILS!
+src/Table.lhs:295:>	-- TODO: add more ...
