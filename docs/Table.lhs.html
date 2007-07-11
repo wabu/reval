@@ -1,15 +1,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-              "http://www.w3.org/TR/html4/loose.dtd">
+"http://www.w3.org/TR/html4/loose.dtd">
 <html>
-  <head>
-    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-  </head>
-  <body>
-
+<head>
+<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+</head>
+<body>
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 
-<pre>
-Copyright (C) 2007  Daniel Waeber, Fabian Bieker
+<pre>nCopyright (C) 2007  Daniel Waeber, Fabian Bieker
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as 
@@ -22,326 +20,383 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-</pre>
-
+</pre>n
 
 <h1>The Table Type</h1>
+------------------
 
-Or how to trick Haskell to get a Table with different data types inside each
-column, but with arbitrary length.
-
-<pre>
-> module Table where
+<pre>n> module Table (
+>   -- TODO: hide stuff
+>   Row,
+>   ColumnName,
+>   ColumnHeader,
+>   TableHeader,
+>   Tab,
+>   Table(..),
+>   SetTable(..),
+>   mkTableFromSet,
+>   testTable,
+> )
+> where
 > 
+> import Primes
 > import Lib.AssertFun
 > import qualified Data.Set as Set
-</pre>
-
-
-
-
-<h2>Our First Try</h2>
-
-... in tricking the type system. The type class look good, but still
-we got a problem: There is no way to instantiate it.
-
-<pre>
-> {- the class looks good, but can be instanciated
->
-> class (Show a) => Row a where
->       name :: a -> String
->       content :: (Show b, Ord b) => a -> [b]
->
-> --type Table = (Row a) => [a]
->
-> newtype StringRow = SRow (String, [String])
->       deriving (Show, Eq, Read)
->
-> instance Row StringRow where
->       name (SRow (n,_))  = n
->       name _ = error "StringRow.name"
->       content (SRow (_,c)) = c
->       content _ = error "StringRow.content"
-> -}
-</pre>
-
-
-
-<h2>The Second Try</h2>
-
-The idea was to create a TableType as a LISP-like cons-cell to represent Tables.
-Trying to ignore the type of the second argument, so we can put a TableType d e
-did not work, as the type system cam back as we tried to write a on TableType. The
-compile will construct the type for the function, but that's an infinite type, so
-BOOOMM!! as soon as we use the type.
-
-<pre>
-> {- cant be used either
->
-> data TableType a b = Nil | Tab (Row a) b
->        deriving (Show, Eq, Read)
->
->
-> names Nil = [] 
-> names (Tab (name, _ ) b) = names b -- INFINITE TYPE! BOOM!!
-> names _ = error "StringRow.name"
-> -}
-</pre>
-
-
-
-<h2>Better: Use ASTs</h2>
-
-Well, screw it, just use ASTs:
-<ul>
-<li>just a Test List
-</li>
-<li>you can say something here
- and spread it of more linse
-</li>
-<li>cool ha?
-</li>
-<li>you just
- * can't have
- * a sublist
-</li>
-<li>but you can continue
-</li></ul>
-Your normal Text
-
-
-<h3>Basic AST Types</h3>
-Lit is a Literal.
-TODO: impl. own Show and Read ...
-
-<pre>
-> data Lit = Null | IntLit Int | StrLit String | CharLit Char |
->       BoolLit Bool
->       deriving (Show, Eq, Read)
-</pre>
-
-Type is used to store Type information in the table schema.
-Note: Null has Type Any.
-
-<pre>
-> data Type = Any | Number | String | Char | Bool
->       deriving (Show, Eq, Read)
-</pre>
-
-Now we can just use Lists as rows, as all data just has the type Lit.
-
-Ord for Lit needed to stuff Lits in Sets
-
-<pre>
-> instance Ord Lit where
->       compare Null Null = EQ
->       compare (IntLit a) (IntLit b) = compare a b 
->       compare (StrLit a) (StrLit b) = compare a b 
->       compare (CharLit a) (CharLit b) = compare a b 
->       compare (BoolLit a) (BoolLit b) = compare a b 
->       -- just to keep it consitent
->       compare Null _ = LT
->       compare _ Null = GT
->       compare (IntLit _) _ = LT
->       compare _ (IntLit _) = GT
->       compare (StrLit _) _ = LT
->       compare _ (StrLit _) = GT
->       compare (CharLit _) _ = LT
->       compare _ (CharLit _) = GT
-</pre>
-
-check it two types are compatilbe
-
-<pre>
-> checkType :: Type -> Type -> Bool
-> checkType Any _ = True
-> checkType _ Any = True
-> checkType Number Number = True
-> checkType String String = True
-> checkType Char Char = True
-> checkType Bool Bool = True
-> checkType _ _ = False
-</pre>
-
-get type information
-
-<pre>
-> getLitType :: Lit -> Type
-> getLitType Null = Any
-> getLitType (IntLit _) = Number
-> getLitType (StrLit _) = String
-> getLitType (CharLit _) = Char
-> getLitType (BoolLit _) = Bool
-</pre>
-
-check for right type
-
-<pre>
-> checkLitType :: Type -> Lit -> Bool
-> checkLitType t l = checkType t $ getLitType l
-</pre>
-
-compare the Type of two Lits
-
-<pre>
-> cmpLitType :: Lit -> Lit -> Bool
-> cmpLitType Null Null = True
-> cmpLitType (IntLit _) (IntLit _) = True
-> cmpLitType (StrLit _) (StrLit _) = True
-> cmpLitType (CharLit _) (CharLit _) = True
-> cmpLitType (BoolLit _) (BoolLit _) = True
-> cmpLitType _ _ = False
-</pre>
-
+</pre>n
 
 <h3>The Table</h3>
+-----------------
 Now Rows and Tables are easy, as we just can use a Set of List. We only have to
 check the types when createing or changeing a Table at runtime.
 
-<pre>
-> type Row = [Lit]
-</pre>
+<pre>n> type Row l = [l]
+> type ColumnName = String
+> type ColumnHeader t = (ColumnName, t)
+> type TableHeader t = [ColumnHeader t]
+</pre>n
+The class table consists of the table data tab, and the type system l t, which
+if functional dependent on tab.
 
-<pre>
-> type ColumHeader = (String, Type)
-> type TableHeader = [ColumHeader]
-> data Table = Tab (TableHeader, Set.Set Row) 
->       deriving (Show, Eq) -- , Read)
-</pre>
+Note: To Implement this class you need to implement either rows or
+	foldRows, mkTableUnsafe and the basic getters. Basic getters
+	are header, schema and columnNames.
+	We recommend implementing more functions if you care about
+	performance.
 
-FIXME:
- =>  No instance for (Read (Data.Set.Set Row))
-<pre>
-   arising from the 'deriving' clause of a data type declaration at Table.lhs:127:6
-   Probable fix: add an instance declaration for (Read (Data.Set.Set Row))
-   When deriving the `Read' instance for type `Table'
-</pre>
+<pre>n> class (Type t, Literal l t, Eq tab) => Table tab l t | tab -> l t where
+</pre>n
+Constructors and schema checking:
 
-TODO: impl. own Show and Read ...
+<pre>n>       checkTable :: tab -> Bool
+>       checkTable t = allRows validRow t && checkSize
+>		where
+>		sch = schema t
+>		validRow :: (Row l) -> Bool
+>		validRow r = all (uncurry checkType) (zip sch r)
+>		checkSize = allRows (\r -> length sch == length r) t
+>
+>       mkTableUnsave :: (TableHeader t) -> [(Row l)] -> tab
+>
+>       mkTable :: (TableHeader t) -> [(Row l)] -> tab
+>       mkTable h r = checkedTable (mkTableUnsave h r)
+>          where checkedTable t = if checkTable t 
+>                                 then t 
+>                                 else error "invalid table"
+</pre>n
+Getters:
 
-<pre>
-> mkTable :: TableHeader -> [Row] -> Table
-> mkTable header rows = Tab (header, Set.fromList rows)
-</pre>
+<pre>n>       header :: tab -> TableHeader t
+>       schema :: tab -> [t]
+>       columnNames :: tab -> [String]
+>       rows :: tab -> [Row l]
+>	rows = foldRows (:) []
+</pre>n
+basic functional programming higher order functions:
+Note: default impl. of foldRow is really slow, should be overwriten.
 
-error will fuck up unit test :(
-and infinite Tables won't be possible if we check them first :(
+<pre>n>       foldRows :: ((Row l) -> b -> b) -> b -> tab -> b
+>	foldRows f init = foldr f init . rows 
+>       filterRows :: ((Row l) -> Bool) -> tab -> tab
+>	filterRows f t = foldRows
+>	 	(\row table -> if f row then cons row table else table) 
+>		(mkTable (header t) [])
+>		t
+</pre>n
+mapRowsUnsafe might invalidate the table.
+Use mapRows if you want the table to be validated against the schema.
+Use mapRows unsafe if you want the table to be unchecked.
 
-<pre>
->-- mkTable header rows = if checkTable tab then tab
->--       else error "the table contains invalid valuse"
->--       where tab = 
-</pre>
+<pre>n>       mapRowsUnsafe :: ((Row l) -> (Row l)) -> tab -> tab
+>	mapRowsUnsafe f t = foldRows
+>	 	(\row table -> cons (f row) table) 
+>		(mkTable (header t) [])
+>		t
+>	mapRows :: ((Row l) -> (Row l)) -> tab -> tab
+>	mapRows f t = if checkTable newTab then
+>			newTab
+>		else
+>			error "invalid table" -- TODO: make table Showable?
+>		where newTab = mapRowsUnsafe f t
+</pre>n
+Basic list-like operations:
 
+<pre>n>	cons :: (Row l) -> tab -> tab
+>	cons r t = mkTable (header t) (r : rows t) 
+>	isEmpty :: tab -> Bool
+>	isEmpty = null . rows
+</pre>n
+Size returns (count of columns, count of rows)
+
+<pre>n>	size :: tab -> (Int,Int)
+>	size t = (length (schema t), length (rows t))
+</pre>n
+Basic logic operations:
+
+<pre>n>       allRows :: ((Row l) -> Bool) -> tab -> Bool
+>       allRows f = foldRows ((&&) . f) True
+>       anyRow :: ((Row l) -> Bool) -> tab -> Bool
+>       anyRow f = foldRows ((||) . f) False
+</pre>n
+<h3>A Table Implemation using Set</h3>
+-------------------------------------
+
+The default implementaion of the table is just a Header an a Set of lits. It
+can be used with any type system, but the literals has to be ordered.
+
+<pre>n> data (Ord l, Literal l t) => SetTable l t = SetTab (TableHeader t) (Set.Set (Row l)) 
+>       deriving Eq
+> type Tab = (SetTable SimpleLit SimpleType)
+</pre>n
+<pre>n> rowSet :: (Ord l, Literal l t) => (SetTable l t) -> (Set.Set (Row l))
+> rowSet (SetTab _ rows) = rows
+</pre>n
+<pre>n> mkTableFromSet :: (Ord l, Literal l t) => (TableHeader t) -> Set.Set (Row l) -> (SetTable l t)
+> mkTableFromSet header rows = SetTab header rows
+</pre>n
+<pre>n> instance (Ord l, Literal l t) => Table (SetTable l t) l t where
+>       mapRows f (SetTab head rows) = (SetTab head (Set.map f rows))
+>       filterRows f (SetTab head rows) = (SetTab head (Set.filter f rows))
+>       foldRows f i = Set.fold f i . rowSet
+</pre>n
+<pre>n>       header (SetTab head _) = head 
+>       schema (SetTab head _) = map snd head
+>       columnNames (SetTab head _) = map fst head
+>       rows (SetTab _ rows) = Set.toList rows
+</pre>n
 Note: mkTable [] [[]] is considered invalid
 
-<pre>
-> checkTable :: Table -> Bool
-> checkTable (Tab ([], rows)) = Set.null rows
-> checkTable (Tab (heads, rows)) = ctypes && clength
+<pre>n>       mkTableUnsave h r = SetTab h (Set.fromList r) 
+</pre>n
+show and read instance for the table
+
+<pre>n> showsTable :: (Ord l, Show l, Show t, Literal l t) => (SetTable l t)-> ShowS
+> showsTable (SetTab header rows) = heads . alls (map mapcells (Set.toList rows))
 >       where 
->           types = map snd heads
->           size = length heads
->           ctypes = Set.fold ((==) . all (uncurry checkLitType) . zip types) True rows
->           clength = Set.fold ((==) . (size ==) . length) True rows
-</pre>
+>           space = (' ':)            -- space ShowS
+>           col = ('|':) . space      -- column sperator
+>           line = ('|':) . ('\n':)   -- line
+>           strings = (++)            -- string -> ShowS
+>
+>           folds :: (a -> ShowS) -> [a] -> ShowS
+>           folds fs = foldr ((.) . fs) id
+>
+>           cheads (n, t) = (strings n) . (':':) . space . (shows t)    -- column header -> [ShowS]
+>           heads = folds ((col .) . (. space) . cheads) header . line  -- | cheader | cheader ... |\n
+>           headlength = (map (\h -> length $ cheads h "") header)
+>
+>           mapcells :: (Show a) => [a] -> [ShowS]                      -- row -> [ShowS]
+>           mapcells = map 
+>                   (\(n,s) -> strings (take (1 + max n (length $ show s)) (show s ++ repeat ' ')))
+>                   . zip headlength
+>           lines :: [ShowS] -> ShowS
+>           lines = folds (col .)
+>           alls :: [[ShowS]] -> ShowS
+>           alls = folds ((. line) . lines)
+> instance (Ord l, Show l, Show t, Literal l t) => Show (SetTable l t) where showsPrec _ = showsTable
+</pre>n
+<pre>n> readsColumnHeader :: (Read t) => ReadS (ColumnHeader t)
+> readsColumnHeader s =
+>       [ ((n,t),w) | (n,u) <- lex s, (":",v) <- lex u, (t,w) <- reads v ]
+> readsTableHeader :: (Read t) => ReadS (TableHeader t)
+> readsTableHeader s =
+>       [ (l:r,w) | ("|", u) <- lex s, (l, v) <- readsColumnHeader u,(r, w) <- readsTableHeader v] ++
+>       [ ([],u) | ("|",u) <- lex s, ("|",v) <- lex u] ++
+>       [ ([],u) | ("|",u) <- lex s, ("",v) <- lex u] ++
+>       [ ([],'|':u) | ("||",u) <- lex s]
+> readsRow :: (Read l) => ReadS (Row l)
+> readsRow s = 
+>       [ (l:r,w) | ("|", u) <- lex s, (l, v) <- reads u,(r, w) <- readsRow v] ++
+>       [ ([],u) | ("|",u) <- lex s, ("|",v) <- lex u] ++
+>       [ ([],u) | ("|",u) <- lex s, ("",v) <- lex u] ++
+>       [ ([],'|':u) | ("||",u) <- lex s]
+> readsRows :: (Read l) => ReadS [Row l]
+> readsRows s = 
+>       [ (r:rs , v ) | (r,u) <- readsRow s, (rs,v) <- readsRows u ] ++
+>       [ ([],u) | ("",u) <- lex s]
+> readsTable :: (Ord l, Read l, Read t, Literal l t) => ReadS (SetTable l t)
+> readsTable s =
+>       [ (mkTableUnsave h r, w) | (h,u) <- readsTableHeader s, (r,w) <- readsRows u]
+> instance (Ord l, Read l, Read t, Literal l t) => Read (SetTable l t) where readsPrec _ = readsTable
+</pre>n
+<h2>UnitTesting</h2>
+------------------
 
+sample tables used for testing:
 
-<h2>UnitTesting:</h2>
-
-<h3>Type System</h3>
-
-<pre>
-> int = IntLit 32
-> str = StrLit "wabu"
-> chr = CharLit '_'
-> bool = BoolLit True
-> null = Null
-> types = [Number, String, Char, Bool]
-> lits  = [int, str, chr, bool]
-</pre>
-
-<pre>
-> testCheckTypeEq = assertfun2 checkType "checkType"
->       ( [(a,a,True) | a <- types] ++
->         [(a,Any,True) | a <- types] ++
->         [(a,Bool,False) | a <- [String,Number,Char]] ++
->         [(a,b,checkType b a) | a <- types, b <- types] ++
->         [(Any,Any,True)] )
-</pre>
-
-<pre>
-> testCheckLitType = assertfun2 checkLitType "checkLitType"
->       ( [(t,l,True) | (t,l) <- zip types lits] ++
->         [(t,l,False) | i <- [1..4], l <- drop i lits, t <- take i types] ++
->         [(t,l,False) | i <- [1..4], l <- take i lits, t <- drop i types] ++
->         [(Any,l,True) | l <- lits] )
-</pre>
-
-<pre>
-> testCheckCmpType = assertfun2 cmpLitType "cmpLitType"
->       ( [(a,b,True) | (a,b) <- zip lits lits] ++
->         [(a,b,False) | i <- [1..4], a <- drop i lits, b <- take i lits] ++
->         [(a,b,False) | i <- [1..4], a <- take i lits, b <- drop i lits] ++
->         [(a,b,cmpLitType b a) | a <- lits, b <- lits] ++
->         [(Null,l,False) | l <- lits] ++ [(Null,Null,True)] )
-</pre>
-
-<pre>
-> testCheckTypes = testCheckTypeEq && testCheckLitType && testCheckCmpType
-</pre>
-
-
-<h3>Table</h3>
-
-<pre>
-> tableEmpty = mkTable [] []
-</pre>
-
-<pre>
-> table1 = mkTable [("ID",Number), ("Name",String)] [
+<pre>n> tableEmpty = mkTable [] [] :: Tab
+> tableEmptyS = "|\n"
+</pre>n
+<pre>n> table1 = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
->       [IntLit 42, StrLit "daniel"]  ]
-</pre>
-
+>       [IntLit 42, StrLit "daniel"]  ] :: Tab
+> table1S = 
+>       "| ID: Number | Name: String |\n" ++
+>       "| 23         | \"fb\"         |\n" ++
+>       "| 42         | \"daniel\"     |\n" ++
+>       ""
+</pre>n
 Yes, those two are valid!
 
-<pre>
-> table2 = mkTable [("ID",Number), ("Name",String)] [
+<pre>n> table2 = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
->       [Null, StrLit "daniel"]  ]
->
-> table3 = mkTable [("ID",Number), ("Name",String)] [
+>       [Null, StrLit "daniel"]  ] :: Tab
+> table2S = 
+>       "| ID: Number | Name: String |\n" ++
+>       "| Null       | \"daniel\"     |\n" ++
+>       "| 23         | \"fb\"         |\n" ++
+>       ""
+</pre>n
+<pre>n> table3 = mkTable [("ID",Number), ("Name",String)] [
 >       [Null, StrLit "fb"],
->       [IntLit 42, StrLit "daniel"]  ]
-</pre>
+>       [IntLit 42, StrLit "daniel"]  ] :: Tab
+> table3S = 
+>       "| ID: Number | Name: String |\n" ++
+>       "| Null       | \"fb\"         |\n" ++
+>       "| 42         | \"daniel\"     |\n" ++
+>       ""
+</pre>n
+union of table 2 and table 3
 
-<pre>
-> tableInvalid = mkTable [("ID",Number), ("Name",String)] [
+<pre>n> table23 = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
->       [CharLit 'a', StrLit "daniel"]  ]
-</pre>
+>       [Null, StrLit "fb"],
+>       [Null, StrLit "daniel"], 
+>       [IntLit 42, StrLit "daniel"]  ] :: Tab
+> table23S =
+>       "| ID: Number | Name: String |\n" ++
+>       "| 23         | \"fb\"         |\n" ++
+>       "| Null       | \"fb\"         |\n" ++
+>       "| Null       | \"daniel\"     |\n" ++
+>       "| 42         | \"daniel\"     |\n" ++
+>       ""
+</pre>n
+<pre>n> tableInvalid = mkTableUnsave [("ID",Number), ("Name",String)] [
+>       [IntLit 23, StrLit "fb"],
+>       [CharLit 'a', StrLit "daniel"]  ] :: Tab
+> tableInvalidSize = mkTableUnsave [("ID",Number), ("Name",String)] [
+>       [IntLit 23, StrLit "fb"],
+>       [CharLit 'a', StrLit "daniel", Null]  ] :: Tab
+> tableInvalidS =
+>       "| ID: Number | Name: String |\n" ++
+>       "| 23         | \"fb\"         |\n" ++
+>       "| 'a'        | \"daniel\"     |\n" ++
+>       ""
+</pre>n
+<pre>n> table123Empty = mkTable [("ID",Number), ("Name",String)] [] :: Tab
+> table123EmptyS = 
+>       "| ID: Number | Name: String |\n" ++
+>       ""
+</pre>n
+<pre>n> tableLong = mkTable [("i",Number), ("Name",String)] [
+>       [IntLit (-100000000), StrLit "fb"],
+>       [IntLit 42, StrLit "Daniel Waeber\nCranachstr. 61\nBerlin"]  ] :: Tab
+> tableLongS = 
+>       "| i: Number | Name: String |\n" ++
+>       "| -100000000 | \"fb\"         |\n" ++
+>       "| 42        | \"Daniel Waeber\\nCranachstr. 61\\nBerlin\" |\n" ++
+>       ""
+</pre>n
+<h3>Read Show Test</h3>
+----------------------
 
-<pre>
-> testCheckTable = afun1 checkTable "checktab"
->       [tableEmpty, table1, tableInvalid, table2, table3]
->       [True, True, False, True, True]
-</pre>
+<pre>n> testShow = afun1 show "show"
+>   [tableEmpty, table1, table2, table3, tableInvalid, table123Empty, tableLong]
+>   [tableEmptyS,table1S,table2S,table3S,tableInvalidS,table123EmptyS,tableLongS]
+> testRead = afun1 read "read"
+>   [tableEmptyS,table1S,table2S,table3S,tableInvalidS,table123EmptyS,tableLongS]
+>   [tableEmpty, table1, table2, table3, tableInvalid, table123Empty, tableLong]
+</pre>n
+<h3>CheckTable Unit Test</h3>
+----------------------------
 
-<pre>
-> testAll = testCheckTypes && testCheckTable
-</pre>
+<pre>n> testCheckTable = afun1 checkTable "checktab"
+>       [tableEmpty, table1, tableInvalid, tableInvalidSize, table2, table3]
+>       [True, True, False, False, True, True]
+</pre>n
+<h3>Getters for Table ADT</h3>
+-----------------------------
 
+<pre>n> testSchema = afun1 schema "schema"
+>       [tableEmpty, table1, table2, table3, table123Empty]
+>       [ [], [Number, String],[Number, String],
+>	  [Number, String],[Number, String] ]
+</pre>n
+<pre>n> testColumnNames = afun1 columnNames "columNames"
+>       [tableEmpty, table1, table2, table3, table123Empty]
+>       [ [], ["ID", "Name"], ["ID", "Name"], ["ID", "Name"],
+>	  ["ID", "Name"] ]
+</pre>n
+show instance needed for unit testing ...
 
-License foo:
+<h3>Basic Functions</h3>
+-----------------------------
 
-<pre>
-> licenseNote = "rel-eval \tCopyright (C) 2007 \tDaniel Waeber, Fabian Bieker\n" ++
->       "This program comes with ABSOLUTELY NO WARRANTY; for details " ++
->       "read the LICENSE.txt file.\n" ++
->       "This is free software, and you are welcome to " ++
->       "redistribute it under certain conditions; type LGPL.txt for " ++
->       "details.\n"
-</pre>
-  </body>
+<pre>n> instance Show ((Row r) -> Bool)  where
+>	show _ = "(\\(Row r) -> Bool)"
+> instance Show ((Row r) -> (Row r))  where
+>	show _ = "(\\(Row r) -> (Row r))"
+</pre>n
+<pre>n> testAnyRow = assertfun2 anyRow "anyRow" [
+>	((\_ -> True), tableEmpty, False), -- by def
+>	((\_ -> False), tableEmpty, False),
+>	((\_ -> False), table123Empty, False),
+>	((\_ -> True), table123Empty, False),
+>	((\_ -> False), table2, False),
+>	((\_ -> True), table2, True),
+>	((\(x:_) -> x == Null), table2, True),
+>	((\(x:_) -> x /= read "2342"), table2, True),
+>	((\(x:_) -> x == read "2342"), table2, False),
+>	((\(_:x:_) -> length (show x) > 10), table2, False),
+>	((\(_:x:_) -> length (show x) > 1), table2, True)
+>	]
+</pre>n
+<pre>n> testAllRows = assertfun2 allRows "allRows" [
+>	((\_ -> True), tableEmpty, True), -- by def
+>	((\_ -> False), tableEmpty, True),
+>	((\_ -> False), table123Empty, True),
+>	((\_ -> True), table123Empty, True),
+>	((\_ -> False), table2, False),
+>	((\_ -> True), table2, True),
+>	((\(x:_) -> x == Null), table2, False),
+>	((\(x:_) -> x /= Null), table2, False),
+>	((\(x:_) -> x /= read "2342"), table2, True),
+>	((\(x:_) -> x == read "2342"), table2, False),
+>	((\(_:x:_) -> length (show x) > 10), table2, False),
+>	((\(_:x:_) -> length (show x) > 1), table2, True)
+>	]
+</pre>n
+<pre>n> table1Xtable1 = mkTable
+>	[("ID",Number),("Name",String),("ID",Number),("Name",String)]
+>	[[IntLit 23, StrLit "fb", IntLit 23, StrLit "fb"],
+>	 [IntLit 23, StrLit "fb", IntLit 42, StrLit "daniel"],
+>	 [IntLit 42, StrLit "daniel", IntLit 23, StrLit "fb"],
+>	 [IntLit 42, StrLit "daniel", IntLit 42, StrLit "daniel"]]
+</pre>n
+<pre>n> testSize = assertfun1 size "size" [
+>	(tableEmpty, (0,0)),
+>	(table123Empty, (2,0)),
+>	(table2, (2,2)),
+>	(table3, (2,2)),
+>	(table1Xtable1, (4,4))
+>	]
+</pre>n
+<pre>n> testMapRows = assertfun2 mapRows "mapRows" [
+>	(id, tableEmpty, tableEmpty),
+>	(id, table2, table2),
+>	(id, table1Xtable1, table1Xtable1)
+>	-- TODO: more tests
+>	]
+</pre>n
+<pre>n> testFilterRows = assertfun2 filterRows "filterRows" [
+>	((\_ -> True), tableEmpty, tableEmpty),
+>	((\_ -> True), table1, table1),
+>	((\_ -> False), table1, read "| ID: Number | Name: String |"),
+>       (((IntLit 23 ==) . head), table1, read "| ID: Number | Name: String || 23 | \"fb\" |"),
+>       (((IntLit 42 ==) . head), table1, read "| ID: Number | Name: String || 42 | \"daniel\" |"),
+>       (((Null /=) . head), table2, read "| ID: Number | Name: String || 23 | \"fb\" |")
+>	]
+</pre>n
+<pre>n> testTable = testRead && testShow && testCheckTable && testSchema && testColumnNames 
+>	&& testAnyRow && testAllRows && testSize && testMapRows && testFilterRowsn</pre>
+</body>
 </html>

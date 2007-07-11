@@ -1,10 +1,9 @@
-created by ../mk-tmp-todo-list.sh - Wed Jul 11 12:40:23 CEST 2007
+created by ../mk-tmp-todo-list.sh - Wed Jul 11 12:42:27 CEST 2007
 
 src/PrimeOps.lhs:49:TODO: rename
 src/PrimeOps.lhs:90:FIXME: is there a diffrence in a Set {{}} and {} in relation algebra?
 src/PrimeOps.lhs:96:TODO: optimize! this is insanley slow :-(
 src/Reval.lhs:18:> -- TODO: declare exports + export testAll
-src/Table.lhs:22:>   -- TODO: hide stuff, write getters
-src/Table.lhs:111:>			error "invalid table" -- TODO: make table Showable
-src/Table.lhs:322:FIXME: more unit tests! mapRows, filterRows, size, ...
-src/Table.lhs:379:>	-- TODO: more tests
+src/Table.lhs:22:>   -- TODO: hide stuff
+src/Table.lhs:111:>			error "invalid table" -- TODO: make table Showable?
+src/Table.lhs:380:>	-- TODO: more tests
