@@ -8,9 +8,13 @@ PENDING
 
 * features
 ** renaming (fb)
-** natural join etc.
+** natural join
+** theta join
 ** class Primeops 
 *** with default implementaion 
+*** should be part of the Table class
+** read data (tables) from file
+** read instructions (code) from file
 
 * non-functional features
 ** documentation
