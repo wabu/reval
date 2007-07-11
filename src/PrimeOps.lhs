@@ -21,6 +21,7 @@
 >   cross,
 >   project,
 >   select,
+>   rename,	
 >   testPrimeOps,
 >   (|||),
 >   (\\\),
@@ -74,7 +75,7 @@ cross-join
 
 cross table1 table2 -- looks good, imho...
 
-TOOD: optimize, Set.toList sux!
+TODO: optimize, Set.toList sux!
 
 > cross :: (Ord l, Literal l t) => (SetTable l t) -> (SetTable l t) -> (SetTable l t)
 > cross (SetTab h1 r1) (SetTab h2 r2) =
@@ -120,6 +121,20 @@ find postion of an elemt in a List
 >			i
 >		else
 >			pos' xs (i + 1)
+
+Renaming
+
+Syntax: rename [(oldName, newName)] table
+
+> rename :: (Ord l, Literal l t) => [(ColumnName,ColumnName)] -> (SetTable l t) -> (SetTable l t)
+> rename names tab@(SetTab sch _) = mkTable (replaceNames sch) (rows tab)
+>	where
+>	-- TODO: check if oldName is in schema names if not error ...
+>	replaceNames = map (getNewName names)
+>	getNewName [] header = header
+>	getNewName ((old,new):xs) h@(name, ctype) = if name == new
+>		then (new, ctype)
+>		else getNewName xs h
 
 syntatic sugar
 
@@ -282,6 +297,14 @@ projections on table23
 >		"| 23         | \"fb\"         | 23         | \"fb\"         |")) 
 >	]
 
+> testRename = assertfun2 rename "rename" [ 
+>	([], tableEmpty, tableEmpty),
+>	([], table1, table1),
+>	([], table123Empty, table123Empty),
+>	([("ID", "FOO")], table123Empty,
+>		read "| FOO: Number | Name: String |" :: Tab) -- fails
+>	-- TODO: more tests ...
+>	]
 
 > testPrimeOps = testUnion && testDifference && testIntersection
 >       && testSelect && testProject
