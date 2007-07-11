@@ -64,7 +64,6 @@ Constructors and schema checking:
 >       checkTable t = allRows validRow t && checkSize
 >		where
 >		sch = schema t
->		validRow :: (Row l) -> Bool
 >		validRow r = all (uncurry checkType) (zip sch r)
 >		checkSize = allRows (\r -> length sch == length r) t
 
@@ -147,7 +146,7 @@ can be used with any type system, but the literals has to be ordered.
 > mkTableFromSet header rows = SetTab header rows
 
 > instance (Show l, Show t, Ord l, Literal l t) => Table (SetTable l t) l t where
->       mapRows f (SetTab head rows) = (SetTab head (Set.map f rows))
+>       mapRowsUnsafe f (SetTab head rows) = (SetTab head (Set.map f rows))
 >       filterRows f (SetTab head rows) = (SetTab head (Set.filter f rows))
 >       foldRows f i = Set.fold f i . rowSet
 
@@ -293,6 +292,13 @@ union of table 2 and table 3
 >       "| 42        | \"Daniel Waeber\\nCranachstr. 61\\nBerlin\" |\n" ++
 >       ""
 
+> table1Xtable1 = mkTable
+>	[("ID",Number),("Name",String),("ID",Number),("Name",String)]
+>	[[IntLit 23, StrLit "fb", IntLit 23, StrLit "fb"],
+>	 [IntLit 23, StrLit "fb", IntLit 42, StrLit "daniel"],
+>	 [IntLit 42, StrLit "daniel", IntLit 23, StrLit "fb"],
+>	 [IntLit 42, StrLit "daniel", IntLit 42, StrLit "daniel"]] :: Tab
+
 --- Read Show Test ---
 ----------------------
 
@@ -362,13 +368,6 @@ show instance needed for unit testing ...
 >	((\(_:x:_) -> length (show x) > 1), table2, True)
 >	]
 
-> table1Xtable1 = mkTable
->	[("ID",Number),("Name",String),("ID",Number),("Name",String)]
->	[[IntLit 23, StrLit "fb", IntLit 23, StrLit "fb"],
->	 [IntLit 23, StrLit "fb", IntLit 42, StrLit "daniel"],
->	 [IntLit 42, StrLit "daniel", IntLit 23, StrLit "fb"],
->	 [IntLit 42, StrLit "daniel", IntLit 42, StrLit "daniel"]]
-
 > testSize = assertfun1 size "size" [
 >	(tableEmpty, (0,0)),
 >	(table123Empty, (2,0)),
@@ -380,8 +379,11 @@ show instance needed for unit testing ...
 > testMapRows = assertfun2 mapRows "mapRows" [
 >	(id, tableEmpty, tableEmpty),
 >	(id, table2, table2),
->	(id, table1Xtable1, table1Xtable1)
->	-- TODO: more tests
+>	(id, table1Xtable1, table1Xtable1),
+>       ((\((IntLit n):xs) -> (IntLit (n+5)):xs), table1, 
+>           read "| ID: Number | Name: String || 28 | \"fb\" || 47  | \"daniel\" |"),
+>       ((\(x:(StrLit s):xs) -> x:(StrLit (s++"-")):xs), table1, 
+>           read "| ID: Number | Name: String || 23 | \"fb-\" || 42  | \"daniel-\" |")
 >	]
 
 > testFilterRows = assertfun2 filterRows "filterRows" [
