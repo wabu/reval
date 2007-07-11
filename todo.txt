@@ -26,9 +26,9 @@ PENDING
 *** if in doubt use error and create an ...Unsafe method, too
 
 * nice to have
+** Literate Type for Functions / Clousures
 ** read tables from file (wabu)
-??? perhaps implement LazyTable as instance of Table
-** build a DSL using (fb)
+*** build a DSL (fb)
 *** evalate template haskell:
 **** http://www.haskell.org/hawiki/TemplateHaskellTutorial
 ** performance
