@@ -15,6 +15,8 @@ PENDING
 *** should be part of the Table class
 ** read data (tables) from file
 ** read instructions (code) from file
+*** implement as haskell code with some preprocessing?
+*** template haskell?
 
 * non-functional features
 ** documentation
