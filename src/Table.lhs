@@ -355,6 +355,7 @@ show instance needed for unit testing ...
 
 > testSize = assertfun1 size "size" [
 >	(tableEmpty, (0,0)),
+>	(table123Empty, (2,0)),
 >	(table2, (2,2)),
 >	(table3, (2,2)),
 >	(table1Xtable1, (4,4))
