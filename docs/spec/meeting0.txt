@@ -2,7 +2,7 @@ Meeting 0 with Joos
 Wed Jul 11 13:47:20 CEST 2007
 
 * mkTable [] [[]] ?
-** no, but ask schweppe
+-> no, but ask schweppe
 
 ** read data (tables) from file
 ** read instructions (code) from file
@@ -13,20 +13,20 @@ Wed Jul 11 13:47:20 CEST 2007
 ** eher error
 ** projection nicht eindeutig -> error
 * performance vs. lazyness
-* -> schweppe
+-> schweppe
 
 * note 1.0?
-** -> schweppe vorführen
-** nifty functional foo
-** abgeschlossenheit
-** lesbarer I/O
+-> schweppe vorführen
+--> nifty functional foo
+--> abgeschlossenheit
+--> lesbarer I/O
 * aufschub abgabe?, weil mehr features ...
-** abgabe bei schweppe...
+-> abgabe bei schweppe...
 
-* Doku für Joos
+-> Doku für Joos
 
-* Schweppe nach ALP4 Vorlesung oder Freitag
-** TODO: show weburl 
+-> Schweppe nach ALP4 Vorlesung oder Freitag
+--> TODO: show weburl 
 
 * Note: cross is broken!
 ** schema table1 == schema (cross table1 table1) !
