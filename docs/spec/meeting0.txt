@@ -27,6 +27,3 @@ Wed Jul 11 13:47:20 CEST 2007
 
 -> Schweppe nach ALP4 Vorlesung oder Freitag
 --> TODO: show weburl 
-
-* Note: cross is broken!
-** schema table1 == schema (cross table1 table1) !
