@@ -77,7 +77,8 @@ cross table1 table2 -- looks good, imho...
 
 TODO: optimize, Set.toList sux!
 
-> cross :: (Ord l, Literal l t) => (SetTable l t) -> (SetTable l t) -> (SetTable l t)
+> cross :: (Show l, Show t, Ord l, Literal l t) =>
+>	(SetTable l t) -> (SetTable l t) -> (SetTable l t)
 > cross (SetTab h1 r1) (SetTab h2 r2) =
 >	mkTable newHeader [ x++y | x <- l1, y <- l2]
 >	where
@@ -96,7 +97,8 @@ Projection
 
 TODO: optimize! this is insanley slow :-(
 
-> project :: (Ord l, Literal l t) => [ColumnName] -> (SetTable l t) -> (SetTable l t)
+> project :: (Show l, Show t, Ord l, Literal l t) =>
+>	[ColumnName] -> (SetTable l t) -> (SetTable l t)
 > project [] (SetTab _ _) = mkTable [] [] 
 > project wantedNames (SetTab header rows) =
 > 	SetTab newHeader newRows
@@ -126,25 +128,30 @@ Renaming
 
 Syntax: rename [(oldName, newName)] table
 
-> rename :: (Ord l, Literal l t) => [(ColumnName,ColumnName)] -> (SetTable l t) -> (SetTable l t)
+> rename :: (Show l, Show t, Ord l, Literal l t) =>
+>	[(ColumnName,ColumnName)] -> (SetTable l t) -> (SetTable l t)
 > rename names tab@(SetTab sch _) = mkTable (replaceNames sch) (rows tab)
 >	where
 >	-- TODO: check if oldName is in schema names if not error ...
 >	replaceNames = map (getNewName names)
 >	getNewName [] header = header
->	getNewName ((old,new):xs) h@(name, ctype) = if name == new
+>	getNewName ((old,new):xs) h@(name, ctype) = if name == old
 >		then (new, ctype)
 >		else getNewName xs h
 
 syntatic sugar
 
-> (&&&) :: (Ord l, Literal l t) => (SetTable l t) -> (SetTable l t) -> (SetTable l t)
+> (&&&) :: (Show l, Show t, Ord l, Literal l t) =>
+>	(SetTable l t) -> (SetTable l t) -> (SetTable l t)
 > (&&&) = intersection
-> (|||) :: (Ord l, Literal l t) => (SetTable l t) -> (SetTable l t) -> (SetTable l t)
+> (|||) :: (Show l, Show t, Ord l, Literal l t) =>
+>	(SetTable l t) -> (SetTable l t) -> (SetTable l t)
 > (|||) = union
-> (***) :: (Ord l, Literal l t) => (SetTable l t) -> (SetTable l t) -> (SetTable l t)
+> (***) :: (Show l, Show t, Ord l, Literal l t) =>
+>	(SetTable l t) -> (SetTable l t) -> (SetTable l t)
 > (***) = cross
-> (\\\) :: (Ord l, Literal l t) => (SetTable l t) -> (SetTable l t) -> (SetTable l t)
+> (\\\) :: (Show l, Show t, Ord l, Literal l t) =>
+>	(SetTable l t) -> (SetTable l t) -> (SetTable l t)
 > (\\\) = difference
 
 -- UnitTesting --
@@ -302,11 +309,20 @@ projections on table23
 >	([], table1, table1),
 >	([], table123Empty, table123Empty),
 >	([("ID", "FOO")], table123Empty,
->		read "| FOO: Number | Name: String |" :: Tab) -- fails
->	-- TODO: more tests ...
+>		read "| FOO: Number | Name: String |" :: Tab),
+>	([("Name", "FOO")], table123Empty,
+>		read "| ID: Number | FOO: String |" :: Tab),
+>	([("ID", "BAR"), ("Name", "FOO")], table123Empty,
+>		read "| BAR: Number | FOO: String |" :: Tab),
+>	([("Name", "FOO"), ("ID", "BAR")], table123Empty,
+>		read "| BAR: Number | FOO: String |" :: Tab),
+>	([("Name", "FOO"), ("ID", "BAR")], table1,
+>		read (     "| BAR: Number | FOO: String |"
+>			++ "| 23          | \"fb\"      |"
+>			++ "| 42          | \"daniel\"  |") :: Tab) 
 >	]
 
 > testPrimeOps = testUnion && testDifference && testIntersection
 >       && testSelect && testProject
->       && testCross
+>       && testCross && testRename
 
