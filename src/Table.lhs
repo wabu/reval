@@ -278,8 +278,10 @@ show instance needed for unit testing ...
 >	((\x -> False), table2, False),
 >	((\x -> True), table2, True),
 >	((\(x:_) -> x == Null), table2, True),
->	((\(x:_) -> x == read "2342"), table2, False)
->	-- TODO: add more ...
+>	((\(x:_) -> x /= read "2342"), table2, True),
+>	((\(x:_) -> x == read "2342"), table2, False),
+>	((\(_:x:_) -> length (show x) > 10), table2, False),
+>	((\(_:x:_) -> length (show x) > 1), table2, True)
 >	]
 
 > testAllRows = assertfun2 allRows "allRows" [
@@ -287,12 +289,14 @@ show instance needed for unit testing ...
 >	((\x -> False), tableEmpty, True),
 >	((\x -> False), table123Empty, True),
 >	((\x -> True), table123Empty, True),
->	((\x -> False), table2, False), -- TODO: FAILS!
+>	((\x -> False), table2, False),
 >	((\x -> True), table2, True),
 >	((\(x:_) -> x == Null), table2, False),
 >	((\(x:_) -> x /= Null), table2, False),
->	((\(x:_) -> x /= read "2342"), table2, True)
->	-- TODO: add more ...
+>	((\(x:_) -> x /= read "2342"), table2, True),
+>	((\(x:_) -> x == read "2342"), table2, False),
+>	((\(_:x:_) -> length (show x) > 10), table2, False),
+>	((\(_:x:_) -> length (show x) > 1), table2, True)
 >	]
 
 --- Putting it all together(tm) ---
