@@ -1,9 +1,11 @@
-created by ./mk-tmp-todo-list.sh - Thu Jul 12 10:38:10 CEST 2007
+created by ./mk-tmp-todo-list.sh - Thu Jul 12 11:08:57 CEST 2007
 
-src/PrimeOps.lhs:51:TODO: more sanity checking
-src/PrimeOps.lhs:86:TODO: optimize, Set.toList sux!
-src/PrimeOps.lhs:108:TODO: projectUnsafe?
-src/PrimeOps.lhs:109:TODO: optimize! this is insanley slow :-(
-src/PrimeOps.lhs:166:>	-- TODO: check if oldName is in schema names if not error ...
+src/PrimeOps.lhs:33:TODO: default impl.
+src/PrimeOps.lhs:47:basic FIXME
+src/PrimeOps.lhs:79:TODO: more sanity checking
+src/PrimeOps.lhs:107:TODO: optimize, Set.toList sux!
+src/PrimeOps.lhs:127:TODO: projectUnsafe?
+src/PrimeOps.lhs:128:TODO: optimize! this is insanley slow :-(
+src/PrimeOps.lhs:132:>		-- FIXME: this is a really bad errormsg - open questions: why? how did i get here?
 src/Reval.lhs:18:> -- TODO: declare exports + export testAll
 src/Table.lhs:22:>   -- TODO: hide stuff
