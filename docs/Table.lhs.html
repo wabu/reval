@@ -71,17 +71,20 @@ Constructors and schema checking:
 >       checkTable t = allRows validRow t && checkSize
 >		where
 >		sch = schema t
->		validRow :: (Row l) -> Bool
 >		validRow r = all (uncurry checkType) (zip sch r)
 >		checkSize = allRows (\r -> length sch == length r) t
+</pre>n
+check the Table and return it, if it is valid, otherwise genrate in error
+
+<pre>n>       checkedTable :: tab -> tab
+>       checkedTable t = if checkTable t 
+>                        then t 
+>                        else error "Invalid unshowable table (you loose)."
 >
 >       mkTableUnsave :: (TableHeader t) -> [(Row l)] -> tab
 >
 >       mkTable :: (TableHeader t) -> [(Row l)] -> tab
 >       mkTable h r = checkedTable (mkTableUnsave h r)
->          where checkedTable t = if checkTable t 
->                                 then t 
->                                 else error "invalid table"
 </pre>n
 Getters:
 
@@ -112,11 +115,7 @@ Use mapRows unsafe if you want the table to be unchecked.
 >		(mkTable (header t) [])
 >		t
 >	mapRows :: ((Row l) -> (Row l)) -> tab -> tab
->	mapRows f t = if checkTable newTab then
->			newTab
->		else
->			error "invalid table" -- TODO: make table Showable?
->		where newTab = mapRowsUnsafe f t
+>	mapRows f t = checkedTable (mapRowsUnsafe f t)
 </pre>n
 Basic list-like operations:
 
@@ -153,8 +152,8 @@ can be used with any type system, but the literals has to be ordered.
 <pre>n> mkTableFromSet :: (Ord l, Literal l t) => (TableHeader t) -> Set.Set (Row l) -> (SetTable l t)
 > mkTableFromSet header rows = SetTab header rows
 </pre>n
-<pre>n> instance (Ord l, Literal l t) => Table (SetTable l t) l t where
->       mapRows f (SetTab head rows) = (SetTab head (Set.map f rows))
+<pre>n> instance (Show l, Show t, Ord l, Literal l t) => Table (SetTable l t) l t where
+>       mapRowsUnsafe f (SetTab head rows) = (SetTab head (Set.map f rows))
 >       filterRows f (SetTab head rows) = (SetTab head (Set.filter f rows))
 >       foldRows f i = Set.fold f i . rowSet
 </pre>n
@@ -162,6 +161,10 @@ can be used with any type system, but the literals has to be ordered.
 >       schema (SetTab head _) = map snd head
 >       columnNames (SetTab head _) = map fst head
 >       rows (SetTab _ rows) = Set.toList rows
+>       checkedTable t = if checkTable t 
+>                        then t 
+>                        else error("Invalid table:\n" ++
+>                                    show t)
 </pre>n
 Note: mkTable [] [[]] is considered invalid
 
@@ -170,7 +173,7 @@ Note: mkTable [] [[]] is considered invalid
 show and read instance for the table
 
 <pre>n> showsTable :: (Ord l, Show l, Show t, Literal l t) => (SetTable l t)-> ShowS
-> showsTable (SetTab header rows) = heads . alls (map mapcells (Set.toList rows))
+> showsTable (SetTab header rows) = ('\n':) . heads . alls (map mapcells (Set.toList rows))
 >       where 
 >           space = (' ':)            -- space ShowS
 >           col = ('|':) . space      -- column sperator
@@ -213,10 +216,10 @@ show and read instance for the table
 > readsRows s = 
 >       [ (r:rs , v ) | (r,u) <- readsRow s, (rs,v) <- readsRows u ] ++
 >       [ ([],u) | ("",u) <- lex s]
-> readsTable :: (Ord l, Read l, Read t, Literal l t) => ReadS (SetTable l t)
+> readsTable :: (Show l, Show t, Ord l, Read l, Read t, Literal l t) => ReadS (SetTable l t)
 > readsTable s =
 >       [ (mkTableUnsave h r, w) | (h,u) <- readsTableHeader s, (r,w) <- readsRows u]
-> instance (Ord l, Read l, Read t, Literal l t) => Read (SetTable l t) where readsPrec _ = readsTable
+> instance (Show l, Show t, Ord l, Read l, Read t, Literal l t) => Read (SetTable l t) where readsPrec _ = readsTable
 </pre>n
 <h2>UnitTesting</h2>
 ------------------
@@ -224,12 +227,12 @@ show and read instance for the table
 sample tables used for testing:
 
 <pre>n> tableEmpty = mkTable [] [] :: Tab
-> tableEmptyS = "|\n"
+> tableEmptyS = "\n|\n"
 </pre>n
 <pre>n> table1 = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [IntLit 42, StrLit "daniel"]  ] :: Tab
-> table1S = 
+> table1S = '\n':
 >       "| ID: Number | Name: String |\n" ++
 >       "| 23         | \"fb\"         |\n" ++
 >       "| 42         | \"daniel\"     |\n" ++
@@ -240,7 +243,7 @@ Yes, those two are valid!
 <pre>n> table2 = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [Null, StrLit "daniel"]  ] :: Tab
-> table2S = 
+> table2S = '\n':
 >       "| ID: Number | Name: String |\n" ++
 >       "| Null       | \"daniel\"     |\n" ++
 >       "| 23         | \"fb\"         |\n" ++
@@ -249,7 +252,7 @@ Yes, those two are valid!
 <pre>n> table3 = mkTable [("ID",Number), ("Name",String)] [
 >       [Null, StrLit "fb"],
 >       [IntLit 42, StrLit "daniel"]  ] :: Tab
-> table3S = 
+> table3S = '\n':
 >       "| ID: Number | Name: String |\n" ++
 >       "| Null       | \"fb\"         |\n" ++
 >       "| 42         | \"daniel\"     |\n" ++
@@ -262,7 +265,7 @@ union of table 2 and table 3
 >       [Null, StrLit "fb"],
 >       [Null, StrLit "daniel"], 
 >       [IntLit 42, StrLit "daniel"]  ] :: Tab
-> table23S =
+> table23S ='\n':
 >       "| ID: Number | Name: String |\n" ++
 >       "| 23         | \"fb\"         |\n" ++
 >       "| Null       | \"fb\"         |\n" ++
@@ -276,25 +279,32 @@ union of table 2 and table 3
 > tableInvalidSize = mkTableUnsave [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [CharLit 'a', StrLit "daniel", Null]  ] :: Tab
-> tableInvalidS =
+> tableInvalidS ='\n':
 >       "| ID: Number | Name: String |\n" ++
 >       "| 23         | \"fb\"         |\n" ++
 >       "| 'a'        | \"daniel\"     |\n" ++
 >       ""
 </pre>n
 <pre>n> table123Empty = mkTable [("ID",Number), ("Name",String)] [] :: Tab
-> table123EmptyS = 
+> table123EmptyS = '\n':
 >       "| ID: Number | Name: String |\n" ++
 >       ""
 </pre>n
 <pre>n> tableLong = mkTable [("i",Number), ("Name",String)] [
 >       [IntLit (-100000000), StrLit "fb"],
 >       [IntLit 42, StrLit "Daniel Waeber\nCranachstr. 61\nBerlin"]  ] :: Tab
-> tableLongS = 
+> tableLongS = '\n':
 >       "| i: Number | Name: String |\n" ++
 >       "| -100000000 | \"fb\"         |\n" ++
 >       "| 42        | \"Daniel Waeber\\nCranachstr. 61\\nBerlin\" |\n" ++
 >       ""
+</pre>n
+<pre>n> table1Xtable1 = mkTable
+>	[("ID",Number),("Name",String),("ID",Number),("Name",String)]
+>	[[IntLit 23, StrLit "fb", IntLit 23, StrLit "fb"],
+>	 [IntLit 23, StrLit "fb", IntLit 42, StrLit "daniel"],
+>	 [IntLit 42, StrLit "daniel", IntLit 23, StrLit "fb"],
+>	 [IntLit 42, StrLit "daniel", IntLit 42, StrLit "daniel"]] :: Tab
 </pre>n
 <h3>Read Show Test</h3>
 ----------------------
@@ -365,13 +375,6 @@ show instance needed for unit testing ...
 >	((\(_:x:_) -> length (show x) > 1), table2, True)
 >	]
 </pre>n
-<pre>n> table1Xtable1 = mkTable
->	[("ID",Number),("Name",String),("ID",Number),("Name",String)]
->	[[IntLit 23, StrLit "fb", IntLit 23, StrLit "fb"],
->	 [IntLit 23, StrLit "fb", IntLit 42, StrLit "daniel"],
->	 [IntLit 42, StrLit "daniel", IntLit 23, StrLit "fb"],
->	 [IntLit 42, StrLit "daniel", IntLit 42, StrLit "daniel"]]
-</pre>n
 <pre>n> testSize = assertfun1 size "size" [
 >	(tableEmpty, (0,0)),
 >	(table123Empty, (2,0)),
@@ -383,8 +386,11 @@ show instance needed for unit testing ...
 <pre>n> testMapRows = assertfun2 mapRows "mapRows" [
 >	(id, tableEmpty, tableEmpty),
 >	(id, table2, table2),
->	(id, table1Xtable1, table1Xtable1)
->	-- TODO: more tests
+>	(id, table1Xtable1, table1Xtable1),
+>       ((\((IntLit n):xs) -> (IntLit (n+5)):xs), table1, 
+>           read "| ID: Number | Name: String || 28 | \"fb\" || 47  | \"daniel\" |"),
+>       ((\(x:(StrLit s):xs) -> x:(StrLit (s++"-")):xs), table1, 
+>           read "| ID: Number | Name: String || 23 | \"fb-\" || 42  | \"daniel-\" |")
 >	]
 </pre>n
 <pre>n> testFilterRows = assertfun2 filterRows "filterRows" [
