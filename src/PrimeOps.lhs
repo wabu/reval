@@ -15,18 +15,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 > module PrimeOps (
->   union,
->   difference,
->   intersection,
->   cross,
->   project,
->   select,
->   rename,	
+>   TableOps,
 >   testPrimeOps,
->   (|||),
->   (\\\),
->   (&&&),
->   (***),
 > )
 > where
 >
@@ -35,6 +25,44 @@
 > import Lib.AssertFun
 > import qualified Data.Set as Set
 > import Data.List ((\\)) 
+
+
+-- Class to encapsulte Primitive Relation Algebra Operations --
+---------------------------------------------------------------
+
+TODO: default impl.
+
+> class (Type t, Literal l t, Eq tab) => TableOps tab l t | tab -> l t where
+
+basic set operations
+
+> 	union :: tab -> tab -> tab
+>	difference :: tab -> tab -> tab
+>	intersection :: tab -> tab -> tab
+
+cross-join
+
+>	cross :: tab -> tab -> tab
+
+basic FIXME
+
+> 	select :: ((Row l) -> Bool) -> tab -> tab
+> 	project :: [ColumnName] -> tab -> tab
+
+> 	renameUnsafe :: [(ColumnName,ColumnName)] -> tab -> tab
+> 	rename ::[(ColumnName,ColumnName)] -> tab -> tab
+
+syntatic sugar
+
+>	(&&&) :: tab -> tab -> tab
+>	(&&&) = intersection
+>	(|||) :: tab -> tab -> tab
+> 	(|||) = union
+>	(***) :: tab -> tab -> tab
+> 	(***) = cross
+>	(\\\) :: tab -> tab -> tab
+> 	(\\\) = difference
+
 
 -- Primitive Relation Algebra Operations --
 -------------------------------------------
@@ -67,17 +95,10 @@ TODO: more sanity checking
 >           error ("applyOnTableSets: Invalid schmea: " ++ show head1 ++
 >                  " != " ++ show head2)
 
-> union :: (Show t, Show l, Ord l, Literal l t) =>
->	(SetTable l t) -> (SetTable l t) -> (SetTable l t)
-> union = applyOnTableSets Set.union
-
-> difference :: (Show t, Show l, Ord l, Literal l t) =>
->	(SetTable l t) -> (SetTable l t) -> (SetTable l t)
-> difference = applyOnTableSets Set.difference
-
-> intersection :: (Show t, Show l, Ord l, Literal l t) =>
->	(SetTable l t) -> (SetTable l t) -> (SetTable l t)
-> intersection = applyOnTableSets Set.intersection
+> instance (Show l, Show t, Ord l, Literal l t) => TableOps (SetTable l t) l t where
+>	union = applyOnTableSets Set.union
+> 	difference = applyOnTableSets Set.difference
+>	intersection = applyOnTableSets Set.intersection
 
 cross-join
 
@@ -85,14 +106,12 @@ cross table1 table2 -- looks good, imho...
 
 TODO: optimize, Set.toList sux!
 
-> cross :: (Show l, Show t, Ord l, Literal l t) =>
->	(SetTable l t) -> (SetTable l t) -> (SetTable l t)
-> cross (SetTab h1 r1) (SetTab h2 r2) =
->	mkTable newHeader [ x++y | x <- l1, y <- l2]
->	where
->	newHeader = h1 ++ h2
->	l1 = Set.toList r1
->	l2 = Set.toList r2
+> 	cross (SetTab h1 r1) (SetTab h2 r2) =
+>		mkTable newHeader [ x++y | x <- l1, y <- l2]
+>		where
+>		newHeader = h1 ++ h2
+>		l1 = Set.toList r1
+>		l2 = Set.toList r2
 
 Note: A Table containing a Set like {{}} is considured invalid. Use a
 Table containg the empty Set {} (aka mkTable [] []) to represent the
@@ -100,101 +119,53 @@ empty table. This might not be formaly correct, but having two
 representations of the empty table is not programtic and makes code
 more complex and less readable.
 
-> select :: (Ord l, Literal l t) => ((Row l) -> Bool) -> (SetTable l t) -> (SetTable l t)
-> select p (SetTab head rows) = mkTableFromSet head (Set.filter p rows)
+> 	select p (SetTab head rows) = mkTableFromSet head
+>		(Set.filter p rows)
 
 Projection
 
 TODO: projectUnsafe?
 TODO: optimize! this is insanley slow :-(
 
-> project :: (Show l, Show t, Ord l, Literal l t) =>
->	[ColumnName] -> (SetTable l t) -> (SetTable l t)
-
-> project wantedNames tab@(SetTab header rows) = if checkHeader
->           then SetTab newHeader newRows
->           else error "you cheat: this is not possible!"
->   where
->       checkHeader = all (\n -> checkSize n (length [a | (a,_) <- header, n == a])) wantedNames
->       checkSize :: String -> Int -> Bool
->       checkSize n s 
->               | s == 0 = error ("project: could not project to " 
->                       ++ show n ++ ": name unknown.")
->               | s == 1 = True
->               | otherwise = error ("project: could not project to " 
->                       ++ show n ++ ": name is ambigious.")
->       posList = [i | s <- wantedNames, (i,(n,_)) <- zip [1..] header, n==s ]
->       newHeader = [h | p <- posList, (i,h) <- zip [1..] header, p==i ]
->       newRows = Set.map 
->               (\r -> [ l | p <- posList, (i,l) <- zip [1..] r, p==i] )
->               rows
-
- > project [] (SetTab _ _) = mkTable [] [] 
- 
- > project wantedNames (SetTab header rows) =
- > 	SetTab newHeader newRows
- >	where
- >	names = [n | (n,_) <- header]
- 
- posList is a List of postions needed to do the projection
- 
- >	posList :: [Int]
- >	posList = map (`pos` names) wantedNames
- >	newHeader = [header!!i | i <- posList]
- >	newRows = Set.map (\row -> [row!!i | i <- posList ]) rows
-
-find postion of an elemt in a List
-
- > pos :: (Eq a, Show a) => a -> [a] -> Int
- > pos e xs = pos' xs 0
- >	where
- >	pos' [] _ = error ("project: pos: not found: " ++ show e)
- >	pos' (x:xs) i =
- >		if e == x then 
- >			i
- >		else
- >			pos' xs (i + 1)
+>	project wantedNames tab@(SetTab header rows) = if checkHeader
+>		then SetTab newHeader newRows
+>		-- FIXME: this is a really bad errormsg - open questions: why? how did i get here?
+>           	else error "you cheat: this is not possible!"
+>   		where
+>       	checkHeader = all (\n -> checkSize n (length [a | (a,_) <- header, n == a])) wantedNames
+>       	checkSize :: String -> Int -> Bool
+>       	checkSize n s 
+>               	| s == 0 = error ("project: could not project to " 
+>                   	    ++ show n ++ ": name unknown.")
+>               	| s == 1 = True
+>               	| otherwise = error ("project: could not project to " 
+>                       	++ show n ++ ": name is ambigious.")
+>       	posList = [i | s <- wantedNames, (i,(n,_)) <- zip [1..] header, n==s ]
+>      		newHeader = [h | p <- posList, (i,h) <- zip [1..] header, p==i ]
+>      		newRows = Set.map 
+>	                (\r -> [ l | p <- posList, (i,l) <- zip [1..] r, p==i] )
+>               	rows
 
 Renaming
 
 Syntax: rename{Unsafe} [(oldName, newName)] table
 
-> renameUnsafe :: (Show l, Show t, Ord l, Literal l t) =>
->	[(ColumnName,ColumnName)] -> (SetTable l t) -> (SetTable l t)
-> renameUnsafe names tab@(SetTab sch _) = mkTable (replaceNames sch) (rows tab)
->	where
->	-- TODO: check if oldName is in schema names if not error ...
->	replaceNames = map (getNewName names)
->	getNewName [] header = header
->	getNewName ((old,new):xs) h@(name, ctype) = if name == old
->		then (new, ctype)
->		else getNewName xs h
+> 	renameUnsafe names tab@(SetTab sch _) = mkTable (replaceNames sch) (rows tab)
+>		where
+>		replaceNames = map (getNewName names)
+>		getNewName [] header = header
+>		getNewName ((old,new):xs) h@(name, ctype) = if name == old
+>			then (new, ctype)
+>			else getNewName xs h
 
-> rename :: (Show l, Show t, Ord l, Literal l t) =>
->	[(ColumnName,ColumnName)] -> (SetTable l t) -> (SetTable l t)
-> rename names tab@(SetTab schema _) = if checkParams
->	then renameUnsafe names tab
->	else error ("invalid rename: names = " ++ show names 
+> 	rename names tab@(SetTab schema _) = if checkParams
+>		then renameUnsafe names tab
+>		else error ("invalid rename: names = " ++ show names 
 >			++ "\n table schema = " ++ show schema)
->	where
->	checkParams = null (oldNames \\ schemaNames)
->	(oldNames,_) = unzip names
->	(schemaNames, _) = unzip schema
-
-syntatic sugar
-
-> (&&&) :: (Show l, Show t, Ord l, Literal l t) =>
->	(SetTable l t) -> (SetTable l t) -> (SetTable l t)
-> (&&&) = intersection
-> (|||) :: (Show l, Show t, Ord l, Literal l t) =>
->	(SetTable l t) -> (SetTable l t) -> (SetTable l t)
-> (|||) = union
-> (***) :: (Show l, Show t, Ord l, Literal l t) =>
->	(SetTable l t) -> (SetTable l t) -> (SetTable l t)
-> (***) = cross
-> (\\\) :: (Show l, Show t, Ord l, Literal l t) =>
->	(SetTable l t) -> (SetTable l t) -> (SetTable l t)
-> (\\\) = difference
+>		where
+>		checkParams = null (oldNames \\ schemaNames)
+>		(oldNames,_) = unzip names
+>		(schemaNames, _) = unzip schema
 
 -- UnitTesting --
 ------------------
