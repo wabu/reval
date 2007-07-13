@@ -46,21 +46,51 @@ basic set operations
 >	intersect = applyOnTableRows List.intersect
 
 cross-join
-TODO: default impl.
 
 >	cross :: tab -> tab -> tab
+> 	cross t1 t2 = mkTable newHeader
+>		[ x++y | x <- r1, y <- r2]
+>		where
+>		newHeader = header t1 ++ header t2
+>		r1 = rows t1
+>		r2 = rows t2
 
-basic Relational Algebra Operations 
-
-TODO: default impl.
+Selection
 
 > 	select :: ((Row l) -> Bool) -> tab -> tab
+> 	select p tab = mkTable (header tab) (filter p (rows tab))
+
+Projection
+TODO: default impl., but clean instance project first!
+
 > 	project :: [ColumnName] -> tab -> tab
 
-TODO: default impl.
+Renaming
+
+Syntax: rename{Unsafe} [(oldName, newName)] table
 
 > 	renameUnsafe :: [(ColumnName,ColumnName)] -> tab -> tab
 > 	rename ::[(ColumnName,ColumnName)] -> tab -> tab
+> 	renameUnsafe names tab = mkTable (replaceNames h) (rows tab)
+>		where
+>		h = header tab
+>		replaceNames = map (getNewName names)
+>		getNewName [] header = header
+>		getNewName ((old,new):xs) h@(name, ctype)
+>			| name == old = (new, ctype)
+>			| otherwise = getNewName xs h
+
+> 	rename names tab
+>		| checkParams = renameUnsafe names tab
+>		| otherwise = error ("invalid rename: names = " ++ show names 
+>			++ "\n table column names = " ++
+>			 show columnNames)
+>		where
+>		h = header tab
+>		checkParams = null (oldNames \\ columnNames)
+>		(oldNames,_) = unzip names
+>		(columnNames,_) = unzip h
+
 
 syntatic sugar
 
@@ -170,27 +200,6 @@ TODO: optimize! this is insanley slow :-(
 >      		newRows = Set.map 
 >	                (\r -> [ l | p <- posList, (i,l) <- zip [1..] r, p==i] )
 >               	rows
-
-Renaming
-
-Syntax: rename{Unsafe} [(oldName, newName)] table
-
-> 	renameUnsafe names tab@(SetTab sch _) = mkTable (replaceNames sch) (rows tab)
->		where
->		replaceNames = map (getNewName names)
->		getNewName [] header = header
->		getNewName ((old,new):xs) h@(name, ctype)
->			| name == old = (new, ctype)
->			| otherwise = getNewName xs h
-
-> 	rename names tab@(SetTab schema _)
->		| checkParams = renameUnsafe names tab
->		| otherwise = error ("invalid rename: names = " ++ show names 
->			++ "\n table schema = " ++ show schema)
->		where
->		checkParams = null (oldNames \\ schemaNames)
->		(oldNames,_) = unzip names
->		(schemaNames, _) = unzip schema
 
 -- UnitTesting --
 ------------------
