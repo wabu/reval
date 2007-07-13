@@ -18,9 +18,9 @@
 > -- TODO: declare exports + export testAll
 > import Primes
 > import Table
-> import PrimeOps
+> import TableOps
 
-> testAll = testPrimes && testTable && testPrimeOps
+> testAll = testPrimes && testTable && testTableOps
 
 --- Legal Foo ---
 -----------------

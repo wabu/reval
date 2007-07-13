@@ -14,9 +14,9 @@
   You should have received a copy of the GNU Lesser General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-> module PrimeOps (
+> module TableOps (
 >   TableOps,
->   testPrimeOps,
+>   testTableOps,
 > )
 > where
 >
@@ -369,7 +369,7 @@ projections on table23
 >			++ "| 42          | \"daniel\"  |") :: Tab) 
 >	]
 
-> testPrimeOps = testUnion && testDifference && testIntersect
+> testTableOps = testUnion && testDifference && testIntersect
 >       && testSelect && testProject
 >       && testCross && testRename
 
