@@ -107,17 +107,16 @@ TODO: more sanity checking
 > applyOnTableSets :: (Show l, Show t, Ord l, Literal l t) =>
 >       (Set.Set (Row l) -> Set.Set (Row l) -> Set.Set (Row l)) 
 >       -> (SetTable l t) -> (SetTable l t) -> (SetTable l t)
-> applyOnTableSets _ t1@(SetTab [] rows) t2 = 
->	if Set.null rows then
->		t2
->	else
->		error ("applyOnTableSets: Invalid table: " ++ show t2
->			++ "schema is empty but rows are not!" ) 
+> applyOnTableSets _ t1@(SetTab [] rows) t2 
+>	| Set.null rows = t2
+>	| otherwise = error ("applyOnTableSets: Invalid table: "
+>		++ show t2
+>		++ "schema is empty but rows are not!" ) 
 > applyOnTableSets f t1 t2@(SetTab [] rows) = applyOnTableSets f t2 t1
-> applyOnTableSets f (SetTab head1 rows1) (SetTab head2 rows2) =
->       if head1 == head2 then
+> applyOnTableSets f (SetTab head1 rows1) (SetTab head2 rows2)
+>       | head1 == head2 =
 >	    mkTableFromSet head1 (f rows1 rows2)
->       else
+>       | otherwise =
 >           error ("applyOnTableSets: table headers do not match: "
 >		++ show head1 ++ " != " ++ show head2)
 
@@ -153,10 +152,10 @@ Projection
 TODO: projectUnsafe?
 TODO: optimize! this is insanley slow :-(
 
->	project wantedNames tab@(SetTab header rows) = if checkHeader
->		then SetTab newHeader newRows
+>	project wantedNames tab@(SetTab header rows)
+>		| checkHeader = SetTab newHeader newRows
 >		-- FIXME: this is a really bad errormsg - open questions: why? how did i get here?
->           	else error "you cheat: this is not possible!"
+>           	| otherwise = error "project: you cheat: this is not possible!"
 >   		where
 >       	checkHeader = all (\n -> checkSize n (length [a | (a,_) <- header, n == a])) wantedNames
 >       	checkSize :: String -> Int -> Bool
@@ -180,13 +179,13 @@ Syntax: rename{Unsafe} [(oldName, newName)] table
 >		where
 >		replaceNames = map (getNewName names)
 >		getNewName [] header = header
->		getNewName ((old,new):xs) h@(name, ctype) = if name == old
->			then (new, ctype)
->			else getNewName xs h
+>		getNewName ((old,new):xs) h@(name, ctype)
+>			| name == old = (new, ctype)
+>			| otherwise = getNewName xs h
 
-> 	rename names tab@(SetTab schema _) = if checkParams
->		then renameUnsafe names tab
->		else error ("invalid rename: names = " ++ show names 
+> 	rename names tab@(SetTab schema _)
+>		| checkParams = renameUnsafe names tab
+>		| otherwise = error ("invalid rename: names = " ++ show names 
 >			++ "\n table schema = " ++ show schema)
 >		where
 >		checkParams = null (oldNames \\ schemaNames)
