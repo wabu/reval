@@ -77,9 +77,10 @@ Constructors and schema checking:
 check the Table and return it, if it is valid, otherwise genrate in error
 
 <pre>n>       checkedTable :: tab -> tab
->       checkedTable t = if checkTable t 
->                        then t 
->                        else error "Invalid unshowable table (you loose)."
+>       checkedTable t
+>		| checkTable t = t
+>               | otherwise = error ("chechedTable: " ++ 
+>			"Invalid unshowable table (you loose).")
 >
 >       mkTableUnsave :: (TableHeader t) -> [(Row l)] -> tab
 >
@@ -161,9 +162,10 @@ can be used with any type system, but the literals has to be ordered.
 >       schema (SetTab head _) = map snd head
 >       columnNames (SetTab head _) = map fst head
 >       rows (SetTab _ rows) = Set.toList rows
->       checkedTable t = if checkTable t 
->                        then t 
->                        else error("Invalid table:\n" ++
+>       checkedTable t
+>		| checkTable t = t
+>               | otherwise = error ("checkedTable: " ++
+>				     "Invalid table:\n" ++
 >                                    show t)
 </pre>n
 Note: mkTable [] [[]] is considered invalid
