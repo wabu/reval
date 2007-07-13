@@ -19,8 +19,36 @@
 > import Primes
 > import Table
 > import TableOps
+> import SetTable
+> import SetTableOps
 
-> testAll = testPrimes && testTable && testTableOps
+> testAll = testPrimes
+>	-- && testTable && testTableOps -- TODO: impl and call
+> 	&& testSetTable && testSetTableOps
+
+--- Some Sample Tables ---
+--------------------------
+
+Some example databases
+
+> exampleTable1 :: Tab
+> exampleTable1 = read (
+>	"| ID: Number | Name: String |" ++
+>	"| 23 | \"fb\" |" ++
+>	"| 42 | \"wabu\" |" ++
+>	"| 2 | \"foobar\" |" ++
+>	"")
+>
+> exampleTable2 :: Tab
+> exampleTable2 = read (
+>	"| ID: Number | Name: String | Student: Bool |" ++
+>	"| 23 | \"fb\" | True |" ++
+>	"| 42 | \"wabu\" | True |" ++
+>	"| 2 | \"foobar\" | False |" ++
+>	"")
+
+> exampleTableEmpty :: Tab
+> exampleTableEmpty = read "||"
 
 --- Legal Foo ---
 -----------------
