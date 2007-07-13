@@ -21,115 +21,23 @@ GNU General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 </pre>n
-<pre>n> module PrimeOps (
->   TableOps,
->   testPrimeOps,
+<h1>Instance of the TableOps class using the SetTable instance</h1>
+--------------------------------------------------------------
+
+<pre>n> module SetTableOps (
+>   TableOps(..),
+>   testSetTableOps,
 > )
 > where
 >
 > import Primes
 > import Table
+> import SetTable	
+> import TableOps
 > import Lib.AssertFun
 > import qualified Data.Set as Set
-> import qualified Data.List as List
 > import Data.List ((\\))
 </pre>n
-
-<h2>Class to encapsulte Primitive Relation Algebra Operations</h2>
----------------------------------------------------------------
-
-TODO: simplify class/type constraints
-
-<pre>n> class (Table tab l t, Type t, Literal l t, Eq tab, Eq l, Show t)
->	=> TableOps tab l t | tab -> l t where
-</pre>n
-basic set operations
-
-<pre>n> 	union :: tab -> tab -> tab
->	union = applyOnTableRows List.union
->	difference :: tab -> tab -> tab
->	difference = applyOnTableRows (\\)
->	intersect :: tab -> tab -> tab
->	intersect = applyOnTableRows List.intersect
-</pre>n
-cross-join
-
-<pre>n>	cross :: tab -> tab -> tab
-> 	cross t1 t2 = mkTable newHeader
->		[ x++y | x <- r1, y <- r2]
->		where
->		newHeader = header t1 ++ header t2
->		r1 = rows t1
->		r2 = rows t2
-</pre>n
-Selection
-
-<pre>n> 	select :: ((Row l) -> Bool) -> tab -> tab
-> 	select p tab = mkTable (header tab) (filter p (rows tab))
-</pre>n
-Projection
-TODO: default impl., but clean instance project first!
-
-<pre>n> 	project :: [ColumnName] -> tab -> tab
-</pre>n
-Renaming
-
-Syntax: rename{Unsafe} [(oldName, newName)] table
-
-<pre>n> 	renameUnsafe :: [(ColumnName,ColumnName)] -> tab -> tab
-> 	rename ::[(ColumnName,ColumnName)] -> tab -> tab
-> 	renameUnsafe names tab = mkTable (replaceNames h) (rows tab)
->		where
->		h = header tab
->		replaceNames = map (getNewName names)
->		getNewName [] header = header
->		getNewName ((old,new):xs) h@(name, ctype)
->			| name == old = (new, ctype)
->			| otherwise = getNewName xs h
-</pre>n
-<pre>n> 	rename names tab
->		| checkParams = renameUnsafe names tab
->		| otherwise = error ("invalid rename: names = " ++ show names 
->			++ "\n table column names = " ++
->			 show columnNames)
->		where
->		h = header tab
->		checkParams = null (oldNames \\ columnNames)
->		(oldNames,_) = unzip names
->		(columnNames,_) = unzip h
-</pre>n
-
-syntatic sugar
-
-<pre>n>	(&&&) :: tab -> tab -> tab
->	(&&&) = intersect
->	(|||) :: tab -> tab -> tab
-> 	(|||) = union
->	(***) :: tab -> tab -> tab
-> 	(***) = cross
->	(\\\) :: tab -> tab -> tab
-> 	(\\\) = difference
-</pre>n
-Higher order function to apply f on the rows of two tables.
-Checks if the headers of the table match, if not error is raised.
-This is usefull to impl. union, intersection etc.
-
-<pre>n>	applyOnTableRows :: ([Row l] -> [Row l] -> [Row l]) -> tab -> tab -> tab
-> 	applyOnTableRows f t1 t2
->		| h1 == h2 = mkTable h1 (f r1 r2)
->		| otherwise = error ("applyOnTableRows: table headers"
->			++ "do not match: " ++
->			show h1 ++ " /= " ++ show h2)
->		where
->		h1 = header t1
->		h2 = header t2
->		r1 = rows t1
->		r2 = rows t2
-</pre>n
-
-<h2>Primitive Relation Algebra Operations</h2>
--------------------------------------------
-
 applyOnTableSets is a abstract higer order function used to
 build union, difference etc. It boils down to "Building
 Abstraction by Functions" as outlined in SICP.
@@ -209,7 +117,7 @@ TODO: optimize! this is insanley slow :-(
 >               	rows
 </pre>n
 <h2>UnitTesting</h2>
-------------------
+-----------------
 
 Format of assertfun2 is:
 assertfun f name_of_f [ (param1, param2, expected) ]
@@ -376,7 +284,7 @@ projections on table23
 >			++ "| 42          | \"daniel\"  |") :: Tab) 
 >	]
 </pre>n
-<pre>n> testPrimeOps = testUnion && testDifference && testIntersect
+<pre>n> testSetTableOps = testUnion && testDifference && testIntersect
 >       && testSelect && testProject
 >       && testCross && testRename
 </pre>n

@@ -1,11 +1,16 @@
-created by ./mk-tmp-todo-list.sh - Fri Jul 13 15:18:42 CEST 2007
+created by ./mk-tmp-todo-list.sh - Fri Jul 13 17:51:15 CEST 2007
 
-src/PrimeOps.lhs:33:TODO: default impl.
-src/PrimeOps.lhs:47:basic FIXME
-src/PrimeOps.lhs:79:TODO: more sanity checking
-src/PrimeOps.lhs:107:TODO: optimize, Set.toList sux!
-src/PrimeOps.lhs:127:TODO: projectUnsafe?
-src/PrimeOps.lhs:128:TODO: optimize! this is insanley slow :-(
-src/PrimeOps.lhs:132:>		-- FIXME: this is a really bad errormsg - open questions: why? how did i get here?
-src/Reval.lhs:18:> -- TODO: declare exports + export testAll
+src/Reval.lhs:33:> -- TODO: declare exports + export testAll
+src/Reval.lhs:41:>	-- && testTable && testTableOps -- TODO: impl and call
+src/SetTable.lhs:25:>   Tab, -- FIXME: Tab needs to be visible in SetTableOps, this sux
+src/SetTableOps.lhs:43:TODO: more sanity checking
+src/SetTableOps.lhs:70:TODO: optimize, Set.toList sux!
+src/SetTableOps.lhs:90:TODO: projectUnsafe?
+src/SetTableOps.lhs:91:TODO: optimize! this is insanley slow :-(
+src/SetTableOps.lhs:95:>		-- FIXME: this is a really bad errormsg - open questions: why? how did i get here?
 src/Table.lhs:22:>   -- TODO: hide stuff
+src/Table.lhs:23:>   -- testTable -- TODO: impl + export
+src/Table.lhs:129:TODO: unit test default impls of class Table
+src/TableOps.lhs:26:>   -- testTableOps, -- TODO: export + write unit tests
+src/TableOps.lhs:37:TODO: simplify class/type constraints
+src/TableOps.lhs:67:TODO: default impl., but clean instance project first!
