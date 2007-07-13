@@ -19,10 +19,15 @@
 
 Reval is an acronym for relational algebra evaluation.
 
-Recommended reading:
+--- Recommended reading ---
+---------------------------
+
 Frist read Primes, Table and SetTable to get an overview.
 Then check out TableOps and SetTableOps where union, cross-joins etc.
 are declared and implemented.
+
+--- Version Managment ---
+-------------------------
 
 We use hg ( http://en.wikipedia.org/wiki/Mercurial_%28software%29 ) for
 version mangement. The hg webinterface can be found at
@@ -31,9 +36,15 @@ To view the Documentation click on "Manifest" and navigate to "docs" .
 The hg changelog is available as an rss-feed:
 http://forti.ath.cx:20480/pro/hg/reval/rss-log 
 
+--- Contribute ---
+------------------
+
 Feel free to submit patches, they are welcome.
 Try to stick to the coding standards. No, currently they are not
 documented...
+
+--- Testing ---
+---------------
 
 Run testAll to run unitTests. If testAll returns true, everthing is
 fine, otherwise an error is raised.
