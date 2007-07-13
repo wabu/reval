@@ -18,12 +18,16 @@
 ---------
 
 Reval is an acronym for relational algebra evaluation.
-Reval provieds 
 
 Recommended reading:
 Frist read Primes, Table and SetTable to get an overview.
 Then check out TableOps and SetTableOps where union, cross-joins etc.
 are declared and implemented.
+
+We use hg (http://en.wikipedia.org/wiki/Mercurial_%28software%29) for
+version mangement. The hg webinterface can be found at
+http://forti.ath.cx:20480/pro/hg/reval/ .
+To view the Documentation click on "Manifest" and navigate to "docs" .
 
 Feel free to submit patches, they are welcome.
 Try to stick to the coding standards. No, currently they are not
@@ -64,6 +68,9 @@ Some example tables to get you started:
 
 > exampleTableEmpty :: Tab
 > exampleTableEmpty = read "||"
+
+--- Some pointers to get you started ---
+----------------------------------------
 
 try something like:
 
