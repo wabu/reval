@@ -92,8 +92,6 @@ TODO: optimize! this is insanley slow :-(
 
 >	project wantedNames tab@(SetTab header rows)
 >		| checkHeader = SetTab newHeader newRows
->		-- FIXME: this is a really bad errormsg - open questions: why? how did i get here?
->           	| otherwise = error "project: you cheat: this is not possible!"
 >   		where
 >       	checkHeader = all (\n -> checkSize n (length [a | (a,_) <- header, n == a])) wantedNames
 >       	checkSize :: String -> Int -> Bool
@@ -142,7 +140,7 @@ union of table 2 and table 3
 >       [Null, StrLit "daniel"], 
 >       [IntLit 42, StrLit "daniel"]  ] :: Tab
 
-> tableInvalid = mkTableUnsave [("ID",Number), ("Name",String)] [
+> tableInvalid = mkTableUnsafe [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [CharLit 'a', StrLit "daniel"]  ] :: Tab
 

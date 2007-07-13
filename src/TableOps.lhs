@@ -36,10 +36,10 @@ ADT. Default implemantations are provied, too.
 
 TODO: simplify class/type constraints
 
-> class (Table tab l t, Type t, Literal l t, Eq tab, Eq l, Show t)
+> class (Table tab l t, Type t, Literal l t, Eq tab, Eq l)
 >	=> TableOps tab l t | tab -> l t where
 
-basic set operations
+---- basic set operations ----
 
 > 	union :: tab -> tab -> tab
 >	union = applyOnTableRows List.union
@@ -48,7 +48,7 @@ basic set operations
 >	intersect :: tab -> tab -> tab
 >	intersect = applyOnTableRows List.intersect
 
-cross-join
+---- cross-join ----
 
 >	cross :: tab -> tab -> tab
 > 	cross t1 t2 = mkTable newHeader
@@ -58,17 +58,38 @@ cross-join
 >		r1 = rows t1
 >		r2 = rows t2
 
-Selection
+---- Selection ----
 
 > 	select :: ((Row l) -> Bool) -> tab -> tab
 > 	select p tab = mkTable (header tab) (filter p (rows tab))
 
-Projection
-TODO: default impl., but clean instance project first!
+---- Projection ----
 
+Note: The default implementation is clean and short, but not very effective.
+
+> 	projectUnsafe :: [ColumnName] -> tab -> tab
 > 	project :: [ColumnName] -> tab -> tab
+>	projectUnsafe wanted tab = mkTable newHeader $ rows newTab
+>   		where
+>               names = columnNames tab
+>               newHeader = [(n,t) | w <- wanted, (n,t) <- header tab, w==n]
+>               newRow row = [l | w <- wanted, (n,l) <- zip names row, w==n]
+>      		newTab = mapRowsUnsafe newRow tab
+>       project wanted tab
+>               | not checkExist = error(
+>                   "invalid projection: a name can't be found inside the table in project" ++
+>                   show wanted ++ " form " ++ show names)
+>               | not checkMulti = error(
+>                   "invalid projection: multiple rows with same name in project " ++
+>                   show wanted ++ " form " ++ show names)
+>               | otherwise = projectUnsafe wanted tab
+>               where
+>               names = columnNames tab
+>               checkExist = null (wanted \\ names)
+>               checkMulti = length wanted == 
+>                   length [n | w <- wanted, n <- names, w==n]
 
-Renaming
+---- Renaming ----
 
 Syntax: rename{Unsafe} [(oldName, newName)] table
 
@@ -95,8 +116,14 @@ Syntax: rename{Unsafe} [(oldName, newName)] table
 >		(columnNames,_) = unzip h
 
 
-syntatic sugar
+---- syntatic sugar ----
 
+>       σ :: ((Row l) -> Bool) -> tab -> tab
+>       σ = select
+>       π :: [ColumnName] -> tab -> tab
+>       π = project
+>       ρ :: [(ColumnName,ColumnName)] -> tab -> tab
+>       ρ = rename
 >	(&&&) :: tab -> tab -> tab
 >	(&&&) = intersect
 >	(|||) :: tab -> tab -> tab
@@ -115,9 +142,10 @@ This is usefull to impl. union, intersection etc.
 >		| h1 == h2 = mkTable h1 (f r1 r2)
 >		| otherwise = error ("applyOnTableRows: table headers"
 >			++ "do not match: " ++
->			show h1 ++ " /= " ++ show h2)
+>			(show $ columnNames t1) ++ " /= " ++ (show $ columnNames t1))
 >		where
 >		h1 = header t1
 >		h2 = header t2
 >		r1 = rows t1
 >		r2 = rows t2
+

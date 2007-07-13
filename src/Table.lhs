@@ -71,10 +71,10 @@ check the Table and return it, if it is valid, otherwise genrate in error
 >               | otherwise = error ("chechedTable: " ++ 
 >			"Invalid unshowable table (you loose).")
 >
->       mkTableUnsave :: (TableHeader t) -> [(Row l)] -> tab
+>       mkTableUnsafe :: (TableHeader t) -> [(Row l)] -> tab
 >
 >       mkTable :: (TableHeader t) -> [(Row l)] -> tab
->       mkTable h r = checkedTable (mkTableUnsave h r)
+>       mkTable h r = checkedTable (mkTableUnsafe h r)
 
 Getters:
 

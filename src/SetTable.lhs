@@ -61,7 +61,7 @@ can be used with any type system, but the literals has to be ordered.
 
 Note: mkTable [] [[]] is considered invalid
 
->       mkTableUnsave h r = SetTab h (Set.fromList r) 
+>       mkTableUnsafe h r = SetTab h (Set.fromList r) 
 
 show and read instance for the table
 
@@ -112,7 +112,7 @@ show and read instance for the table
 >       [ ([],u) | ("",u) <- lex s]
 > readsTable :: (Show l, Show t, Ord l, Read l, Read t, Literal l t) => ReadS (SetTable l t)
 > readsTable s =
->       [ (mkTableUnsave h r, w) | (h,u) <- readsTableHeader s, (r,w) <- readsRows u]
+>       [ (mkTableUnsafe h r, w) | (h,u) <- readsTableHeader s, (r,w) <- readsRows u]
 > instance (Show l, Show t, Ord l, Read l, Read t, Literal l t) => Read (SetTable l t) where readsPrec _ = readsTable
 
 -- UnitTesting --
@@ -167,10 +167,10 @@ union of table 2 and table 3
 >       "| 42         | \"daniel\"     |\n" ++
 >       ""
 
-> tableInvalid = mkTableUnsave [("ID",Number), ("Name",String)] [
+> tableInvalid = mkTableUnsafe [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [CharLit 'a', StrLit "daniel"]  ] :: Tab
-> tableInvalidSize = mkTableUnsave [("ID",Number), ("Name",String)] [
+> tableInvalidSize = mkTableUnsafe [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [CharLit 'a', StrLit "daniel", Null]  ] :: Tab
 > tableInvalidS ='\n':
