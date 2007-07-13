@@ -24,30 +24,40 @@
 > import Table
 > import Lib.AssertFun
 > import qualified Data.Set as Set
-> import Data.List ((\\)) 
+> import qualified Data.List as List
+> import Data.List ((\\))
 
 
 -- Class to encapsulte Primitive Relation Algebra Operations --
 ---------------------------------------------------------------
 
-TODO: default impl.
+TODO: simplify class/type constraints
 
-> class (Type t, Literal l t, Eq tab) => TableOps tab l t | tab -> l t where
+> class (Table tab l t, Type t, Literal l t, Eq tab, Eq l, Show t)
+>	=> TableOps tab l t | tab -> l t where
 
 basic set operations
 
 > 	union :: tab -> tab -> tab
+>	union = applyOnTableRows List.union
 >	difference :: tab -> tab -> tab
->	intersection :: tab -> tab -> tab
+>	difference = applyOnTableRows (\\)
+>	intersect :: tab -> tab -> tab
+>	intersect = applyOnTableRows List.intersect
 
 cross-join
+TODO: default impl.
 
 >	cross :: tab -> tab -> tab
 
-basic FIXME
+basic Relational Algebra Operations 
+
+TODO: default impl.
 
 > 	select :: ((Row l) -> Bool) -> tab -> tab
 > 	project :: [ColumnName] -> tab -> tab
+
+TODO: default impl.
 
 > 	renameUnsafe :: [(ColumnName,ColumnName)] -> tab -> tab
 > 	rename ::[(ColumnName,ColumnName)] -> tab -> tab
@@ -55,13 +65,29 @@ basic FIXME
 syntatic sugar
 
 >	(&&&) :: tab -> tab -> tab
->	(&&&) = intersection
+>	(&&&) = intersect
 >	(|||) :: tab -> tab -> tab
 > 	(|||) = union
 >	(***) :: tab -> tab -> tab
 > 	(***) = cross
 >	(\\\) :: tab -> tab -> tab
 > 	(\\\) = difference
+
+Higher order function to apply f on the rows of two tables.
+Checks if the headers of the table match, if not error is raised.
+This is usefull to impl. union, intersection etc.
+
+>	applyOnTableRows :: ([Row l] -> [Row l] -> [Row l]) -> tab -> tab -> tab
+> 	applyOnTableRows f t1 t2
+>		| h1 == h2 = mkTable h1 (f r1 r2)
+>		| otherwise = error ("applyOnTableRows: table headers"
+>			++ "do not match: " ++
+>			show h1 ++ " /= " ++ show h2)
+>		where
+>		h1 = header t1
+>		h2 = header t2
+>		r1 = rows t1
+>		r2 = rows t2
 
 
 -- Primitive Relation Algebra Operations --
@@ -92,13 +118,13 @@ TODO: more sanity checking
 >       if head1 == head2 then
 >	    mkTableFromSet head1 (f rows1 rows2)
 >       else
->           error ("applyOnTableSets: Invalid schmea: " ++ show head1 ++
->                  " != " ++ show head2)
+>           error ("applyOnTableSets: table headers do not match: "
+>		++ show head1 ++ " != " ++ show head2)
 
 > instance (Show l, Show t, Ord l, Literal l t) => TableOps (SetTable l t) l t where
 >	union = applyOnTableSets Set.union
 > 	difference = applyOnTableSets Set.difference
->	intersection = applyOnTableSets Set.intersection
+>	intersect = applyOnTableSets Set.intersection
 
 cross-join
 
@@ -232,7 +258,7 @@ union of table 2 and table 3
 >	  (table23, table2, table3)
 >	]
 
-> testIntersection = assertfun2 intersection "intersection"
+> testIntersect = assertfun2 intersect "intersect"
 > 	[ (tableEmpty, tableEmpty, tableEmpty),
 > 	  (table123Empty, table1, table123Empty),
 > 	  (table1, table123Empty, table123Empty),
@@ -335,7 +361,7 @@ projections on table23
 >			++ "| 42          | \"daniel\"  |") :: Tab) 
 >	]
 
-> testPrimeOps = testUnion && testDifference && testIntersection
+> testPrimeOps = testUnion && testDifference && testIntersect
 >       && testSelect && testProject
 >       && testCross && testRename
 
