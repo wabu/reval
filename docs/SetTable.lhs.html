@@ -1,13 +1,14 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
+              "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<head>
-<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-</head>
-<body>
+  <head>
+    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+  </head>
+  <body>
+
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 
-<pre>nCopyright (C) 2007  Daniel Waeber, Fabian Bieker
+<pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as 
@@ -20,12 +21,11 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-</pre>n
+</pre>
 
 <h1>A Table Implemation using Set</h1>
----------------------------------
 
-<pre>n> module SetTable (
+<pre>> module SetTable (
 >   Table(..),
 >   SetTable(..),
 >   mkTableFromSet,
@@ -37,26 +37,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 > import Primes
 > import Lib.AssertFun
 > import qualified Data.Set as Set
-</pre>n
+</pre>
 The default implementaion of the table is just a Header an a Set of lits. It
 can be used with any type system, but the literals has to be ordered.
 
-<pre>n> data (Ord l, Literal l t) => SetTable l t = SetTab (TableHeader t) (Set.Set (Row l)) 
+<pre>> data (Ord l, Literal l t) => SetTable l t = SetTab (TableHeader t) (Set.Set (Row l)) 
 >       deriving Eq
 > type Tab = (SetTable SimpleLit SimpleType)
-</pre>n
-<pre>n> rowSet :: (Ord l, Literal l t) => (SetTable l t) -> (Set.Set (Row l))
+</pre>
+<pre>> rowSet :: (Ord l, Literal l t) => (SetTable l t) -> (Set.Set (Row l))
 > rowSet (SetTab _ rows) = rows
-</pre>n
-<pre>n> mkTableFromSet :: (Ord l, Literal l t) => (TableHeader t) -> Set.Set (Row l) -> (SetTable l t)
+</pre>
+<pre>> mkTableFromSet :: (Ord l, Literal l t) => (TableHeader t) -> Set.Set (Row l) -> (SetTable l t)
 > mkTableFromSet header rows = SetTab header rows
-</pre>n
-<pre>n> instance (Show l, Show t, Ord l, Literal l t) => Table (SetTable l t) l t where
+</pre>
+<pre>> instance (Show l, Show t, Ord l, Literal l t) => Table (SetTable l t) l t where
 >       mapRowsUnsafe f (SetTab head rows) = (SetTab head (Set.map f rows))
 >       filterRows f (SetTab head rows) = (SetTab head (Set.filter f rows))
 >       foldRows f i = Set.fold f i . rowSet
-</pre>n
-<pre>n>       header (SetTab head _) = head 
+</pre>
+<pre>>       header (SetTab head </hl>) = head 
 >       schema (SetTab head _) = map snd head
 >       columnNames (SetTab head _) = map fst head
 >       rows (SetTab _ rows) = Set.toList rows
@@ -65,14 +65,14 @@ can be used with any type system, but the literals has to be ordered.
 >               | otherwise = error ("checkedTable: " ++
 >				     "Invalid table:\n" ++
 >                                    show t)
-</pre>n
+</pre>
 Note: mkTable [] [[]] is considered invalid
 
-<pre>n>       mkTableUnsave h r = SetTab h (Set.fromList r) 
-</pre>n
+<pre>>       mkTableUnsave h r = SetTab h (Set.fromList r) 
+</pre>
 show and read instance for the table
 
-<pre>n> showsTable :: (Ord l, Show l, Show t, Literal l t) => (SetTable l t)-> ShowS
+<pre>> showsTable :: (Ord l, Show l, Show t, Literal l t) => (SetTable l t)-> ShowS
 > showsTable (SetTab header rows) = ('\n':) . heads . alls (map mapcells (Set.toList rows))
 >       where 
 >           space = (' ':)            -- space ShowS
@@ -95,10 +95,10 @@ show and read instance for the table
 >           lines = folds (col .)
 >           alls :: [[ShowS]] -> ShowS
 >           alls = folds ((. line) . lines)
-</pre>n
-<pre>n> instance (Ord l, Show l, Show t, Literal l t) => Show (SetTable l t) where showsPrec _ = showsTable
-</pre>n
-<pre>n> readsColumnHeader :: (Read t) => ReadS (ColumnHeader t)
+</pre>
+<pre>> instance (Ord l, Show l, Show t, Literal l t) => Show (SetTable l t) where showsPrec </hl> = showsTable
+</pre>
+<pre>> readsColumnHeader :: (Read t) => ReadS (ColumnHeader t)
 > readsColumnHeader s =
 >       [ ((n,t),w) | (n,u) <- lex s, (":",v) <- lex u, (t,w) <- reads v ]
 > readsTableHeader :: (Read t) => ReadS (TableHeader t)
@@ -121,16 +121,15 @@ show and read instance for the table
 > readsTable s =
 >       [ (mkTableUnsave h r, w) | (h,u) <- readsTableHeader s, (r,w) <- readsRows u]
 > instance (Show l, Show t, Ord l, Read l, Read t, Literal l t) => Read (SetTable l t) where readsPrec _ = readsTable
-</pre>n
+</pre>
 <h2>UnitTesting</h2>
------------------
 
 sample tables used for testing:
 
-<pre>n> tableEmpty = mkTable [] [] :: Tab
+<pre>> tableEmpty = mkTable [] [] :: Tab
 > tableEmptyS = "\n|\n"
-</pre>n
-<pre>n> table1 = mkTable [("ID",Number), ("Name",String)] [
+</pre>
+<pre>> table1 = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [IntLit 42, StrLit "daniel"]  ] :: Tab
 > table1S = '\n':
@@ -138,10 +137,10 @@ sample tables used for testing:
 >       "| 23         | \"fb\"         |\n" ++
 >       "| 42         | \"daniel\"     |\n" ++
 >       ""
-</pre>n
+</pre>
 Yes, those two are valid!
 
-<pre>n> table2 = mkTable [("ID",Number), ("Name",String)] [
+<pre>> table2 = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [Null, StrLit "daniel"]  ] :: Tab
 > table2S = '\n':
@@ -149,8 +148,8 @@ Yes, those two are valid!
 >       "| Null       | \"daniel\"     |\n" ++
 >       "| 23         | \"fb\"         |\n" ++
 >       ""
-</pre>n
-<pre>n> table3 = mkTable [("ID",Number), ("Name",String)] [
+</pre>
+<pre>> table3 = mkTable [("ID",Number), ("Name",String)] [
 >       [Null, StrLit "fb"],
 >       [IntLit 42, StrLit "daniel"]  ] :: Tab
 > table3S = '\n':
@@ -158,10 +157,10 @@ Yes, those two are valid!
 >       "| Null       | \"fb\"         |\n" ++
 >       "| 42         | \"daniel\"     |\n" ++
 >       ""
-</pre>n
+</pre>
 union of table 2 and table 3
 
-<pre>n> table23 = mkTable [("ID",Number), ("Name",String)] [
+<pre>> table23 = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [Null, StrLit "fb"],
 >       [Null, StrLit "daniel"], 
@@ -173,8 +172,8 @@ union of table 2 and table 3
 >       "| Null       | \"daniel\"     |\n" ++
 >       "| 42         | \"daniel\"     |\n" ++
 >       ""
-</pre>n
-<pre>n> tableInvalid = mkTableUnsave [("ID",Number), ("Name",String)] [
+</pre>
+<pre>> tableInvalid = mkTableUnsave [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [CharLit 'a', StrLit "daniel"]  ] :: Tab
 > tableInvalidSize = mkTableUnsave [("ID",Number), ("Name",String)] [
@@ -185,13 +184,13 @@ union of table 2 and table 3
 >       "| 23         | \"fb\"         |\n" ++
 >       "| 'a'        | \"daniel\"     |\n" ++
 >       ""
-</pre>n
-<pre>n> table123Empty = mkTable [("ID",Number), ("Name",String)] [] :: Tab
+</pre>
+<pre>> table123Empty = mkTable [("ID",Number), ("Name",String)] [] :: Tab
 > table123EmptyS = '\n':
 >       "| ID: Number | Name: String |\n" ++
 >       ""
-</pre>n
-<pre>n> tableLong = mkTable [("i",Number), ("Name",String)] [
+</pre>
+<pre>> tableLong = mkTable [("i",Number), ("Name",String)] [
 >       [IntLit (-100000000), StrLit "fb"],
 >       [IntLit 42, StrLit "Daniel Waeber\nCranachstr. 61\nBerlin"]  ] :: Tab
 > tableLongS = '\n':
@@ -199,55 +198,51 @@ union of table 2 and table 3
 >       "| -100000000 | \"fb\"         |\n" ++
 >       "| 42        | \"Daniel Waeber\\nCranachstr. 61\\nBerlin\" |\n" ++
 >       ""
-</pre>n
-<pre>n> table1Xtable1 = mkTable
+</pre>
+<pre>> table1Xtable1 = mkTable
 >	[("ID",Number),("Name",String),("ID",Number),("Name",String)]
 >	[[IntLit 23, StrLit "fb", IntLit 23, StrLit "fb"],
 >	 [IntLit 23, StrLit "fb", IntLit 42, StrLit "daniel"],
 >	 [IntLit 42, StrLit "daniel", IntLit 23, StrLit "fb"],
 >	 [IntLit 42, StrLit "daniel", IntLit 42, StrLit "daniel"]] :: Tab
-</pre>n
+</pre>
 <h3>Read Show Test</h3>
-----------------------
 
-<pre>n> testShow = afun1 show "show"
+<pre>> testShow = afun1 show "show"
 >   [tableEmpty, table1, table2, table3, tableInvalid, table123Empty, tableLong]
 >   [tableEmptyS,table1S,table2S,table3S,tableInvalidS,table123EmptyS,tableLongS]
 > testRead = afun1 read "read"
 >   [tableEmptyS,table1S,table2S,table3S,tableInvalidS,table123EmptyS,tableLongS]
 >   [tableEmpty, table1, table2, table3, tableInvalid, table123Empty, tableLong]
-</pre>n
+</pre>
 <h3>CheckTable Unit Test</h3>
-----------------------------
 
-<pre>n> testCheckTable = afun1 checkTable "checktab"
+<pre>> testCheckTable = afun1 checkTable "checktab"
 >       [tableEmpty, table1, tableInvalid, tableInvalidSize, table2, table3]
 >       [True, True, False, False, True, True]
-</pre>n
+</pre>
 <h3>Getters for Table ADT</h3>
------------------------------
 
-<pre>n> testSchema = afun1 schema "schema"
+<pre>> testSchema = afun1 schema "schema"
 >       [tableEmpty, table1, table2, table3, table123Empty]
 >       [ [], [Number, String],[Number, String],
 >	  [Number, String],[Number, String] ]
-</pre>n
-<pre>n> testColumnNames = afun1 columnNames "columNames"
+</pre>
+<pre>> testColumnNames = afun1 columnNames "columNames"
 >       [tableEmpty, table1, table2, table3, table123Empty]
 >       [ [], ["ID", "Name"], ["ID", "Name"], ["ID", "Name"],
 >	  ["ID", "Name"] ]
-</pre>n
+</pre>
 show instance needed for unit testing ...
 
 <h3>Basic Functions</h3>
------------------------
 
-<pre>n> instance Show ((Row r) -> Bool)  where
+<pre>> instance Show ((Row r) -> Bool)  where
 >	show _ = "(\\(Row r) -> Bool)"
 > instance Show ((Row r) -> (Row r))  where
 >	show _ = "(\\(Row r) -> (Row r))"
-</pre>n
-<pre>n> testAnyRow = assertfun2 anyRow "anyRow" [
+</pre>
+<pre>> testAnyRow = assertfun2 anyRow "anyRow" [
 >	((\_ -> True), tableEmpty, False), -- by def
 >	((\_ -> False), tableEmpty, False),
 >	((\_ -> False), table123Empty, False),
@@ -260,8 +255,8 @@ show instance needed for unit testing ...
 >	((\(_:x:_) -> length (show x) > 10), table2, False),
 >	((\(_:x:_) -> length (show x) > 1), table2, True)
 >	]
-</pre>n
-<pre>n> testAllRows = assertfun2 allRows "allRows" [
+</pre>
+<pre>> testAllRows = assertfun2 allRows "allRows" [
 >	((\_ -> True), tableEmpty, True), -- by def
 >	((\_ -> False), tableEmpty, True),
 >	((\_ -> False), table123Empty, True),
@@ -275,16 +270,16 @@ show instance needed for unit testing ...
 >	((\(_:x:_) -> length (show x) > 10), table2, False),
 >	((\(_:x:_) -> length (show x) > 1), table2, True)
 >	]
-</pre>n
-<pre>n> testSize = assertfun1 size "size" [
+</pre>
+<pre>> testSize = assertfun1 size "size" [
 >	(tableEmpty, (0,0)),
 >	(table123Empty, (2,0)),
 >	(table2, (2,2)),
 >	(table3, (2,2)),
 >	(table1Xtable1, (4,4))
 >	]
-</pre>n
-<pre>n> testMapRows = assertfun2 mapRows "mapRows" [
+</pre>
+<pre>> testMapRows = assertfun2 mapRows "mapRows" [
 >	(id, tableEmpty, tableEmpty),
 >	(id, table2, table2),
 >	(id, table1Xtable1, table1Xtable1),
@@ -293,8 +288,8 @@ show instance needed for unit testing ...
 >       ((\(x:(StrLit s):xs) -> x:(StrLit (s++"-")):xs), table1, 
 >           read "| ID: Number | Name: String || 23 | \"fb-\" || 42  | \"daniel-\" |")
 >	]
-</pre>n
-<pre>n> testFilterRows = assertfun2 filterRows "filterRows" [
+</pre>
+<pre>> testFilterRows = assertfun2 filterRows "filterRows" [
 >	((\_ -> True), tableEmpty, tableEmpty),
 >	((\_ -> True), table1, table1),
 >	((\_ -> False), table1, read "| ID: Number | Name: String |"),
@@ -302,8 +297,8 @@ show instance needed for unit testing ...
 >       (((IntLit 42 ==) . head), table1, read "| ID: Number | Name: String || 42 | \"daniel\" |"),
 >       (((Null /=) . head), table2, read "| ID: Number | Name: String || 23 | \"fb\" |")
 >	]
-</pre>n
-<pre>n> testSetTable = testRead && testShow && testCheckTable && testSchema && testColumnNames 
->	&& testAnyRow && testAllRows && testSize && testMapRows && testFilterRowsn</pre>
-</body>
+</pre>
+<pre>> testSetTable = testRead && testShow && testCheckTable && testSchema && testColumnNames 
+>	&& testAnyRow && testAllRows && testSize && testMapRows && testFilterRows</pre>
+  </body>
 </html>

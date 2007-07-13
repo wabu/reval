@@ -1,13 +1,14 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
+              "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<head>
-<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-</head>
-<body>
+  <head>
+    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+  </head>
+  <body>
+
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 
-<pre>nCopyright (C) 2007  Daniel Waeber, Fabian Bieker
+<pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as 
@@ -20,11 +21,10 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-</pre>n
+</pre>
 <h1>Instance of the TableOps class using the SetTable instance</h1>
---------------------------------------------------------------
 
-<pre>n> module SetTableOps (
+<pre>> module SetTableOps (
 >   TableOps(..),
 >   testSetTableOps,
 > )
@@ -37,7 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 > import Lib.AssertFun
 > import qualified Data.Set as Set
 > import Data.List ((\\))
-</pre>n
+</pre>
 applyOnTableSets is a abstract higer order function used to
 build union, difference etc. It boils down to "Building
 Abstraction by Functions" as outlined in SICP.
@@ -49,7 +49,7 @@ The reason for this is, that I (fb) want it to be leazy
 
 TODO: more sanity checking
 
-<pre>n> applyOnTableSets :: (Show l, Show t, Ord l, Literal l t) =>
+<pre>> applyOnTableSets :: (Show l, Show t, Ord l, Literal l t) =>
 >       (Set.Set (Row l) -> Set.Set (Row l) -> Set.Set (Row l)) 
 >       -> (SetTable l t) -> (SetTable l t) -> (SetTable l t)
 > applyOnTableSets _ t1@(SetTab [] rows) t2 
@@ -64,40 +64,40 @@ TODO: more sanity checking
 >       | otherwise =
 >           error ("applyOnTableSets: table headers do not match: "
 >		++ show head1 ++ " != " ++ show head2)
-</pre>n
-<pre>n> instance (Show l, Show t, Ord l, Literal l t) => TableOps (SetTable l t) l t where
+</pre>
+<pre>> instance (Show l, Show t, Ord l, Literal l t) => TableOps (SetTable l t) l t where
 >	union = applyOnTableSets Set.union
 > 	difference = applyOnTableSets Set.difference
 >	intersect = applyOnTableSets Set.intersection
-</pre>n
+</pre>
 cross-join
 
 cross table1 table2 -- looks good, imho...
 
 TODO: optimize, Set.toList sux!
 
-<pre>n> 	cross (SetTab h1 r1) (SetTab h2 r2) =
+<pre>> 	cross (SetTab h1 r1) (SetTab h2 r2) =
 >		mkTable newHeader [ x++y | x <- l1, y <- l2]
 >		where
 >		newHeader = h1 ++ h2
 >		l1 = Set.toList r1
 >		l2 = Set.toList r2
-</pre>n
+</pre>
 Note: A Table containing a Set like {{}} is considured invalid. Use a
 Table containg the empty Set {} (aka mkTable [] []) to represent the
 empty table. This might not be formaly correct, but having two
 representations of the empty table is not programtic and makes code
 more complex and less readable.
 
-<pre>n> 	select p (SetTab head rows) = mkTableFromSet head
+<pre>> 	select p (SetTab head rows) = mkTableFromSet head
 >		(Set.filter p rows)
-</pre>n
+</pre>
 Projection
 
 TODO: projectUnsafe?
 TODO: optimize! this is insanley slow :-(
 
-<pre>n>	project wantedNames tab@(SetTab header rows)
+<pre>>	project wantedNames tab@(SetTab header rows)
 >		| checkHeader = SetTab newHeader newRows
 >		-- FIXME: this is a really bad errormsg - open questions: why? how did i get here?
 >           	| otherwise = error "project: you cheat: this is not possible!"
@@ -115,47 +115,46 @@ TODO: optimize! this is insanley slow :-(
 >      		newRows = Set.map 
 >	                (\r -> [ l | p <- posList, (i,l) <- zip [1..] r, p==i] )
 >               	rows
-</pre>n
+</pre>
 <h2>UnitTesting</h2>
------------------
 
 Format of assertfun2 is:
-assertfun f name_of_f [ (param1, param2, expected) ]
+assertfun f name</hl>of_f [ (param1, param2, expected) ]
 
 empty table with schema of table1,2,3 .
 
 
-<pre>n> tableEmpty = mkTable [] [] :: Tab
-</pre>n
-<pre>n> table1 = mkTable [("ID",Number), ("Name",String)] [
+<pre>> tableEmpty = mkTable [] [] :: Tab
+</pre>
+<pre>> table1 = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [IntLit 42, StrLit "daniel"]  ] :: Tab
-</pre>n
+</pre>
 Yes, those two are valid!
 
-<pre>n> table2 = mkTable [("ID",Number), ("Name",String)] [
+<pre>> table2 = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [Null, StrLit "daniel"]  ] :: Tab
 >
 > table3 = mkTable [("ID",Number), ("Name",String)] [
 >       [Null, StrLit "fb"],
 >       [IntLit 42, StrLit "daniel"]  ] :: Tab
-</pre>n
+</pre>
 union of table 2 and table 3
 
-<pre>n> table23 = mkTable [("ID",Number), ("Name",String)] [
+<pre>> table23 = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [Null, StrLit "fb"],
 >       [Null, StrLit "daniel"], 
 >       [IntLit 42, StrLit "daniel"]  ] :: Tab
-</pre>n
-<pre>n> tableInvalid = mkTableUnsave [("ID",Number), ("Name",String)] [
+</pre>
+<pre>> tableInvalid = mkTableUnsave [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [CharLit 'a', StrLit "daniel"]  ] :: Tab
-</pre>n
-<pre>n> table123Empty = mkTable [("ID",Number), ("Name",String)] [] :: Tab
-</pre>n
-<pre>n> testUnion = assertfun2 union "union" 
+</pre>
+<pre>> table123Empty = mkTable [("ID",Number), ("Name",String)] [] :: Tab
+</pre>
+<pre>> testUnion = assertfun2 union "union" 
 >	[ (tableEmpty, tableEmpty, tableEmpty),
 >	  (table123Empty, table1, table1),
 >	  (table1, table123Empty, table1),
@@ -167,8 +166,8 @@ union of table 2 and table 3
 >	  (table2, table3, table23),
 >	  (table3, table2, table23)
 >	]
-</pre>n
-<pre>n> testDifference = assertfun2 difference "difference"
+</pre>
+<pre>> testDifference = assertfun2 difference "difference"
 >	[ (tableEmpty, tableEmpty, tableEmpty),
 >	  (table123Empty, table1, table123Empty),
 >	  (table1, table123Empty, table1),
@@ -180,8 +179,8 @@ union of table 2 and table 3
 >	  (table23, table3, table2),
 >	  (table23, table2, table3)
 >	]
-</pre>n
-<pre>n> testIntersect = assertfun2 intersect "intersect"
+</pre>
+<pre>> testIntersect = assertfun2 intersect "intersect"
 > 	[ (tableEmpty, tableEmpty, tableEmpty),
 > 	  (table123Empty, table1, table123Empty),
 > 	  (table1, table123Empty, table123Empty),
@@ -193,14 +192,14 @@ union of table 2 and table 3
 > 	  (table23, table3, table3),
 > 	  (table23, table2, table2)
 > 	]
-</pre>n
+</pre>
 
 selections on table2
 
-<pre>n> table2onlyFB = mkTable [("ID",Number), ("Name",String)] [
+<pre>> table2onlyFB = mkTable [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"] ] :: Tab
-</pre>n
-<pre>n> testSelect = assertfun2 select "select"
+</pre>
+<pre>> testSelect = assertfun2 select "select"
 >	[ ( (\_ -> False), tableEmpty, tableEmpty),
 >	  ( (\_ -> False), table1, table123Empty),
 >	  ( (\_ -> False), table23, table123Empty),
@@ -209,10 +208,10 @@ selections on table2
 >	  ( (\x -> x!!0 == IntLit 64), table2, table123Empty),
 >	  ( (\x -> x!!0 == IntLit 23), table2, table2onlyFB)
 >	]
-</pre>n
+</pre>
 projections on table23
 
-<pre>n> table23ID = mkTable [("ID",Number)] [
+<pre>> table23ID = mkTable [("ID",Number)] [
 >       [IntLit 23],
 >       [Null],
 >       [IntLit 42] ]  :: Tab
@@ -220,8 +219,8 @@ projections on table23
 > table23Name = mkTable [("Name",String)] [
 >       [StrLit "fb"],
 >       [StrLit "daniel"] ] :: Tab
-</pre>n
-<pre>n> testProject = assertfun2 project "project"
+</pre>
+<pre>> testProject = assertfun2 project "project"
 >	[ ([], tableEmpty, tableEmpty),
 >	  ([], table123Empty, tableEmpty),
 >	  (["ID"], table123Empty, mkTable [("ID", Number)] []),
@@ -236,15 +235,15 @@ projections on table23
 >	  (["ID"], table23, table23ID),	
 >	  (["Name"], table23, table23Name)
 >	]
-</pre>n
-<pre>n> table1Xtable1 = mkTable
+</pre>
+<pre>> table1Xtable1 = mkTable
 >	[("ID",Number),("Name",String),("ID",Number),("Name",String)]
 >	[[IntLit 23, StrLit "fb", IntLit 23, StrLit "fb"],
 >	 [IntLit 23, StrLit "fb", IntLit 42, StrLit "daniel"],
 >	 [IntLit 42, StrLit "daniel", IntLit 23, StrLit "fb"],
 >	 [IntLit 42, StrLit "daniel", IntLit 42, StrLit "daniel"]]  :: Tab
-</pre>n
-<pre>n> testCross = assertfun2 cross "cross"
+</pre>
+<pre>> testCross = assertfun2 cross "cross"
 >	[ (tableEmpty, tableEmpty, tableEmpty),
 >	  (table123Empty, table1, SetTab [("ID",Number), ("Name",String),
 >				       ("ID",Number),("Name",String)]
@@ -252,8 +251,8 @@ projections on table23
 >	  (table1, table123Empty, SetTab [("ID",Number), ("Name",String),
 >				       ("ID",Number),("Name",String)]
 >		                       (Set.fromList [])),
-</pre>n
-<pre>n>	  (table1, table1, table1Xtable1),
+</pre>
+<pre>>	  (table1, table1, table1Xtable1),
 >	  (table123Empty, table123Empty, mkTable
 >		[("ID",Number), ("Name",String), ("ID",Number),
 >		 ("Name",String)]
@@ -265,8 +264,8 @@ projections on table23
 >		"| 23         | \"fb\"         | Null       | \"daniel\"     |" ++
 >		"| 23         | \"fb\"         | 23         | \"fb\"         |")) 
 >	]
-</pre>n
-<pre>n> testRename = assertfun2 rename "rename" [ 
+</pre>
+<pre>> testRename = assertfun2 rename "rename" [ 
 >	([], tableEmpty, tableEmpty),
 >	([], table1, table1),
 >	([], table123Empty, table123Empty),
@@ -283,10 +282,10 @@ projections on table23
 >			++ "| 23          | \"fb\"      |"
 >			++ "| 42          | \"daniel\"  |") :: Tab) 
 >	]
-</pre>n
-<pre>n> testSetTableOps = testUnion && testDifference && testIntersect
+</pre>
+<pre>> testSetTableOps = testUnion && testDifference && testIntersect
 >       && testSelect && testProject
 >       && testCross && testRename
-</pre>n
-</body>
+</pre>
+  </body>
 </html>

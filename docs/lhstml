@@ -18,18 +18,18 @@ s,^---- \(.*\) ----$,<h4>\1</h4>,
 
 # lists
 /^\* /{
-    s,^\* ,<ul>\n<li>,
+    s,^\* ,<ul><li>,
     :i
         :nl
-            ${  s,$,\n</li>\n<ul>,
+            ${  s,$,</li><ul>,
                 be
             }
             n
             s,^\s,,
         tnl
-        s,^\* ,</li>\n<li>,
+        s,^\* ,</li><li>,
     ti
-    s,^,</li></ul>\n,
+    s,^,</li></ul>,
 }
 
 # line
@@ -37,28 +37,28 @@ s,_\+,</hl>,
 
 # code
 /^>/{
-    s,^>,<pre>\n>,
+    s,^>,<pre>>,
     :c
-        ${  s,$,\n</pre>,
+        ${  s,$,</pre>,
             be
         }
         n
         s,^>,>,
     tc
-    s,^$,</pre>\n,
+    s,^$,</pre>,
 }
 
 # pre
 /^  /{
-    s,^  ,<pre>\n,
+    s,^  ,<pre>,
     :p
-        ${  s,$,\n</pre>,
+        ${  s,$,</pre>,
             be
         }
         n
         s,^  ,,
     tp
-    s,^$,</pre>\n,
+    s,^$,</pre>,
 }
 
 :e

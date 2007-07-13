@@ -1,13 +1,14 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
+              "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<head>
-<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-</head>
-<body>
+  <head>
+    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+  </head>
+  <body>
+
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 
-<pre>nCopyright (C) 2007  Daniel Waeber, Fabian Bieker
+<pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as 
@@ -20,12 +21,11 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-</pre>n
+</pre>
 
 <h1>The Table ADT</h1>
-------------------
 
-<pre>n> module Table (
+<pre>> module Table (
 >   -- TODO: hide stuff
 >   -- testTable -- TODO: impl + export
 >   Row,
@@ -38,18 +38,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 > 
 > import Primes
 > import Lib.AssertFun
-</pre>n
+</pre>
 
 <h3>The Table</h3>
------------------
 Now Rows and Tables are easy, as we just can use a Set of List. We only have to
 check the types when createing or changeing a Table at runtime.
 
-<pre>n> type Row l = [l]
+<pre>> type Row l = [l]
 > type ColumnName = String
 > type ColumnHeader t = (ColumnName, t)
 > type TableHeader t = [ColumnHeader t]
-</pre>n
+</pre>
 The class table consists of the table data tab, and the type system l t, which
 if functional dependent on tab.
 
@@ -59,20 +58,20 @@ Note: To Implement this class you need to implement either rows or
 	We recommend implementing more functions if you care about
 	performance.
 
-<pre>n> class (Type t, Literal l t, Eq tab) => Table tab l t | tab -> l t where
-</pre>n
+<pre>> class (Type t, Literal l t, Eq tab) => Table tab l t | tab -> l t where
+</pre>
 Constructors and schema checking:
 
-<pre>n>       checkTable :: tab -> Bool
+<pre>>       checkTable :: tab -> Bool
 >       checkTable t = allRows validRow t && checkSize
 >		where
 >		sch = schema t
 >		validRow r = all (uncurry checkType) (zip sch r)
 >		checkSize = allRows (\r -> length sch == length r) t
-</pre>n
+</pre>
 check the Table and return it, if it is valid, otherwise genrate in error
 
-<pre>n>       checkedTable :: tab -> tab
+<pre>>       checkedTable :: tab -> tab
 >       checkedTable t
 >		| checkTable t = t
 >               | otherwise = error ("chechedTable: " ++ 
@@ -82,57 +81,57 @@ check the Table and return it, if it is valid, otherwise genrate in error
 >
 >       mkTable :: (TableHeader t) -> [(Row l)] -> tab
 >       mkTable h r = checkedTable (mkTableUnsave h r)
-</pre>n
+</pre>
 Getters:
 
-<pre>n>       header :: tab -> TableHeader t
+<pre>>       header :: tab -> TableHeader t
 >       schema :: tab -> [t]
 >       columnNames :: tab -> [String]
 >       rows :: tab -> [Row l]
 >	rows = foldRows (:) []
-</pre>n
+</pre>
 basic functional programming higher order functions:
 Note: default impl. of foldRow is really slow, should be overwriten.
 
-<pre>n>       foldRows :: ((Row l) -> b -> b) -> b -> tab -> b
+<pre>>       foldRows :: ((Row l) -> b -> b) -> b -> tab -> b
 >	foldRows f init = foldr f init . rows 
 >       filterRows :: ((Row l) -> Bool) -> tab -> tab
 >	filterRows f t = foldRows
 >	 	(\row table -> if f row then cons row table else table) 
 >		(mkTable (header t) [])
 >		t
-</pre>n
+</pre>
 mapRowsUnsafe might invalidate the table.
 Use mapRows if you want the table to be validated against the schema.
 Use mapRows unsafe if you want the table to be unchecked.
 
-<pre>n>       mapRowsUnsafe :: ((Row l) -> (Row l)) -> tab -> tab
+<pre>>       mapRowsUnsafe :: ((Row l) -> (Row l)) -> tab -> tab
 >	mapRowsUnsafe f t = foldRows
 >	 	(\row table -> cons (f row) table) 
 >		(mkTable (header t) [])
 >		t
 >	mapRows :: ((Row l) -> (Row l)) -> tab -> tab
 >	mapRows f t = checkedTable (mapRowsUnsafe f t)
-</pre>n
+</pre>
 Basic list-like operations:
 
-<pre>n>	cons :: (Row l) -> tab -> tab
+<pre>>	cons :: (Row l) -> tab -> tab
 >	cons r t = mkTable (header t) (r : rows t) 
 >	isEmpty :: tab -> Bool
 >	isEmpty = null . rows
-</pre>n
+</pre>
 Size returns (count of columns, count of rows)
 
-<pre>n>	size :: tab -> (Int,Int)
+<pre>>	size :: tab -> (Int,Int)
 >	size t = (length (schema t), length (rows t))
-</pre>n
+</pre>
 Basic logic operations:
 
-<pre>n>       allRows :: ((Row l) -> Bool) -> tab -> Bool
+<pre>>       allRows :: ((Row l) -> Bool) -> tab -> Bool
 >       allRows f = foldRows ((&&) . f) True
 >       anyRow :: ((Row l) -> Bool) -> tab -> Bool
 >       anyRow f = foldRows ((||) . f) False
-</pre>n
+</pre>
 TODO: unit test default impls of class Table
-</body>
+  </body>
 </html>

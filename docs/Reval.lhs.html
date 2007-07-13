@@ -1,13 +1,14 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
+              "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<head>
-<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-</head>
-<body>
+  <head>
+    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+  </head>
+  <body>
+
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 
-<pre>nCopyright (C) 2007  Daniel Waeber, Fabian Bieker
+<pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as 
@@ -20,9 +21,8 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-</pre>n
+</pre>
 <h1>Reval</h1>
----------
 
 Reval is an acronym for relational algebra evaluation.
 
@@ -31,7 +31,7 @@ Frist read Primes, Table and SetTable to get an overview.
 Then check out TableOps and SetTableOps where union, cross-joins etc.
 are declared and implemented.
 
-We use hg ( http://en.wikipedia.org/wiki/Mercurial_%28software%29 ) for
+We use hg ( http://en.wikipedia.org/wiki/Mercurial</hl>%28software%29 ) for
 version mangement. The hg webinterface can be found at
 http://forti.ath.cx:20480/pro/hg/reval/ .
 To view the Documentation click on "Manifest" and navigate to "docs" .
@@ -45,24 +45,23 @@ documented...
 Run testAll to run unitTests. If testAll returns true, everthing is
 fine, otherwise an error is raised.
 
-<pre>n> module Reval where
+<pre>> module Reval where
 > -- TODO: declare exports + export testAll
 > import Primes
 > import Table
 > import TableOps
 > import SetTable
 > import SetTableOps
-</pre>n
-<pre>n> testAll = testPrimes
+</pre>
+<pre>> testAll = testPrimes
 >	-- && testTable && testTableOps -- TODO: impl and call
 > 	&& testSetTable && testSetTableOps
-</pre>n
+</pre>
 <h3>Some Sample Tables</h3>
---------------------------
 
 Some example tables to get you started:
 
-<pre>n> exampleTable1 :: Tab
+<pre>> exampleTable1 :: Tab
 > exampleTable1 = read (
 >	"| ID: Number | Name: String |" ++
 >	"| 23 | \"fb\" |" ++
@@ -77,34 +76,32 @@ Some example tables to get you started:
 >	"| 42 | \"wabu\" | True |" ++
 >	"| 2 | \"foobar\" | False |" ++
 >	"")
-</pre>n
-<pre>n> exampleTableEmpty :: Tab
+</pre>
+<pre>> exampleTableEmpty :: Tab
 > exampleTableEmpty = read "||"
-</pre>n
+</pre>
 <h3>Some pointers to get you started</h3>
-----------------------------------------
 
 try something like:
 
 - cross-join (full outer join):
-<pre>ncross exampleTable1 exampleTable2
-</pre>n
+<pre>cross exampleTable1 exampleTable2
+</pre>
 - select rows with ID == 2
-<pre>nselect (\(x:_) -> x == IntLit 2) exampleTable1
-</pre>n
+<pre>select (\(x:</hl>) -> x == IntLit 2) exampleTable1
+</pre>
 - combine queries:  
-<pre>nselect (\(x:_) -> x == IntLit 2) exampleTable1
+<pre>select (\(x:</hl>) -> x == IntLit 2) exampleTable1
 	(cross exampleTable1 exampleTable2)
-</pre>n
+</pre>
 <h3>Legal Foo</h3>
------------------
 
-<pre>n> licenseNote = "rel-eval \tCopyright (C) 2007 \tDaniel Waeber, Fabian Bieker\n" ++
+<pre>> licenseNote = "rel-eval \tCopyright (C) 2007 \tDaniel Waeber, Fabian Bieker\n" ++
 >       "This program comes with ABSOLUTELY NO WARRANTY; for details " ++
 >       "read the LICENSE.txt file.\n" ++
 >       "This is free software, and you are welcome to " ++
 >       "redistribute it under certain conditions; type LGPL.txt for " ++
 >       "details.\n"
-> n</pre>
-</body>
+> </pre>
+  </body>
 </html>

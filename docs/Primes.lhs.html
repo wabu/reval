@@ -1,13 +1,14 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
+              "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<head>
-<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-</head>
-<body>
+  <head>
+    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+  </head>
+  <body>
+
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 
-<pre>nCopyright (C) 2007  Daniel Waeber, Fabian Bieker
+<pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as 
@@ -20,8 +21,8 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-</pre>n
-<pre>n> module Primes (
+</pre>
+<pre>> module Primes (
 >   Type(..),
 >   Literal(..),
 >   SimpleType(..),
@@ -32,21 +33,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 > 
 > import Lib.AssertFun
 > import qualified Data.Set as Set
-</pre>n
+</pre>
 
 <h1>What to put into Tables</h1>
----------------------------
 
 Or how to trick Haskell to get a Table with different data types inside each
 column, but with arbitrary length.
 
 <h2>Our First Try</h2>
--------------------
 
 ... in tricking the type system. The type class look good, but still
 we got a problem: There is no way to instantiate it.
 
-<pre>n> {- the class looks good, but can be instanciated
+<pre>> {- the class looks good, but can be instanciated
 >
 > class (Show a) => Row a where
 >       name :: a -> String
@@ -63,11 +62,10 @@ we got a problem: There is no way to instantiate it.
 >       content (SRow (_,c)) = c
 >       content _ = error "StringRow.content"
 > -}
-</pre>n
+</pre>
 
 
 <h2>The Second Try</h2>
---------------------
 
 The idea was to create a TableType as a LISP-like cons-cell to represent Tables.
 Trying to ignore the type of the second argument, so we can put a TableType d e
@@ -75,7 +73,7 @@ did not work, as the type system cam back as we tried to write a on TableType. T
 compile will construct the type for the function, but that's an infinite type, so
 BOOOMM!! as soon as we use the type.
 
-<pre>n> {- cant be used either
+<pre>> {- cant be used either
 >
 > data TableType a b = Nil | Tab (Row a) b
 >        deriving (Show, Eq, Read)
@@ -85,58 +83,54 @@ BOOOMM!! as soon as we use the type.
 > names (Tab (name, _ ) b) = names b -- INFINITE TYPE! BOOM!!
 > names _ = error "StringRow.name"
 > -}
-</pre>n
+</pre>
 
 
 <h2>Better: Use ASTs</h2>
-----------------------
 
 Well, screw it, just use ASTs
 
 <h3>Basic AST Types</h3>
------------------------
 Lit is a Literal.
 
-<pre>n> data SimpleLit = Null | IntLit Int | StrLit String | CharLit Char |
+<pre>> data SimpleLit = Null | IntLit Int | StrLit String | CharLit Char |
 >       BoolLit Bool
 >       deriving (Eq)
-</pre>n
+</pre>
 Type is used to store Type information in the table schema.
 Note: Null has Type Any.
 
-<pre>n> data SimpleType = Any | Number | String | Char | Bool
+<pre>> data SimpleType = Any | Number | String | Char | Bool
 >       deriving (Show, Eq, Read)
-</pre>n
+</pre>
 Now we can just use Lists as rows, as all data just has the type Lit.
 
 <h3>Type System Classes</h3>
----------------------------
 
 As these Types are just not only a short list, we give the user the abillity to
 create his own typesystem
 
-<pre>n> class (Eq t) => Type t where
+<pre>> class (Eq t) => Type t where
 >       -- check if to types Are compatible
 >       check :: t -> t -> Bool
-</pre>n
+</pre>
 We need glasgow/98 extension because Literal is conjunct to its Type. So we
 define the Literal class to have a data l, the literal, and a data t, the type,
 where the literal l determinds the type it is based on.
 
-<pre>n> class (Type t) => Literal l t | l -> t where
+<pre>> class (Type t) => Literal l t | l -> t where
 >       -- get the type of a literal
 >       getType :: l -> t
 >
 >       -- check if the Litral is compatible to type
 >       checkType :: t -> l -> Bool
 >       checkType typ lit = check typ (getType lit)
-</pre>n
+</pre>
 <h3>Implmentation</h3>
----------------------
 
 Ord for SimpleLit needed to stuff SimpleLits in Sets
 
-<pre>n> instance Ord SimpleLit where
+<pre>> instance Ord SimpleLit where
 >       compare Null Null = EQ
 >       compare (IntLit a) (IntLit b) = compare a b 
 >       compare (StrLit a) (StrLit b) = compare a b 
@@ -151,18 +145,18 @@ Ord for SimpleLit needed to stuff SimpleLits in Sets
 >       compare _ (StrLit _) = GT
 >       compare (CharLit _) _ = LT
 >       compare _ (CharLit _) = GT
-</pre>n
+</pre>
 Own Show and Read for SimpleLits
 
-<pre>n> showsLit :: SimpleLit -> ShowS
+<pre>> showsLit :: SimpleLit -> ShowS
 > showsLit Null = ("Null" ++)
 > showsLit (IntLit l) = shows l
 > showsLit (StrLit l) = shows l
 > showsLit (CharLit l) = shows l
 > showsLit (BoolLit l) = shows l
 > instance Show SimpleLit where showsPrec _ = showsLit
-</pre>n
-<pre>n> readsLit :: ReadS SimpleLit
+</pre>
+<pre>> readsLit :: ReadS SimpleLit
 > readsLit s = 
 >       [(IntLit l, s) | (l,s) <- reads s ] ++
 >       [(StrLit l, s) | (l,s) <- reads s ] ++
@@ -170,8 +164,8 @@ Own Show and Read for SimpleLits
 >       [(BoolLit l, s) | (l,s) <- reads s ] ++
 >       [(Null,s) | ("Null", s) <- lex s ]
 > instance Read SimpleLit where readsPrec _ = readsLit
-</pre>n
-<pre>n> instance Type SimpleType where
+</pre>
+<pre>> instance Type SimpleType where
 >       check Any _ = True
 >       check _ Any = True
 >       check Number Number = True
@@ -179,39 +173,38 @@ Own Show and Read for SimpleLits
 >       check Char Char = True
 >       check Bool Bool = True
 >       check _ _ = False
-</pre>n
-<pre>n> instance Literal SimpleLit SimpleType where
+</pre>
+<pre>> instance Literal SimpleLit SimpleType where
 >       getType Null = Any
 >       getType (IntLit _) = Number
 >       getType (StrLit _) = String
 >       getType (CharLit _) = Char
 >       getType (BoolLit _) = Bool
-</pre>n
+</pre>
 <h2>UnitTesting</h2>
-------------------
 
-<pre>n> int = IntLit 32
+<pre>> int = IntLit 32
 > str = StrLit "wabu"
 > chr = CharLit '_'
 > bool = BoolLit True
 > null = Null
 > types = [Number, String, Char, Bool]
 > lits  = [int, str, chr, bool]
-</pre>n
-<pre>n> testCheck = assertfun2 check "check"
+</pre>
+<pre>> testCheck = assertfun2 check "check"
 >       ( [(a,a,True) | a <- types] ++
 >         [(a,Any,True) | a <- types] ++
 >         [(a,Bool,False) | a <- [String,Number,Char]] ++
 >         [(a,b,check b a) | a <- types, b <- types] ++
 >         [(Any,Any,True)] )
-</pre>n
-<pre>n> testCheckType = assertfun2 checkType "checkType"
+</pre>
+<pre>> testCheckType = assertfun2 checkType "checkType"
 >       ( [(t,l,True) | (t,l) <- zip types lits] ++
 >         [(t,l,False) | i <- [1..4], l <- drop i lits, t <- take i types] ++
 >         [(t,l,False) | i <- [1..4], l <- take i lits, t <- drop i types] ++
 >         [(Any,l,True) | l <- lits] )
-</pre>n
-<pre>n> testPrimes = testCheck && testCheckType
-</pre>n
-</body>
+</pre>
+<pre>> testPrimes = testCheck && testCheckType
+</pre>
+  </body>
 </html>
