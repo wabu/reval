@@ -16,7 +16,7 @@ lambda do |r|
         r.p("reval is a leazy relational algebra interpreter written in haskell. You can get more
              info inside the source or the generated doc files:"),
         r.ul(
-            r.li( r.a("/pro/hg/x2c/file/", "browse") + " the tip"),
+            r.li( r.a("/pro/hg/reval/file/", "browse") + " the tip"),
             *Dir[File.join(path,'docs','*.html')].map do |f|
                 f.sub!(/#{path}/,'')
                 r.li(r.a("/pro/hg/reval/raw-file/#{tip}/#{f}",f))
