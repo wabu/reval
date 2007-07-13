@@ -24,14 +24,19 @@ Frist read Primes, Table and SetTable to get an overview.
 Then check out TableOps and SetTableOps where union, cross-joins etc.
 are declared and implemented.
 
-We use hg (http://en.wikipedia.org/wiki/Mercurial_%28software%29) for
+We use hg ( http://en.wikipedia.org/wiki/Mercurial_%28software%29 ) for
 version mangement. The hg webinterface can be found at
 http://forti.ath.cx:20480/pro/hg/reval/ .
 To view the Documentation click on "Manifest" and navigate to "docs" .
+The hg changelog is available as an rss-feed:
+http://forti.ath.cx:20480/pro/hg/reval/rss-log 
 
 Feel free to submit patches, they are welcome.
 Try to stick to the coding standards. No, currently they are not
 documented...
+
+Run testAll to run unitTests. If testAll returns true, everthing is
+fine, otherwise an error is raised.
 
 > module Reval where
 > -- TODO: declare exports + export testAll
