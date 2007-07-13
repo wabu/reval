@@ -14,6 +14,9 @@
   You should have received a copy of the GNU Lesser General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+- Instance of the TableOps class using the SetTable instance -
+--------------------------------------------------------------
+
 > module SetTableOps (
 >   TableOps(..),
 >   testSetTableOps,
@@ -27,9 +30,6 @@
 > import Lib.AssertFun
 > import qualified Data.Set as Set
 > import Data.List ((\\))
-
--- Primitive Relation Algebra Operations --
--------------------------------------------
 
 applyOnTableSets is a abstract higer order function used to
 build union, difference etc. It boils down to "Building

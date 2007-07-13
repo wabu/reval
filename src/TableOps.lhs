@@ -14,6 +14,13 @@
   You should have received a copy of the GNU Lesser General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+- TableOps -
+------------
+
+Class to encapsulte Primitive Relation Algebra Operations on Table
+ADT. Default implemantations are provied, too.
+
+
 > module TableOps (
 >   TableOps(..),
 >   -- testTableOps, -- TODO: export + write unit tests
@@ -26,9 +33,6 @@
 > import qualified Data.List as List
 > import Data.List ((\\))
 
-
--- Class to encapsulte Primitive Relation Algebra Operations --
----------------------------------------------------------------
 
 TODO: simplify class/type constraints
 

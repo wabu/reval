@@ -20,6 +20,7 @@
 
 > module Table (
 >   -- TODO: hide stuff
+>   -- testTable -- TODO: impl + export
 >   Row,
 >   ColumnName,
 >   ColumnHeader,

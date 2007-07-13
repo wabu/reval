@@ -14,6 +14,21 @@
   You should have received a copy of the GNU Lesser General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+- Reval -
+---------
+
+Reval is an acronym for relational algebra evaluation.
+Reval provieds 
+
+Recommended reading:
+Frist read Primes, Table and SetTable to get an overview.
+Then check out TableOps and SetTableOps where union, cross-joins etc.
+are declared and implemented.
+
+Feel free to submit patches, they are welcome.
+Try to stick to the coding standards. No, currently they are not
+documented...
+
 > module Reval where
 > -- TODO: declare exports + export testAll
 > import Primes
@@ -29,7 +44,7 @@
 --- Some Sample Tables ---
 --------------------------
 
-Some example databases
+Some example tables to get you started:
 
 > exampleTable1 :: Tab
 > exampleTable1 = read (
@@ -49,6 +64,18 @@ Some example databases
 
 > exampleTableEmpty :: Tab
 > exampleTableEmpty = read "||"
+
+try something like:
+
+- cross-join (full outer join):
+  cross exampleTable1 exampleTable2
+
+- select rows with ID == 2
+  select (\(x:_) -> x == IntLit 2) exampleTable1
+
+- combine queries:  
+  select (\(x:_) -> x == IntLit 2) exampleTable1
+  	(cross exampleTable1 exampleTable2)
 
 --- Legal Foo ---
 -----------------
