@@ -1,10 +1,11 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
+              "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<head>
-<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-</head>
-<body>
+  <head>
+    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+  </head>
+  <body>
+
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 
 <pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
@@ -42,10 +43,10 @@ ADT. Default implemantations are provied, too.
 
 TODO: simplify class/type constraints
 
-<pre>> class (Table tab l t, Type t, Literal l t, Eq tab, Eq l, Show t)
+<pre>> class (Table tab l t, Type t, Literal l t, Eq tab, Eq l)
 >	=> TableOps tab l t | tab -> l t where
 </pre>
-basic set operations
+<h4>basic set operations</h4>
 
 <pre>> 	union :: tab -> tab -> tab
 >	union = applyOnTableRows List.union
@@ -54,7 +55,7 @@ basic set operations
 >	intersect :: tab -> tab -> tab
 >	intersect = applyOnTableRows List.intersect
 </pre>
-cross-join
+<h4>cross-join</h4>
 
 <pre>>	cross :: tab -> tab -> tab
 > 	cross t1 t2 = mkTable newHeader
@@ -64,17 +65,38 @@ cross-join
 >		r1 = rows t1
 >		r2 = rows t2
 </pre>
-Selection
+<h4>Selection</h4>
 
 <pre>> 	select :: ((Row l) -> Bool) -> tab -> tab
 > 	select p tab = mkTable (header tab) (filter p (rows tab))
 </pre>
-Projection
-TODO: default impl., but clean instance project first!
+<h4>Projection</h4>
 
-<pre>> 	project :: [ColumnName] -> tab -> tab
+Note: The default implementation is clean and short, but not very effective.
+
+<pre>> 	projectUnsafe :: [ColumnName] -> tab -> tab
+> 	project :: [ColumnName] -> tab -> tab
+>	projectUnsafe wanted tab = mkTable newHeader $ rows newTab
+>   		where
+>               names = columnNames tab
+>               newHeader = [(n,t) | w <- wanted, (n,t) <- header tab, w==n]
+>               newRow row = [l | w <- wanted, (n,l) <- zip names row, w==n]
+>      		newTab = mapRowsUnsafe newRow tab
+>       project wanted tab
+>               | not checkExist = error(
+>                   "invalid projection: a name can't be found inside the table in project" ++
+>                   show wanted ++ " form " ++ show names)
+>               | not checkMulti = error(
+>                   "invalid projection: multiple rows with same name in project " ++
+>                   show wanted ++ " form " ++ show names)
+>               | otherwise = projectUnsafe wanted tab
+>               where
+>               names = columnNames tab
+>               checkExist = null (wanted \\ names)
+>               checkMulti = length wanted == 
+>                   length [n | w <- wanted, n <- names, w==n]
 </pre>
-Renaming
+<h4>Renaming</h4>
 
 Syntax: rename{Unsafe} [(oldName, newName)] table
 
@@ -101,9 +123,15 @@ Syntax: rename{Unsafe} [(oldName, newName)] table
 >		(columnNames,_) = unzip h
 </pre>
 
-syntatic sugar
+<h4>syntatic sugar</h4>
 
-<pre>>	(&&&) :: tab -> tab -> tab
+<pre>>       σ :: ((Row l) -> Bool) -> tab -> tab
+>       σ = select
+>       π :: [ColumnName] -> tab -> tab
+>       π = project
+>       ρ :: [(ColumnName,ColumnName)] -> tab -> tab
+>       ρ = rename
+>	(&&&) :: tab -> tab -> tab
 >	(&&&) = intersect
 >	(|||) :: tab -> tab -> tab
 > 	(|||) = union
@@ -121,11 +149,12 @@ This is usefull to impl. union, intersection etc.
 >		| h1 == h2 = mkTable h1 (f r1 r2)
 >		| otherwise = error ("applyOnTableRows: table headers"
 >			++ "do not match: " ++
->			show h1 ++ " /= " ++ show h2)
+>			(show $ columnNames t1) ++ " /= " ++ (show $ columnNames t1))
 >		where
 >		h1 = header t1
 >		h2 = header t2
 >		r1 = rows t1
->		r2 = rows t2</pre>
-</body>
+>		r2 = rows t2
+</pre>
+  </body>
 </html>

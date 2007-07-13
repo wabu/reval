@@ -1,10 +1,11 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
+              "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<head>
-<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-</head>
-<body>
+  <head>
+    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+  </head>
+  <body>
+
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 
 <pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
@@ -98,8 +99,6 @@ TODO: optimize! this is insanley slow :-(
 
 <pre>>	project wantedNames tab@(SetTab header rows)
 >		| checkHeader = SetTab newHeader newRows
->		-- FIXME: this is a really bad errormsg - open questions: why? how did i get here?
->           	| otherwise = error "project: you cheat: this is not possible!"
 >   		where
 >       	checkHeader = all (\n -> checkSize n (length [a | (a,_) <- header, n == a])) wantedNames
 >       	checkSize :: String -> Int -> Bool
@@ -147,7 +146,7 @@ union of table 2 and table 3
 >       [Null, StrLit "daniel"], 
 >       [IntLit 42, StrLit "daniel"]  ] :: Tab
 </pre>
-<pre>> tableInvalid = mkTableUnsave [("ID",Number), ("Name",String)] [
+<pre>> tableInvalid = mkTableUnsafe [("ID",Number), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [CharLit 'a', StrLit "daniel"]  ] :: Tab
 </pre>
@@ -286,5 +285,5 @@ projections on table23
 >       && testSelect && testProject
 >       && testCross && testRename
 </pre>
-</body>
+  </body>
 </html>

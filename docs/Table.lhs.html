@@ -1,10 +1,11 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
+              "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<head>
-<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-</head>
-<body>
+  <head>
+    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+  </head>
+  <body>
+
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 
 <pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
@@ -76,10 +77,10 @@ check the Table and return it, if it is valid, otherwise genrate in error
 >               | otherwise = error ("chechedTable: " ++ 
 >			"Invalid unshowable table (you loose).")
 >
->       mkTableUnsave :: (TableHeader t) -> [(Row l)] -> tab
+>       mkTableUnsafe :: (TableHeader t) -> [(Row l)] -> tab
 >
 >       mkTable :: (TableHeader t) -> [(Row l)] -> tab
->       mkTable h r = checkedTable (mkTableUnsave h r)
+>       mkTable h r = checkedTable (mkTableUnsafe h r)
 </pre>
 Getters:
 
@@ -132,5 +133,5 @@ Basic logic operations:
 >       anyRow f = foldRows ((||) . f) False
 </pre>
 TODO: unit test default impls of class Table
-</body>
+  </body>
 </html>
