@@ -1,16 +1,10 @@
-created by ./mk-tmp-todo-list.sh - Fri Jul 13 17:51:15 CEST 2007
+created by ./mk-tmp-todo-list.sh - Sat Jul 14 02:23:55 CEST 2007
 
-src/Reval.lhs:33:> -- TODO: declare exports + export testAll
-src/Reval.lhs:41:>	-- && testTable && testTableOps -- TODO: impl and call
+src/Reval.lhs:55:> -- TODO: declare exports + export testAll
 src/SetTable.lhs:25:>   Tab, -- FIXME: Tab needs to be visible in SetTableOps, this sux
 src/SetTableOps.lhs:43:TODO: more sanity checking
-src/SetTableOps.lhs:70:TODO: optimize, Set.toList sux!
-src/SetTableOps.lhs:90:TODO: projectUnsafe?
-src/SetTableOps.lhs:91:TODO: optimize! this is insanley slow :-(
-src/SetTableOps.lhs:95:>		-- FIXME: this is a really bad errormsg - open questions: why? how did i get here?
-src/Table.lhs:22:>   -- TODO: hide stuff
-src/Table.lhs:23:>   -- testTable -- TODO: impl + export
-src/Table.lhs:129:TODO: unit test default impls of class Table
-src/TableOps.lhs:26:>   -- testTableOps, -- TODO: export + write unit tests
+src/SetTableOps.lhs:88:TODO: projectUnsafe?
+src/SetTableOps.lhs:89:TODO: optimize! this is insanley slow :-(
+src/Table.lhs:132:TODO: unit test default impls of class Table
 src/TableOps.lhs:37:TODO: simplify class/type constraints
-src/TableOps.lhs:67:TODO: default impl., but clean instance project first!
+src/TableOps.lhs:156:TODO: write testTable + unit tests

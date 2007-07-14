@@ -60,7 +60,7 @@ fine, otherwise an error is raised.
 > import SetTableOps
 
 > testAll = testPrimes
->	-- && testTable && testTableOps -- TODO: impl and call
+>	&& testTable && testTableOps
 > 	&& testSetTable && testSetTableOps
 
 --- Some Sample Tables ---

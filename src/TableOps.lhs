@@ -23,7 +23,7 @@ ADT. Default implemantations are provied, too.
 
 > module TableOps (
 >   TableOps(..),
->   -- testTableOps, -- TODO: export + write unit tests
+>   testTableOps,
 > )
 > where
 >
@@ -149,3 +149,10 @@ This is usefull to impl. union, intersection etc.
 >		r1 = rows t1
 >		r2 = rows t2
 
+
+-- Unit Test --
+---------------
+
+TODO: write testTable + unit tests
+
+> testTableOps = True

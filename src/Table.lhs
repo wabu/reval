@@ -19,13 +19,12 @@
 ------------------
 
 > module Table (
->   -- TODO: hide stuff
->   -- testTable -- TODO: impl + export
 >   Row,
 >   ColumnName,
 >   ColumnHeader,
 >   TableHeader,
 >   Table(..),
+>   testTable,
 > )
 > where
 > 
@@ -126,4 +125,10 @@ Basic logic operations:
 >       anyRow :: ((Row l) -> Bool) -> tab -> Bool
 >       anyRow f = foldRows ((||) . f) False
 
+
+-- Unit Test --
+---------------
+
 TODO: unit test default impls of class Table
+
+> testTable = True

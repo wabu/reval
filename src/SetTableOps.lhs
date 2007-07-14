@@ -67,14 +67,12 @@ cross-join
 
 cross table1 table2 -- looks good, imho...
 
-TODO: optimize, Set.toList sux!
-
-> 	cross (SetTab h1 r1) (SetTab h2 r2) =
->		mkTable newHeader [ x++y | x <- l1, y <- l2]
+> 	cross (SetTab h1 s1) (SetTab h2 s2) =
+>		SetTab newHeader newSet
 >		where
 >		newHeader = h1 ++ h2
->		l1 = Set.toList r1
->		l2 = Set.toList r2
+>               newSet = Set.fold (\r1 s -> Set.union s $ multiply r1 s2) Set.empty s1
+>               multiply r s = Set.map (\rs -> r ++ rs) s
 
 Note: A Table containing a Set like {{}} is considured invalid. Use a
 Table containg the empty Set {} (aka mkTable [] []) to represent the
