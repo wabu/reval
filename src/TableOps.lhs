@@ -41,7 +41,7 @@ TODO: simplify class/type constraints
 
 ---- basic set operations ----
 
-> 	union :: tab -> tab -> tab
+>	union :: tab -> tab -> tab
 >	union = applyOnTableRows List.union
 >	difference :: tab -> tab -> tab
 >	difference = applyOnTableRows (\\)
@@ -51,7 +51,7 @@ TODO: simplify class/type constraints
 ---- cross-join ----
 
 >	cross :: tab -> tab -> tab
-> 	cross t1 t2 = mkTable newHeader
+>	cross t1 t2 = mkTable newHeader
 >		[ x++y | x <- r1, y <- r2]
 >		where
 >		newHeader = header t1 ++ header t2
@@ -67,10 +67,10 @@ TODO: simplify class/type constraints
 
 Note: The default implementation is clean and short, but not very effective.
 
-> 	projectUnsafe :: [ColumnName] -> tab -> tab
-> 	project :: [ColumnName] -> tab -> tab
+>	projectUnsafe :: [ColumnName] -> tab -> tab
+>	project :: [ColumnName] -> tab -> tab
 >	projectUnsafe wanted tab = mkTable newHeader $ rows newTab
->   		where
+>		where
 >               names = columnNames tab
 >               newHeader = [(n,t) | w <- wanted, (n,t) <- header tab, w==n]
 >               newRow row = [l | w <- wanted, (n,l) <- zip names row, w==n]
@@ -93,9 +93,9 @@ Note: The default implementation is clean and short, but not very effective.
 
 Syntax: rename{Unsafe} [(oldName, newName)] table
 
-> 	renameUnsafe :: [(ColumnName,ColumnName)] -> tab -> tab
-> 	rename ::[(ColumnName,ColumnName)] -> tab -> tab
-> 	renameUnsafe names tab = mkTable (replaceNames h) (rows tab)
+>	renameUnsafe :: [(ColumnName,ColumnName)] -> tab -> tab
+>	rename ::[(ColumnName,ColumnName)] -> tab -> tab
+>	renameUnsafe names tab = mkTable (replaceNames h) (rows tab)
 >		where
 >		h = header tab
 >		replaceNames = map (getNewName names)
@@ -104,7 +104,7 @@ Syntax: rename{Unsafe} [(oldName, newName)] table
 >			| name == old = (new, ctype)
 >			| otherwise = getNewName xs h
 
-> 	rename names tab
+>	rename names tab
 >		| checkParams = renameUnsafe names tab
 >		| otherwise = error ("invalid rename: names = " ++ show names 
 >			++ "\n table column names = " ++
@@ -115,6 +115,15 @@ Syntax: rename{Unsafe} [(oldName, newName)] table
 >		(oldNames,_) = unzip names
 >		(columnNames,_) = unzip h
 
+---- Advnced Operations ----
+
+>       theta :: (Row l -> Row l -> Bool) -> tab -> tab -> tab
+>       theta f t1 t2 = mkTable newHeader
+>		[ x++y | x <- r1, y <- r2, f x y]
+>		where
+>		newHeader = header t1 ++ header t2
+>		r1 = rows t1
+>		r2 = rows t2
 
 ---- syntatic sugar ----
 
@@ -124,21 +133,23 @@ Syntax: rename{Unsafe} [(oldName, newName)] table
 >       π = project
 >       ρ :: [(ColumnName,ColumnName)] -> tab -> tab
 >       ρ = rename
+>       θ :: (Row l -> Row l -> Bool) -> tab -> tab -> tab
+>       θ = theta
 >	(&&&) :: tab -> tab -> tab
 >	(&&&) = intersect
 >	(|||) :: tab -> tab -> tab
-> 	(|||) = union
+>	(|||) = union
 >	(***) :: tab -> tab -> tab
-> 	(***) = cross
+>	(***) = cross
 >	(\\\) :: tab -> tab -> tab
-> 	(\\\) = difference
+>	(\\\) = difference
 
 Higher order function to apply f on the rows of two tables.
 Checks if the headers of the table match, if not error is raised.
 This is usefull to impl. union, intersection etc.
 
 >	applyOnTableRows :: ([Row l] -> [Row l] -> [Row l]) -> tab -> tab -> tab
-> 	applyOnTableRows f t1 t2
+>	applyOnTableRows f t1 t2
 >		| h1 == h2 = mkTable h1 (f r1 r2)
 >		| otherwise = error ("applyOnTableRows: table headers"
 >			++ "do not match: " ++

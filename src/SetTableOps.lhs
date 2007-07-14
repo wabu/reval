@@ -273,7 +273,19 @@ projections on table23
 >			++ "| 42          | \"daniel\"  |") :: Tab) 
 >	]
 
+> instance Show (Row l -> Row l -> Bool) where
+>       show f = "(\\Row l -> \\Row l -> Bool)"
+
+> testTheta = assertfun3 theta "theta" [
+>       ((\a b -> True), table1, table2, cross table1 table2),
+>       ((\a b -> False), table1, table2, cross table123Empty table123Empty),
+>       ((\a b -> head a == head b), table1, table2,  read $ 
+>        "| ID: Number | Name: String | ID: Number | Name: String |" ++
+>        "| 23 | \"fb\" | 23 | \"fb\" |")
+>       ]
+
 > testSetTableOps = testUnion && testDifference && testIntersect
 >       && testSelect && testProject
->       && testCross && testRename
+>       && testCross && testRename 
+>       && testTheta
 

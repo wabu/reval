@@ -78,7 +78,7 @@ show and read instance for the table
 >
 >           cheads (n, t) = (strings n) . (':':) . space . (shows t)    -- column header -> [ShowS]
 >           heads = folds ((col .) . (. space) . cheads) header . line  -- | cheader | cheader ... |\n
->           headlength = (map (\h -> length $ cheads h "") header)
+>           headlength = (map (\h -> length $ cheads h "") header) ++ repeat 0
 >
 >           mapcells :: (Show a) => [a] -> [ShowS]                      -- row -> [ShowS]
 >           mapcells = map 
