@@ -60,8 +60,8 @@ fine, otherwise an error is raised.
 > import SetTableOps
 
 > testAll = testPrimes
->	&& testTable && testTableOps
-> 	&& testSetTable && testSetTableOps
+>       && testTable && testTableOps
+>       && testSetTable && testSetTableOps
 
 --- Some Sample Tables ---
 --------------------------
@@ -70,37 +70,43 @@ Some example tables to get you started:
 
 > exampleTable1 :: Tab
 > exampleTable1 = read (
->	"| ID: Number | Name: String |" ++
->	"| 23 | \"fb\" |" ++
->	"| 42 | \"wabu\" |" ++
->	"| 2 | \"foobar\" |" ++
->	"")
+>       "| ID: Number | Name: String |" ++
+>       "| 23         | \"fb\"       |" ++
+>       "| 42         | \"wabu\"     |" ++
+>       "| 2          | \"foobar\"   |" ++
+>       "")
 >
 > exampleTable2 :: Tab
 > exampleTable2 = read (
->	"| ID: Number | Name: String | Student: Bool |" ++
->	"| 23 | \"fb\" | True |" ++
->	"| 42 | \"wabu\" | True |" ++
->	"| 2 | \"foobar\" | False |" ++
->	"")
+>       "| ID: Number | Name: String | Student: Bool |" ++
+>       "| 23         | \"fb\"       | True          |" ++
+>       "| 42         | \"wabu\"     | True          |" ++
+>       "| 2          | \"foobar\"   | False         |" ++
+>       "")
 
 > exampleTableEmpty :: Tab
 > exampleTableEmpty = read "||"
+
+> exampleTableID :: Tab
+> exampleTableID = read "| ID: Number || 23 || 42 || 2 |"
 
 --- Some pointers to get you started ---
 ----------------------------------------
 
 try something like:
 
-- cross-join (full outer join):
+* cross-join (full outer join):
+
   cross exampleTable1 exampleTable2
 
-- select rows with ID == 2
+* select rows with ID == 2
+
   select (\(x:_) -> x == IntLit 2) exampleTable1
 
-- combine queries:  
+* combine queries:  
+
   select (\(x:_) -> x == IntLit 2) exampleTable1
-  	(cross exampleTable1 exampleTable2)
+        (cross exampleTable1 exampleTable2)
 
 --- Legal Foo ---
 -----------------
