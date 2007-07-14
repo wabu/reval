@@ -10,11 +10,7 @@ PENDING
 ** cleanup imports/exports
 ** natural join
 ** theta join
-** class Primeops 
-*** with default implementaion 
-*** should be part of the Table class
-** read data (tables) from file
-** read instructions (code) from file
+** TH
 *** implement as haskell code with some preprocessing?
 *** template haskell?
 
@@ -22,12 +18,12 @@ PENDING
 ** documentation
 ** error handling:
 *** error!
-*** projection on equal named column -> error
 *** if in doubt use error and create an ...Unsafe method, too
 
 * nice to have
 ** Literate Type for Functions / Clousures
 ** read tables from file (wabu)
+** read instructions (code) from file
 *** build a DSL (fb)
 *** evalate template haskell:
 **** http://www.haskell.org/hawiki/TemplateHaskellTutorial
@@ -48,8 +44,9 @@ DONE:
 ** union (fb) - done!
 ** substraction (fb) - done!
 ** cross join (fb) - done!
-** sigma/projection (fb) - done!
-** pi/selection (fb) - done!
+** pi/projection (fb) - done!
+*** projection on equal named column -> error
+** sigma/selection (fb) - done!
 ** renaming (fb)
 
 * non-functional features
@@ -62,3 +59,6 @@ OBSOLETE:
 ** Update spec (fb) [fb]
 *** remove performance, add leazyness (fb) [fb]
 ** send update of spec to Joos (fb) [fb]
+** class Primeops -> TableOpts
+*** with default implementaion 
+*** should be part of the Table class
