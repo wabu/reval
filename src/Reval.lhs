@@ -79,7 +79,7 @@ Some example tables to get you started:
 >
 > tableProject :: Tab
 > tableProject = read (
->       "| Name: String | Supervisor: Integer | Language: String | Detail: String |" ++
+>       "| Project: String | Supervisor: Integer | Language: String | Detail: String |" ++
 >       "| \"reval\" | 12 | \"haskell\"  | \"reval is a relational algebra interpretor\" |" ++
 >       "| \"x2c\"   | 23 | \"ruby\"     | \"x2c is a command line client for xmms2\" |" ++
 >       "")
@@ -93,7 +93,7 @@ Some example tables to get you started:
 >       "")
 
 > tableEmpty :: Tab
-> tableEmpty = read "||"
+> tableEmpty = read "|"
 
 > tableID :: Tab
 > tableID = read "| ID: Integer || 23 || 42 |"
@@ -124,6 +124,8 @@ try something like:
 
 * combine queries:  
 
+TODO: natural join with Project would be really nice
+
 > developing = project ["Name", "Project"] (theta sameID tablePersons tableDeveloper)
 >       where 
 >       sameID person developer = (personID person == developerID developer)
@@ -131,6 +133,8 @@ try something like:
 >       developerID = getValue tableDeveloper "Dev"
 
 TODO: more examles
+* supervisors that are not developing ...
+* developers with projects in there favourt language
 
 --- Legal Foo ---
 -----------------
