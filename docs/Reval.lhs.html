@@ -1,12 +1,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
+              "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<head>
-<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-</head>
-<body>
-<h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
+  <head>
+    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+  </head>
+  <body>
 
+<h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
+</br>
 <pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
 
 This program is free software: you can redistribute it and/or modify
@@ -22,18 +23,18 @@ You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 </pre>
 <h1>Reval</h1>
-
+</br>
 Reval is an acronym for relational algebra evaluation.
-
+</br>
 <h3>Recommended reading</h3>
-
+</br>
 Frist read Primes, Table and SetTable to get an overview.
 Then check out TableOps and SetTableOps where union, cross-joins etc.
 are declared and implemented.
-
+</br>
 <h3>Version Managment</h3>
-
-We use hg ( http://en.wikipedia.org/wiki/Mercurial</hl>%28software%29 ) for
+</br>
+We use hg ( http://en.wikipedia.org/wiki/Mercurial</hl>(software) ) for
 version mangement. The hg webinterface can be found at
 http://forti.ath.cx:20480/pro/hg/reval/ .
 To view the Documentation click on "Manifest" and navigate to "docs" .
@@ -41,19 +42,19 @@ The hg changelog is available as an rss-feed:
 http://forti.ath.cx:20480/pro/hg/reval/rss-log .
 To browse the files check out
 http://forti.ath.cx:20480/pro/hg/reval/file/ .
-
+</br>
 <h3>Contribute</h3>
-
+</br>
 Feel free to submit usefull patches and bugreports, they are welcome.
 Check out todo.txt and todo.tmp.txt for open tasks.
 Try to stick to the coding standards. No, currently they are not
 documented...
-
+</br>
 <h3>Testing</h3>
-
+</br>
 Run testAll to run unitTests. If testAll returns true, everthing is
 fine, otherwise an error is raised.
-
+</br>
 <pre>> module Reval where
 > -- TODO: declare exports + export testAll
 > import Primes
@@ -67,50 +68,77 @@ fine, otherwise an error is raised.
 >       && testSetTable && testSetTableOps
 </pre>
 <h3>Some Sample Tables</h3>
-
+</br>
 Some example tables to get you started:
-
-<pre>> exampleTable1 :: Tab
-> exampleTable1 = read (
->       "| ID: Number | Name: String |" ++
->       "| 23         | \"fb\"       |" ++
->       "| 42         | \"wabu\"     |" ++
->       "| 2          | \"foobar\"   |" ++
+</br>
+<pre>> tablePersons :: Tab
+> tablePersons = read (
+>       "| ID: Integer | Name: String | Student: Bool | FavLang: String |" ++
+>       "| 23          | \"fb\"       | True          | \"lisp\"        |" ++
+>       "| 42          | \"wabu\"     | True          | \"ruby\"        |" ++
+>       "| 1337        | \"Schweppe\" | False         | \"haskell\"     |" ++
 >       "")
 >
-> exampleTable2 :: Tab
-> exampleTable2 = read (
->       "| ID: Number | Name: String | Student: Bool |" ++
->       "| 23         | \"fb\"       | True          |" ++
->       "| 42         | \"wabu\"     | True          |" ++
->       "| 2          | \"foobar\"   | False         |" ++
+> tableProject :: Tab
+> tableProject = read (
+>       "| Project: String | Supervisor: Integer | Language: String | Detail: String |" ++
+>       "| \"reval\" | 12 | \"haskell\"  | \"reval is a relational algebra interpretor\" |" ++
+>       "| \"x2c\"   | 23 | \"ruby\"     | \"x2c is a command line client for xmms2\" |" ++
+>       "")
+>
+> tableDeveloper :: Tab
+> tableDeveloper = read (
+>       "| Dev: Integer | Project: String |" ++
+>       "| 23           | \"reval\"       |" ++
+>       "| 42           | \"reval\"       |" ++
+>       "| 42           | \"x2c\"         |" ++
 >       "")
 </pre>
-<pre>> exampleTableEmpty :: Tab
-> exampleTableEmpty = read "||"
+<pre>> tableEmpty :: Tab
+> tableEmpty = read "|"
 </pre>
-<pre>> exampleTableID :: Tab
-> exampleTableID = read "| ID: Number || 23 || 42 || 2 |"
+<pre>> tableID :: Tab
+> tableID = read "| ID: Integer || 23 || 42 |"
 </pre>
 <h3>Some pointers to get you started</h3>
-
+</br>
 try something like:
-
+</br>
 <ul><li>cross-join (full outer join):
 </li></ul>
-<pre>cross exampleTable1 exampleTable2
+<pre>> testCross = cross tablePersons tableProject
 </pre>
-<ul><li>select rows with ID == 2
+<ul><li>select rows with ID == 1337
 </li></ul>
-<pre>select (\(x:</hl>) -> x == IntLit 2) exampleTable1
+<pre>> testSelect = select (\(x:</hl>) -> x == IntLit 1337) tablePersons
+</pre>
+<ul><li>advanced joins: theta-join tablePerson with tableDeveloper on ID == Dev
+</li></ul>
+<pre>with the power of haskell we can create a nice theta join with the condtion
+seperated form theta join, so it will be readable even for larger operations
+</pre>
+<pre>> testTheta = theta sameID tablePersons tableDeveloper
+>       where 
+>       sameID person developer = (personID person == developerID developer)
+>       personID = getValue tablePersons "ID"
+>       developerID = getValue tableDeveloper "Dev"
 </pre>
 <ul><li>combine queries:  
 </li></ul>
-<pre>select (\(x:</hl>) -> x == IntLit 2) exampleTable1
-      (cross exampleTable1 exampleTable2)
+TODO: natural join with Project would be really nice
+</br>
+<pre>> developing = project ["Name", "Project"] (theta sameID tablePersons tableDeveloper)
+>       where 
+>       sameID person developer = (personID person == developerID developer)
+>       personID = getValue tablePersons "ID"
+>       developerID = getValue tableDeveloper "Dev"
 </pre>
+TODO: more examles
+<ul><li>supervisors that are not developing ...
+</li><li>developers with projects in there favourt language
+</li></ul>
 <h3>Legal Foo</h3>
-
+</br>
 <pre>> licenseNote = "rel-eval \tCopyright (C) 2007 \tDaniel Waeber, Fabian Bieker\n" ++
 >       "This program comes with ABSOLUTELY NO WARRANTY; for details " ++
 >       "read the LICENSE.txt file.\n" ++
@@ -118,5 +146,5 @@ try something like:
 >       "redistribute it under certain conditions; type LGPL.txt for " ++
 >       "details.\n"
 > </pre>
-</body>
+  </body>
 </html>

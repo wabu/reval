@@ -1,12 +1,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
+              "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<head>
-<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-</head>
-<body>
-<h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
+  <head>
+    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+  </head>
+  <body>
 
+<h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
+</br>
 <pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
 
 This program is free software: you can redistribute it and/or modify
@@ -22,11 +23,11 @@ You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 </pre>
 <h1>TableOps</h1>
-
+</br>
 Class to encapsulte Primitive Relation Algebra Operations on Table
 ADT. Default implemantations are provied, too.
-
-
+</br>
+</br>
 <pre>> module TableOps (
 >   TableOps(..),
 >   testTableOps,
@@ -39,14 +40,14 @@ ADT. Default implemantations are provied, too.
 > import qualified Data.List as List
 > import Data.List ((\\))
 </pre>
-
+</br>
 TODO: simplify class/type constraints
-
+</br>
 <pre>> class (Table tab l t, Type t, Literal l t, Eq tab, Eq l)
 >	=> TableOps tab l t | tab -> l t where
 </pre>
 <h4>basic set operations</h4>
-
+</br>
 <pre>>	union :: tab -> tab -> tab
 >	union = applyOnTableRows List.union
 >	difference :: tab -> tab -> tab
@@ -55,7 +56,7 @@ TODO: simplify class/type constraints
 >	intersect = applyOnTableRows List.intersect
 </pre>
 <h4>cross-join</h4>
-
+</br>
 <pre>>	cross :: tab -> tab -> tab
 >	cross t1 t2 = mkTable newHeader
 >		[ x++y | x <- r1, y <- r2]
@@ -65,14 +66,14 @@ TODO: simplify class/type constraints
 >		r2 = rows t2
 </pre>
 <h4>Selection</h4>
-
+</br>
 <pre>> 	select :: ((Row l) -> Bool) -> tab -> tab
 > 	select p tab = mkTable (header tab) (filter p (rows tab))
 </pre>
 <h4>Projection</h4>
-
+</br>
 Note: The default implementation is clean and short, but not very effective.
-
+</br>
 <pre>>	projectUnsafe :: [ColumnName] -> tab -> tab
 >	project :: [ColumnName] -> tab -> tab
 >	projectUnsafe wanted tab = mkTable newHeader $ rows newTab
@@ -96,9 +97,9 @@ Note: The default implementation is clean and short, but not very effective.
 >                   length [n | w <- wanted, n <- names, w==n]
 </pre>
 <h4>Renaming</h4>
-
+</br>
 Syntax: rename{Unsafe} [(oldName, newName)] table
-
+</br>
 <pre>>	renameUnsafe :: [(ColumnName,ColumnName)] -> tab -> tab
 >	rename ::[(ColumnName,ColumnName)] -> tab -> tab
 >	renameUnsafe names tab = mkTable (replaceNames h) (rows tab)
@@ -122,7 +123,7 @@ Syntax: rename{Unsafe} [(oldName, newName)] table
 >		(columnNames,_) = unzip h
 </pre>
 <h4>Advnced Operations</h4>
-
+</br>
 <pre>>       theta :: (Row l -> Row l -> Bool) -> tab -> tab -> tab
 >       theta f t1 t2 = mkTable newHeader
 >		[ x++y | x <- r1, y <- r2, f x y]
@@ -132,7 +133,7 @@ Syntax: rename{Unsafe} [(oldName, newName)] table
 >		r2 = rows t2
 </pre>
 <h4>syntatic sugar</h4>
-
+</br>
 <pre>>       σ :: ((Row l) -> Bool) -> tab -> tab
 >       σ = select
 >       π :: [ColumnName] -> tab -> tab
@@ -153,7 +154,7 @@ Syntax: rename{Unsafe} [(oldName, newName)] table
 Higher order function to apply f on the rows of two tables.
 Checks if the headers of the table match, if not error is raised.
 This is usefull to impl. union, intersection etc.
-
+</br>
 <pre>>	applyOnTableRows :: ([Row l] -> [Row l] -> [Row l]) -> tab -> tab -> tab
 >	applyOnTableRows f t1 t2
 >		| h1 == h2 = mkTable h1 (f r1 r2)
@@ -166,11 +167,11 @@ This is usefull to impl. union, intersection etc.
 >		r1 = rows t1
 >		r2 = rows t2
 </pre>
-
+</br>
 <h2>Unit Test</h2>
-
+</br>
 TODO: write testTable + unit tests
-
+</br>
 <pre>> testTableOps = True</pre>
-</body>
+  </body>
 </html>
