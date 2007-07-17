@@ -1,0 +1,49 @@
+= DBS Project Presentation =
+
+Startup: "Wir sind Programmier, keine Projekt Manager, drum haben wir
+Code geschrieben, anstatt Power-Point Slides zu clicken ..."
+
+http://forti.ath.cx:20480/pro/reval
+TODO: make webserver availible from uni network
+
+* Best Practices
+** SCRUM-simulation
+*** TTD
+** Literate-Programming-Simulation
+
+* Design
+** Goals
+*** See Spec.pdf for Use-cases, methods
+** Problems
+*** Strict Static Typing in Haskell
+*** Strict Functional constraints in Haskell
+
+* Demo
+** Show some usage-examples
+
+* Architekture/Implemtation
+
+** How we met the goals
+TODO
+
+** How we fixed the problems
+TODO
+
+*** Strict Static Typing in Haskell
+**** Impled own Type System
+**** Made it extendable by using classes
+*** Strict Functional constraints in Haskell
+**** Live with it, error handling still a little sucky
+
+** Foo we did not fix/impl. (yet)
+*** A decent DSL using Template Haskell
+*** A truly leazy Impl. of Table ADT
+
+* Contrib.
+** Code is LGPL feel free to submit bugreports/patches
+
+Credits:
+- Thanks to c-base for proving a decent hacking-space and club-mate
+- Thanks to Joos / Prof. Schwepe for answering some design questions
+
+Thanks for Listenting -> Questions?
