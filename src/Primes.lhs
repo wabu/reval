@@ -41,32 +41,37 @@ we got a problem: There is no way to instantiate it.
 
 > {- the class looks good, but can be instanciated
 >
-> class (Show a) => Row a where
+> class (Show a) => Column a where
 >       name :: a -> String
 >       content :: (Show b, Ord b) => a -> [b]
 >
-> --type Table = (Row a) => [a]
->
-> newtype StringRow = SRow (String, [String])
+> newtype StringColumn = SColumn (String, [String])
 >       deriving (Show, Eq, Read)
 >
-> instance Row StringRow where
->       name (SRow (n,_))  = n
->       name _ = error "StringRow.name"
->       content (SRow (_,c)) = c
->       content _ = error "StringRow.content"
+> instance Column StringColumn where
+>       name (SColumn (n,_))  = n
+>       content (SColumn (_,c)) = c
 > -}
 
+Any java programmer would say: yes, this looks good: c is a String, so it
+should match the generall type b. But as haskells type system is a relly static
+and strict, this will genrate an error:
+
+  Expected type: [b]
+  Inferred type: [String]
+
+We have to return a value of the general undefined type b, which is simply not
+possible.
 
 
 -- The Second Try --
 --------------------
 
-The idea was to create a TableType as a LISP-like cons-cell to represent Tables.
-Trying to ignore the type of the second argument, so we can put a TableType d e
-did not work, as the type system cam back as we tried to write a on TableType. The
-compile will construct the type for the function, but that's an infinite type, so
-BOOOMM!! as soon as we use the type.
+The idea was to create a TableType as a LISP-like cons-cell to represent
+Tables.  Trying to ignore the type of the second argument, so we can put a
+TableType d e did not work, as the strict type system cam back as we tried to
+write a method on TableType. The compile will construct the type for the
+function, but that's an infinite type, so BOOOMM!! as soon as we use the type.
 
 > {- cant be used either
 >
@@ -77,6 +82,7 @@ BOOOMM!! as soon as we use the type.
 > names Nil = [] 
 > names (Tab (name, _ ) b) = names b -- INFINITE TYPE! BOOM!!
 > names _ = error "StringRow.name"
+>
 > -}
 
 
@@ -84,11 +90,12 @@ BOOOMM!! as soon as we use the type.
 -- Better: Use ASTs --
 ----------------------
 
-Well, screw it, just use ASTs
+Well, screw it, just use ASTs to create an own type system.
 
 --- Basic AST Types ---
 -----------------------
-Lit is a Literal.
+
+SimpleLit is a Literal, that consists of a type Information and its value
 
 > data SimpleLit = Null | IntLit Int | StrLit String | CharLit Char |
 >       BoolLit Bool
@@ -97,7 +104,7 @@ Lit is a Literal.
 Type is used to store Type information in the table schema.
 Note: Null has Type Any.
 
-> data SimpleType = Any | Number | String | Char | Bool
+> data SimpleType = Any | Integer | String | Char | Bool
 >       deriving (Show, Eq, Read)
 
 Now we can just use Lists as rows, as all data just has the type Lit.
@@ -167,7 +174,7 @@ Own Show and Read for SimpleLits
 > instance Type SimpleType where
 >       check Any _ = True
 >       check _ Any = True
->       check Number Number = True
+>       check Integer Integer = True
 >       check String String = True
 >       check Char Char = True
 >       check Bool Bool = True
@@ -175,7 +182,7 @@ Own Show and Read for SimpleLits
 
 > instance Literal SimpleLit SimpleType where
 >       getType Null = Any
->       getType (IntLit _) = Number
+>       getType (IntLit _) = Integer
 >       getType (StrLit _) = String
 >       getType (CharLit _) = Char
 >       getType (BoolLit _) = Bool
@@ -188,13 +195,13 @@ Own Show and Read for SimpleLits
 > chr = CharLit '_'
 > bool = BoolLit True
 > null = Null
-> types = [Number, String, Char, Bool]
+> types = [Integer, String, Char, Bool]
 > lits  = [int, str, chr, bool]
 
 > testCheck = assertfun2 check "check"
 >       ( [(a,a,True) | a <- types] ++
 >         [(a,Any,True) | a <- types] ++
->         [(a,Bool,False) | a <- [String,Number,Char]] ++
+>         [(a,Bool,False) | a <- [String,Integer,Char]] ++
 >         [(a,b,check b a) | a <- types, b <- types] ++
 >         [(Any,Any,True)] )
 
