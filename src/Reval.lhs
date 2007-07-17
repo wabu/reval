@@ -71,7 +71,7 @@ Some example tables to get you started:
 
 > exampleTable1 :: Tab
 > exampleTable1 = read (
->       "| ID: Number | Name: String |" ++
+>       "| ID: Integer | Name: String |" ++
 >       "| 23         | \"fb\"       |" ++
 >       "| 42         | \"wabu\"     |" ++
 >       "| 2          | \"foobar\"   |" ++
@@ -79,7 +79,7 @@ Some example tables to get you started:
 >
 > exampleTable2 :: Tab
 > exampleTable2 = read (
->       "| ID: Number | Name: String | Student: Bool |" ++
+>       "| ID: Integer | Name: String | Student: Bool |" ++
 >       "| 23         | \"fb\"       | True          |" ++
 >       "| 42         | \"wabu\"     | True          |" ++
 >       "| 2          | \"foobar\"   | False         |" ++
@@ -89,7 +89,7 @@ Some example tables to get you started:
 > exampleTableEmpty = read "||"
 
 > exampleTableID :: Tab
-> exampleTableID = read "| ID: Number || 23 || 42 || 2 |"
+> exampleTableID = read "| ID: Integer || 23 || 42 || 2 |"
 
 --- Some pointers to get you started ---
 ----------------------------------------

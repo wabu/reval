@@ -31,8 +31,8 @@
 > import Lib.AssertFun
 > import qualified Data.Set as Set
 
-The default implementaion of the table is just a Header an a Set of lits. It
-can be used with any type system, but the literals have to be ordered.
+The default implementaion of the table class is just a Header an a Set of lits.
+It can be used with any type system, but the literals has to be ordered.
 
 > data (Ord l, Literal l t) => SetTable l t = SetTab (TableHeader t) (Set.Set (Row l)) 
 >       deriving Eq
@@ -123,78 +123,78 @@ sample tables used for testing:
 > tableEmpty = mkTable [] [] :: Tab
 > tableEmptyS = "\n|\n"
 
-> table1 = mkTable [("ID",Number), ("Name",String)] [
+> table1 = mkTable [("ID",Integer), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [IntLit 42, StrLit "daniel"]  ] :: Tab
 > table1S = '\n':
->       "| ID: Number | Name: String |\n" ++
->       "| 23         | \"fb\"         |\n" ++
->       "| 42         | \"daniel\"     |\n" ++
+>       "| ID: Integer | Name: String |\n" ++
+>       "| 23          | \"fb\"         |\n" ++
+>       "| 42          | \"daniel\"     |\n" ++
 >       ""
 
 Yes, those two are valid!
 
-> table2 = mkTable [("ID",Number), ("Name",String)] [
+> table2 = mkTable [("ID",Integer), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [Null, StrLit "daniel"]  ] :: Tab
 > table2S = '\n':
->       "| ID: Number | Name: String |\n" ++
->       "| Null       | \"daniel\"     |\n" ++
->       "| 23         | \"fb\"         |\n" ++
+>       "| ID: Integer | Name: String |\n" ++
+>       "| Null        | \"daniel\"     |\n" ++
+>       "| 23          | \"fb\"         |\n" ++
 >       ""
 
-> table3 = mkTable [("ID",Number), ("Name",String)] [
+> table3 = mkTable [("ID",Integer), ("Name",String)] [
 >       [Null, StrLit "fb"],
 >       [IntLit 42, StrLit "daniel"]  ] :: Tab
 > table3S = '\n':
->       "| ID: Number | Name: String |\n" ++
->       "| Null       | \"fb\"         |\n" ++
->       "| 42         | \"daniel\"     |\n" ++
+>       "| ID: Integer | Name: String |\n" ++
+>       "| Null        | \"fb\"         |\n" ++
+>       "| 42          | \"daniel\"     |\n" ++
 >       ""
 
 union of table 2 and table 3
 
-> table23 = mkTable [("ID",Number), ("Name",String)] [
+> table23 = mkTable [("ID",Integer), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [Null, StrLit "fb"],
 >       [Null, StrLit "daniel"], 
 >       [IntLit 42, StrLit "daniel"]  ] :: Tab
 > table23S ='\n':
->       "| ID: Number | Name: String |\n" ++
->       "| 23         | \"fb\"         |\n" ++
->       "| Null       | \"fb\"         |\n" ++
->       "| Null       | \"daniel\"     |\n" ++
->       "| 42         | \"daniel\"     |\n" ++
+>       "| ID: Integer | Name: String |\n" ++
+>       "| 23          | \"fb\"         |\n" ++
+>       "| Null        | \"fb\"         |\n" ++
+>       "| Null        | \"daniel\"     |\n" ++
+>       "| 42          | \"daniel\"     |\n" ++
 >       ""
 
-> tableInvalid = mkTableUnsafe [("ID",Number), ("Name",String)] [
+> tableInvalid = mkTableUnsafe [("ID",Integer), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [CharLit 'a', StrLit "daniel"]  ] :: Tab
-> tableInvalidSize = mkTableUnsafe [("ID",Number), ("Name",String)] [
+> tableInvalidSize = mkTableUnsafe [("ID",Integer), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [CharLit 'a', StrLit "daniel", Null]  ] :: Tab
 > tableInvalidS ='\n':
->       "| ID: Number | Name: String |\n" ++
->       "| 23         | \"fb\"         |\n" ++
->       "| 'a'        | \"daniel\"     |\n" ++
+>       "| ID: Integer | Name: String |\n" ++
+>       "| 23          | \"fb\"         |\n" ++
+>       "| 'a'         | \"daniel\"     |\n" ++
 >       ""
 
-> table123Empty = mkTable [("ID",Number), ("Name",String)] [] :: Tab
+> table123Empty = mkTable [("ID",Integer), ("Name",String)] [] :: Tab
 > table123EmptyS = '\n':
->       "| ID: Number | Name: String |\n" ++
+>       "| ID: Integer | Name: String |\n" ++
 >       ""
 
-> tableLong = mkTable [("i",Number), ("Name",String)] [
+> tableLong = mkTable [("i",Integer), ("Name",String)] [
 >       [IntLit (-100000000), StrLit "fb"],
 >       [IntLit 42, StrLit "Daniel Waeber\nCranachstr. 61\nBerlin"]  ] :: Tab
 > tableLongS = '\n':
->       "| i: Number | Name: String |\n" ++
+>       "| i: Integer | Name: String |\n" ++
 >       "| -100000000 | \"fb\"         |\n" ++
->       "| 42        | \"Daniel Waeber\\nCranachstr. 61\\nBerlin\" |\n" ++
+>       "| 42         | \"Daniel Waeber\\nCranachstr. 61\\nBerlin\" |\n" ++
 >       ""
 
 > table1Xtable1 = mkTable
->	[("ID",Number),("Name",String),("ID",Number),("Name",String)]
+>	[("ID",Integer),("Name",String),("ID",Integer),("Name",String)]
 >	[[IntLit 23, StrLit "fb", IntLit 23, StrLit "fb"],
 >	 [IntLit 23, StrLit "fb", IntLit 42, StrLit "daniel"],
 >	 [IntLit 42, StrLit "daniel", IntLit 23, StrLit "fb"],
@@ -222,8 +222,8 @@ union of table 2 and table 3
 
 > testSchema = afun1 schema "schema"
 >       [tableEmpty, table1, table2, table3, table123Empty]
->       [ [], [Number, String],[Number, String],
->	  [Number, String],[Number, String] ]
+>       [ [], [Integer, String],[Integer, String],
+>	  [Integer, String],[Integer, String] ]
 
 > testColumnNames = afun1 columnNames "columNames"
 >       [tableEmpty, table1, table2, table3, table123Empty]
@@ -282,18 +282,18 @@ show instance needed for unit testing ...
 >	(id, table2, table2),
 >	(id, table1Xtable1, table1Xtable1),
 >       ((\((IntLit n):xs) -> (IntLit (n+5)):xs), table1, 
->           read "| ID: Number | Name: String || 28 | \"fb\" || 47  | \"daniel\" |"),
+>           read "| ID: Integer | Name: String || 28 | \"fb\" || 47  | \"daniel\" |"),
 >       ((\(x:(StrLit s):xs) -> x:(StrLit (s++"-")):xs), table1, 
->           read "| ID: Number | Name: String || 23 | \"fb-\" || 42  | \"daniel-\" |")
+>           read "| ID: Integer | Name: String || 23 | \"fb-\" || 42  | \"daniel-\" |")
 >	]
 
 > testFilterRows = assertfun2 filterRows "filterRows" [
 >	((\_ -> True), tableEmpty, tableEmpty),
 >	((\_ -> True), table1, table1),
->	((\_ -> False), table1, read "| ID: Number | Name: String |"),
->       (((IntLit 23 ==) . head), table1, read "| ID: Number | Name: String || 23 | \"fb\" |"),
->       (((IntLit 42 ==) . head), table1, read "| ID: Number | Name: String || 42 | \"daniel\" |"),
->       (((Null /=) . head), table2, read "| ID: Number | Name: String || 23 | \"fb\" |")
+>	((\_ -> False), table1, read "| ID: Integer | Name: String |"),
+>       (((IntLit 23 ==) . head), table1, read "| ID: Integer | Name: String || 23 | \"fb\" |"),
+>       (((IntLit 42 ==) . head), table1, read "| ID: Integer | Name: String || 42 | \"daniel\" |"),
+>       (((Null /=) . head), table2, read "| ID: Integer | Name: String || 23 | \"fb\" |")
 >	]
 
 > testSetTable = testRead && testShow && testCheckTable && testSchema && testColumnNames 

@@ -116,33 +116,33 @@ empty table with schema of table1,2,3 .
 
 > tableEmpty = mkTable [] [] :: Tab
 
-> table1 = mkTable [("ID",Number), ("Name",String)] [
+> table1 = mkTable [("ID",Integer), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [IntLit 42, StrLit "daniel"]  ] :: Tab
 
 Yes, those two are valid!
 
-> table2 = mkTable [("ID",Number), ("Name",String)] [
+> table2 = mkTable [("ID",Integer), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [Null, StrLit "daniel"]  ] :: Tab
 >
-> table3 = mkTable [("ID",Number), ("Name",String)] [
+> table3 = mkTable [("ID",Integer), ("Name",String)] [
 >       [Null, StrLit "fb"],
 >       [IntLit 42, StrLit "daniel"]  ] :: Tab
 
 union of table 2 and table 3
 
-> table23 = mkTable [("ID",Number), ("Name",String)] [
+> table23 = mkTable [("ID",Integer), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [Null, StrLit "fb"],
 >       [Null, StrLit "daniel"], 
 >       [IntLit 42, StrLit "daniel"]  ] :: Tab
 
-> tableInvalid = mkTableUnsafe [("ID",Number), ("Name",String)] [
+> tableInvalid = mkTableUnsafe [("ID",Integer), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"],
 >       [CharLit 'a', StrLit "daniel"]  ] :: Tab
 
-> table123Empty = mkTable [("ID",Number), ("Name",String)] [] :: Tab
+> table123Empty = mkTable [("ID",Integer), ("Name",String)] [] :: Tab
 
 > testUnion = assertfun2 union "union" 
 >	[ (tableEmpty, tableEmpty, tableEmpty),
@@ -186,7 +186,7 @@ union of table 2 and table 3
 
 selections on table2
 
-> table2onlyFB = mkTable [("ID",Number), ("Name",String)] [
+> table2onlyFB = mkTable [("ID",Integer), ("Name",String)] [
 >       [IntLit 23, StrLit "fb"] ] :: Tab
 
 > testSelect = assertfun2 select "select"
@@ -201,7 +201,7 @@ selections on table2
 
 projections on table23
 
-> table23ID = mkTable [("ID",Number)] [
+> table23ID = mkTable [("ID",Integer)] [
 >       [IntLit 23],
 >       [Null],
 >       [IntLit 42] ]  :: Tab
@@ -213,12 +213,12 @@ projections on table23
 > testProject = assertfun2 project "project"
 >	[ ([], tableEmpty, tableEmpty),
 >	  ([], table123Empty, tableEmpty),
->	  (["ID"], table123Empty, mkTable [("ID", Number)] []),
+>	  (["ID"], table123Empty, mkTable [("ID", Integer)] []),
 >	  (["Name"], table123Empty, mkTable [("Name", String)] []),
 >	  (["ID", "Name"], table123Empty, mkTable
->		[("ID", Number), ("Name", String)] []),
+>		[("ID", Integer), ("Name", String)] []),
 >	  (["Name", "ID"], table123Empty, mkTable
->		[("Name", String), ("ID", Number)] []),
+>		[("Name", String), ("ID", Integer)] []),
 >	  (["ID", "Name"], table1, table1),
 >	  (["ID", "Name"], table2, table2),
 >	  (["ID", "Name"], table23, table23),
@@ -227,7 +227,7 @@ projections on table23
 >	]
 
 > table1Xtable1 = mkTable
->	[("ID",Number),("Name",String),("ID",Number),("Name",String)]
+>	[("ID",Integer),("Name",String),("ID",Integer),("Name",String)]
 >	[[IntLit 23, StrLit "fb", IntLit 23, StrLit "fb"],
 >	 [IntLit 23, StrLit "fb", IntLit 42, StrLit "daniel"],
 >	 [IntLit 42, StrLit "daniel", IntLit 23, StrLit "fb"],
@@ -235,20 +235,20 @@ projections on table23
 
 > testCross = assertfun2 cross "cross"
 >	[ (tableEmpty, tableEmpty, tableEmpty),
->	  (table123Empty, table1, SetTab [("ID",Number), ("Name",String),
->				       ("ID",Number),("Name",String)]
+>	  (table123Empty, table1, SetTab [("ID",Integer), ("Name",String),
+>				       ("ID",Integer),("Name",String)]
 >		                       (Set.fromList [])),
->	  (table1, table123Empty, SetTab [("ID",Number), ("Name",String),
->				       ("ID",Number),("Name",String)]
+>	  (table1, table123Empty, SetTab [("ID",Integer), ("Name",String),
+>				       ("ID",Integer),("Name",String)]
 >		                       (Set.fromList [])),
 
 >	  (table1, table1, table1Xtable1),
 >	  (table123Empty, table123Empty, mkTable
->		[("ID",Number), ("Name",String), ("ID",Number),
+>		[("ID",Integer), ("Name",String), ("ID",Integer),
 >		 ("Name",String)]
 >		[]),
 >	  (table2, table2, read
->		("| ID: Number | Name: String | ID: Number | Name: String |" ++
+>		("| ID: Integer | Name: String | ID: Integer | Name: String |" ++
 > 		"| Null       | \"daniel\"     | Null       | \"daniel\"     |" ++
 >		"| Null       | \"daniel\"     | 23         | \"fb\"         |" ++
 >		"| 23         | \"fb\"         | Null       | \"daniel\"     |" ++
@@ -260,15 +260,15 @@ projections on table23
 >	([], table1, table1),
 >	([], table123Empty, table123Empty),
 >	([("ID", "FOO")], table123Empty,
->		read "| FOO: Number | Name: String |" :: Tab),
+>		read "| FOO: Integer | Name: String |" :: Tab),
 >	([("Name", "FOO")], table123Empty,
->		read "| ID: Number | FOO: String |" :: Tab),
+>		read "| ID: Integer | FOO: String |" :: Tab),
 >	([("ID", "BAR"), ("Name", "FOO")], table123Empty,
->		read "| BAR: Number | FOO: String |" :: Tab),
+>		read "| BAR: Integer | FOO: String |" :: Tab),
 >	([("Name", "FOO"), ("ID", "BAR")], table123Empty,
->		read "| BAR: Number | FOO: String |" :: Tab),
+>		read "| BAR: Integer | FOO: String |" :: Tab),
 >	([("Name", "FOO"), ("ID", "BAR")], table1,
->		read (     "| BAR: Number | FOO: String |"
+>		read (     "| BAR: Integer | FOO: String |"
 >			++ "| 23          | \"fb\"      |"
 >			++ "| 42          | \"daniel\"  |") :: Tab) 
 >	]
@@ -280,7 +280,7 @@ projections on table23
 >       ((\a b -> True), table1, table2, cross table1 table2),
 >       ((\a b -> False), table1, table2, cross table123Empty table123Empty),
 >       ((\a b -> head a == head b), table1, table2,  read $ 
->        "| ID: Number | Name: String | ID: Number | Name: String |" ++
+>        "| ID: Integer | Name: String | ID: Integer | Name: String |" ++
 >        "| 23 | \"fb\" | 23 | \"fb\" |")
 >       ]
 

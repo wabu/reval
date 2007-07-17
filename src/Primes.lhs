@@ -41,22 +41,27 @@ we got a problem: There is no way to instantiate it.
 
 > {- the class looks good, but can be instanciated
 >
-> class (Show a) => Row a where
+> class (Show a) => Column a where
 >       name :: a -> String
 >       content :: (Show b, Ord b) => a -> [b]
 >
-> --type Table = (Row a) => [a]
->
-> newtype StringRow = SRow (String, [String])
+> newtype StringColumn = SColumn (String, [String])
 >       deriving (Show, Eq, Read)
 >
-> instance Row StringRow where
->       name (SRow (n,_))  = n
->       name _ = error "StringRow.name"
->       content (SRow (_,c)) = c
->       content _ = error "StringRow.content"
+> instance Column StringColumn where
+>       name (SColumn (n,_))  = n
+>       content (SColumn (_,c)) = c
 > -}
 
+Any java programmer would say: yes, this looks good: c is a String, so it
+should match the generall type b. But as haskells type system is a relly static
+and strict, the code will genrate an error:
+
+  Expected type: [b]
+  Inferred type: [String]
+
+We have to return a value of the general undefined type b, which is simply not
+possible.
 
 
 -- The Second Try --
@@ -69,7 +74,6 @@ typevar a on TableType. The compiler will constructs the type for the function,
 but that's an infinite type. Haskell is unable to deal with infinite
 types. Compiling the code results in a type error ...
 
-
 > {- cant be used either
 >
 > data TableType a b = Nil | Tab (Row a) b
@@ -79,6 +83,7 @@ types. Compiling the code results in a type error ...
 > names Nil = [] 
 > names (Tab (name, _ ) b) = names b -- INFINITE TYPE! BOOM!!
 > names _ = error "StringRow.name"
+>
 > -}
 
 
@@ -96,7 +101,8 @@ haskell, anyway ... ;)
 
 --- Basic AST Types ---
 -----------------------
-Lit is a Literal.
+
+SimpleLit is a Literal, that consists of a type Information and its value.
 
 > data SimpleLit = Null | IntLit Int | StrLit String | CharLit Char |
 >       BoolLit Bool
@@ -105,16 +111,18 @@ Lit is a Literal.
 Type is used to store Type information in the table schema.
 Note: Null has Type Any.
 
-> data SimpleType = Any | Number | String | Char | Bool
+> data SimpleType = Any | Integer | String | Char | Bool
 >       deriving (Show, Eq, Read)
 
-Now we can just use Lists as rows, as all data just has the type Lit.
+Now we can just use Lists as rows, as all data inside the row has the same type
+Lit.
 
 --- Type System Classes ---
 ---------------------------
 
-As these Types are just not only a short list, we give the user the abillity to
-create his own typesystem
+As these Types are just small fraction of possible valuse stored inside tables,
+we give the user the abillity to create his own typesystem and let all thing
+work on typeclasses.
 
 > class (Eq t) => Type t where
 >       -- check if to types Are compatible
@@ -125,15 +133,20 @@ define the Literal class to have a data l, the literal, and a data t, the type,
 where the literal l determinds the type it is based on.
 
 > class (Type t) => Literal l t | l -> t where
->       -- get the type of a literal
+
+The Literal calss has functions to get the type and to check if it matches a
+given Type.
+
 >       getType :: l -> t
 >
->       -- check if the Litral is compatible to type
 >       checkType :: t -> l -> Bool
 >       checkType typ lit = check typ (getType lit)
 
 --- Implmentation ---
 ---------------------
+
+Now we can implement these function for our SimpleLit and use it to create
+Tables.
 
 Ord for SimpleLit needed to stuff SimpleLits in Sets
 
@@ -175,7 +188,7 @@ Own Show and Read for SimpleLits
 > instance Type SimpleType where
 >       check Any _ = True
 >       check _ Any = True
->       check Number Number = True
+>       check Integer Integer = True
 >       check String String = True
 >       check Char Char = True
 >       check Bool Bool = True
@@ -183,7 +196,7 @@ Own Show and Read for SimpleLits
 
 > instance Literal SimpleLit SimpleType where
 >       getType Null = Any
->       getType (IntLit _) = Number
+>       getType (IntLit _) = Integer
 >       getType (StrLit _) = String
 >       getType (CharLit _) = Char
 >       getType (BoolLit _) = Bool
@@ -196,13 +209,13 @@ Own Show and Read for SimpleLits
 > chr = CharLit '_'
 > bool = BoolLit True
 > null = Null
-> types = [Number, String, Char, Bool]
+> types = [Integer, String, Char, Bool]
 > lits  = [int, str, chr, bool]
 
 > testCheck = assertfun2 check "check"
 >       ( [(a,a,True) | a <- types] ++
 >         [(a,Any,True) | a <- types] ++
->         [(a,Bool,False) | a <- [String,Number,Char]] ++
+>         [(a,Bool,False) | a <- [String,Integer,Char]] ++
 >         [(a,b,check b a) | a <- types, b <- types] ++
 >         [(Any,Any,True)] )
 
