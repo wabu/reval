@@ -3,8 +3,8 @@
 Startup: "Wir sind Programmier, keine Sales Drohnen, drum haben wir
 Code geschrieben, anstatt Power-Point Slides zu clicken ..."
 
-http://forti.ath.cx:20480/pro/reval
-TODO: make webserver availible from uni network
+http://forti.ath.cx:8000/pro/reval
+Use uni proxy ...
 
 * Best Practices
 ** SCRUM-simulation
