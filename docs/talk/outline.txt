@@ -1,6 +1,6 @@
 = DBS Project Presentation =
 
-Startup: "Wir sind Programmier, keine Projekt Manager, drum haben wir
+Startup: "Wir sind Programmier, keine Sales Drohnen, drum haben wir
 Code geschrieben, anstatt Power-Point Slides zu clicken ..."
 
 http://forti.ath.cx:20480/pro/reval
