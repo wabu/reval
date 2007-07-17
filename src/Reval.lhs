@@ -22,11 +22,11 @@ Reval is an acronym for relational algebra evaluation.
 --- Recommended reading ---
 ---------------------------
 
-Frist read Primes, Table and SetTable to get an overview.
+First read Primes, Table and SetTable to get an overview.
 Then check out TableOps and SetTableOps where union, cross-joins etc.
 are declared and implemented.
 
---- Version Managment ---
+--- Version Management ---
 -------------------------
 
 We use hg ( http://en.wikipedia.org/wiki/Mercurial_(software) ) for
@@ -41,7 +41,7 @@ http://forti.ath.cx:20480/pro/hg/reval/file/ .
 --- Contribute ---
 ------------------
 
-Feel free to submit usefull patches and bugreports, they are welcome.
+Feel free to submit useful patches and bug-reports, they are welcome.
 Check out todo.txt and todo.tmp.txt for open tasks.
 Try to stick to the coding standards. No, currently they are not
 documented...
@@ -64,10 +64,32 @@ fine, otherwise an error is raised.
 >       && testTable && testTableOps
 >       && testSetTable && testSetTableOps
 
---- Some Sample Tables ---
---------------------------
+--- Sample Usage ---
+--------------------
 
-Some example tables to get you started:
+If you just want to some simple relational algebra expressions, the most
+comfortable way is to put the tables and some expression in a file like this:
+
+* import Primes, SetTable and SetTableOps
+* write table declaration
+* write some queries and call them inside ghci
+* or input queries directly to ghci
+
+Below is an example, with some table and some queries. Simply load Reval.lhs
+into ghci with the following command:
+  ghci -fglasgow-exts -i<path/to/reval/src> <your/file>
+Now you can view a table, for example, by typing tablePersons, view the result
+of a query by evaluating developing or just input your own query, e.g. cross
+developing tableProject.
+
+
+---- Some Sample Tables ----
+
+Some example tables, you must declare the type type (here it is Tab) and read
+in a table, which consists of a header declaration and it rows. Each column is
+separated by a |, beginning and ending with a |.  You can use Integer, String,
+Bool and Char as types. Literals are formated just like normal Haskell
+literals.
 
 > tablePersons :: Tab
 > tablePersons = read (
@@ -98,10 +120,12 @@ Some example tables to get you started:
 > tableID :: Tab
 > tableID = read "| ID: Integer || 23 || 42 |"
 
---- Some pointers to get you started ---
-----------------------------------------
+---- Some pointers to get you started ----
 
-try something like:
+You can find a full list of operations for table in the class declaration
+inside TableOps.lhs. But if you go through the following example and play a
+little with the oparations in ghci, you will know everything you need to
+know in order to use reval.
 
 * cross-join (full outer join):
 
@@ -113,8 +137,8 @@ try something like:
 
 * advanced joins: theta-join tablePerson with tableDeveloper on ID == Dev
 
-  with the power of haskell we can create a nice theta join with the condtion
-  seperated form theta join, so it will be readable even for larger operations
+  With the power of Haskell we can create a nice theta join with the condition
+  separated form theta join, so it will be readable even for larger operations
 
 > testTheta = theta sameID tablePersons tableDeveloper
 >       where 
@@ -132,9 +156,9 @@ TODO: natural join with Project would be really nice
 >       personID = getValue tablePersons "ID"
 >       developerID = getValue tableDeveloper "Dev"
 
-TODO: more examles
+TODO: more examples
 * supervisors that are not developing ...
-* developers with projects in there favourt language
+* developers with projects in there favourite language
 
 --- Legal Foo ---
 -----------------

@@ -16,7 +16,6 @@ PENDING
 ** send doku + release to joos and schweppe
 
 * features
-** theta join
 ** TH
 *** implement as haskell code with some preprocessing?
 *** template haskell?
@@ -51,6 +50,7 @@ DONE:
 *** projection on equal named column -> error
 ** sigma/selection (fb) - done!
 ** renaming (fb)
+** theta join
 
 * non-functional features
 
