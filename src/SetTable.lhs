@@ -32,7 +32,7 @@
 > import qualified Data.Set as Set
 
 The default implementaion of the table is just a Header an a Set of lits. It
-can be used with any type system, but the literals has to be ordered.
+can be used with any type system, but the literals have to be ordered.
 
 > data (Ord l, Literal l t) => SetTable l t = SetTab (TableHeader t) (Set.Set (Row l)) 
 >       deriving Eq

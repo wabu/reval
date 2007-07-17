@@ -64,9 +64,11 @@ we got a problem: There is no way to instantiate it.
 
 The idea was to create a TableType as a LISP-like cons-cell to represent Tables.
 Trying to ignore the type of the second argument, so we can put a TableType d e
-did not work, as the type system cam back as we tried to write a on TableType. The
-compile will construct the type for the function, but that's an infinite type, so
-BOOOMM!! as soon as we use the type.
+did not work, as the type system came back as we tried to write
+typevar a on TableType. The compiler will constructs the type for the function,
+but that's an infinite type. Haskell is unable to deal with infinite
+types. Compiling the code results in a type error ...
+
 
 > {- cant be used either
 >
@@ -81,10 +83,16 @@ BOOOMM!! as soon as we use the type.
 
 
 
--- Better: Use ASTs --
+-- Finally: Use ASTs --
 ----------------------
 
-Well, screw it, just use ASTs
+Well, screw it, just use ASTs to reinvent the wheel^WType system.
+Note: Template Haskell might provide a more decent solution, but using
+template haskell implies a bunch of nasty foo, like using monads and
+having certain compile time constraints. We wanted the Code base to be
+readable and understanable by the average student -> No template
+haskell. And to be hontest, we did not completly understand template
+haskell, anyway ... ;)
 
 --- Basic AST Types ---
 -----------------------

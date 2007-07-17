@@ -41,7 +41,8 @@ http://forti.ath.cx:20480/pro/hg/reval/file/ .
 --- Contribute ---
 ------------------
 
-Feel free to submit patches, they are welcome.
+Feel free to submit usefull patches and bugreports, they are welcome.
+Check out todo.txt and todo.tmp.txt for open tasks.
 Try to stick to the coding standards. No, currently they are not
 documented...
 

@@ -1,10 +1,10 @@
-created by ./mk-tmp-todo-list.sh - Sat Jul 14 02:23:55 CEST 2007
+created by ./mk-tmp-todo-list.sh - Tue Jul 17 19:43:54 CEST 2007
 
-src/Reval.lhs:55:> -- TODO: declare exports + export testAll
+src/Reval.lhs:56:> -- TODO: declare exports + export testAll
 src/SetTable.lhs:25:>   Tab, -- FIXME: Tab needs to be visible in SetTableOps, this sux
 src/SetTableOps.lhs:43:TODO: more sanity checking
 src/SetTableOps.lhs:88:TODO: projectUnsafe?
 src/SetTableOps.lhs:89:TODO: optimize! this is insanley slow :-(
 src/Table.lhs:132:TODO: unit test default impls of class Table
 src/TableOps.lhs:37:TODO: simplify class/type constraints
-src/TableOps.lhs:156:TODO: write testTable + unit tests
+src/TableOps.lhs:167:TODO: write testTable + unit tests

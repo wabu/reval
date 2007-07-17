@@ -1,11 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-              "http://www.w3.org/TR/html4/loose.dtd">
+"http://www.w3.org/TR/html4/loose.dtd">
 <html>
-  <head>
-    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-  </head>
-  <body>
-
+<head>
+<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+</head>
+<body>
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 
 <pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
@@ -45,7 +44,8 @@ http://forti.ath.cx:20480/pro/hg/reval/file/ .
 
 <h3>Contribute</h3>
 
-Feel free to submit patches, they are welcome.
+Feel free to submit usefull patches and bugreports, they are welcome.
+Check out todo.txt and todo.tmp.txt for open tasks.
 Try to stick to the coding standards. No, currently they are not
 documented...
 
@@ -63,8 +63,8 @@ fine, otherwise an error is raised.
 > import SetTableOps
 </pre>
 <pre>> testAll = testPrimes
->	-- && testTable && testTableOps -- TODO: impl and call
-> 	&& testSetTable && testSetTableOps
+>       && testTable && testTableOps
+>       && testSetTable && testSetTableOps
 </pre>
 <h3>Some Sample Tables</h3>
 
@@ -72,36 +72,42 @@ Some example tables to get you started:
 
 <pre>> exampleTable1 :: Tab
 > exampleTable1 = read (
->	"| ID: Number | Name: String |" ++
->	"| 23 | \"fb\" |" ++
->	"| 42 | \"wabu\" |" ++
->	"| 2 | \"foobar\" |" ++
->	"")
+>       "| ID: Number | Name: String |" ++
+>       "| 23         | \"fb\"       |" ++
+>       "| 42         | \"wabu\"     |" ++
+>       "| 2          | \"foobar\"   |" ++
+>       "")
 >
 > exampleTable2 :: Tab
 > exampleTable2 = read (
->	"| ID: Number | Name: String | Student: Bool |" ++
->	"| 23 | \"fb\" | True |" ++
->	"| 42 | \"wabu\" | True |" ++
->	"| 2 | \"foobar\" | False |" ++
->	"")
+>       "| ID: Number | Name: String | Student: Bool |" ++
+>       "| 23         | \"fb\"       | True          |" ++
+>       "| 42         | \"wabu\"     | True          |" ++
+>       "| 2          | \"foobar\"   | False         |" ++
+>       "")
 </pre>
 <pre>> exampleTableEmpty :: Tab
 > exampleTableEmpty = read "||"
+</pre>
+<pre>> exampleTableID :: Tab
+> exampleTableID = read "| ID: Number || 23 || 42 || 2 |"
 </pre>
 <h3>Some pointers to get you started</h3>
 
 try something like:
 
-- cross-join (full outer join):
+<ul><li>cross-join (full outer join):
+</li></ul>
 <pre>cross exampleTable1 exampleTable2
 </pre>
-- select rows with ID == 2
+<ul><li>select rows with ID == 2
+</li></ul>
 <pre>select (\(x:</hl>) -> x == IntLit 2) exampleTable1
 </pre>
-- combine queries:  
+<ul><li>combine queries:  
+</li></ul>
 <pre>select (\(x:</hl>) -> x == IntLit 2) exampleTable1
-	(cross exampleTable1 exampleTable2)
+      (cross exampleTable1 exampleTable2)
 </pre>
 <h3>Legal Foo</h3>
 
@@ -112,5 +118,5 @@ try something like:
 >       "redistribute it under certain conditions; type LGPL.txt for " ++
 >       "details.\n"
 > </pre>
-  </body>
+</body>
 </html>

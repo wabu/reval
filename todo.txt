@@ -6,9 +6,16 @@ PENDING
 
 * TESTING! (fb)
 
-* features
+* stuff that needs do be done for Thursdays Presentation
 ** cleanup imports/exports
-** natural join
+** documentation
+*** spell check docs!
+*** s. todo.tmp.txt
+** (left / right join on ...)
+** (natural join)
+** send doku + release to joos and schweppe
+
+* features
 ** theta join
 ** TH
 *** implement as haskell code with some preprocessing?
@@ -29,10 +36,6 @@ PENDING
 **** http://www.haskell.org/hawiki/TemplateHaskellTutorial
 ** performance
 *** evalute -prof profiling (fb)
-
-* final
-** send doku + release to joos and schweppe
-** product to schweppe to get a 1.0
 
 DONE:
 

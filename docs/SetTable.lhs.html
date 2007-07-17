@@ -1,11 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-              "http://www.w3.org/TR/html4/loose.dtd">
+"http://www.w3.org/TR/html4/loose.dtd">
 <html>
-  <head>
-    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-  </head>
-  <body>
-
+<head>
+<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+</head>
+<body>
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 
 <pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
@@ -39,7 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 > import qualified Data.Set as Set
 </pre>
 The default implementaion of the table is just a Header an a Set of lits. It
-can be used with any type system, but the literals has to be ordered.
+can be used with any type system, but the literals have to be ordered.
 
 <pre>> data (Ord l, Literal l t) => SetTable l t = SetTab (TableHeader t) (Set.Set (Row l)) 
 >       deriving Eq
@@ -85,7 +84,7 @@ show and read instance for the table
 >
 >           cheads (n, t) = (strings n) . (':':) . space . (shows t)    -- column header -> [ShowS]
 >           heads = folds ((col .) . (. space) . cheads) header . line  -- | cheader | cheader ... |\n
->           headlength = (map (\h -> length $ cheads h "") header)
+>           headlength = (map (\h -> length $ cheads h "") header) ++ repeat 0
 >
 >           mapcells :: (Show a) => [a] -> [ShowS]                      -- row -> [ShowS]
 >           mapcells = map 
@@ -300,5 +299,5 @@ show instance needed for unit testing ...
 </pre>
 <pre>> testSetTable = testRead && testShow && testCheckTable && testSchema && testColumnNames 
 >	&& testAnyRow && testAllRows && testSize && testMapRows && testFilterRows</pre>
-  </body>
+</body>
 </html>

@@ -1,11 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-              "http://www.w3.org/TR/html4/loose.dtd">
+"http://www.w3.org/TR/html4/loose.dtd">
 <html>
-  <head>
-    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-  </head>
-  <body>
-
+<head>
+<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+</head>
+<body>
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 
 <pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
@@ -69,9 +68,11 @@ we got a problem: There is no way to instantiate it.
 
 The idea was to create a TableType as a LISP-like cons-cell to represent Tables.
 Trying to ignore the type of the second argument, so we can put a TableType d e
-did not work, as the type system cam back as we tried to write a on TableType. The
-compile will construct the type for the function, but that's an infinite type, so
-BOOOMM!! as soon as we use the type.
+did not work, as the type system came back as we tried to write
+typevar a on TableType. The compiler will constructs the type for the function,
+but that's an infinite type. Haskell is unable to deal with infinite
+types. Compiling the code results in a type error ...
+
 
 <pre>> {- cant be used either
 >
@@ -86,9 +87,15 @@ BOOOMM!! as soon as we use the type.
 </pre>
 
 
-<h2>Better: Use ASTs</h2>
+<h2>Finally: Use ASTs</h2>
 
-Well, screw it, just use ASTs
+Well, screw it, just use ASTs to reinvent the wheel^WType system.
+Note: Template Haskell might provide a more decent solution, but using
+template haskell implies a bunch of nasty foo, like using monads and
+having certain compile time constraints. We wanted the Code base to be
+readable and understanable by the average student -> No template
+haskell. And to be hontest, we did not completly understand template
+haskell, anyway ... ;)
 
 <h3>Basic AST Types</h3>
 Lit is a Literal.
@@ -206,5 +213,5 @@ Own Show and Read for SimpleLits
 </pre>
 <pre>> testPrimes = testCheck && testCheckType
 </pre>
-  </body>
+</body>
 </html>

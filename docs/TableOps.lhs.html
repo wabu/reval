@@ -1,11 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-              "http://www.w3.org/TR/html4/loose.dtd">
+"http://www.w3.org/TR/html4/loose.dtd">
 <html>
-  <head>
-    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-  </head>
-  <body>
-
+<head>
+<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+</head>
+<body>
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 
 <pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
@@ -30,7 +29,7 @@ ADT. Default implemantations are provied, too.
 
 <pre>> module TableOps (
 >   TableOps(..),
->   -- testTableOps, -- TODO: export + write unit tests
+>   testTableOps,
 > )
 > where
 >
@@ -48,7 +47,7 @@ TODO: simplify class/type constraints
 </pre>
 <h4>basic set operations</h4>
 
-<pre>> 	union :: tab -> tab -> tab
+<pre>>	union :: tab -> tab -> tab
 >	union = applyOnTableRows List.union
 >	difference :: tab -> tab -> tab
 >	difference = applyOnTableRows (\\)
@@ -58,7 +57,7 @@ TODO: simplify class/type constraints
 <h4>cross-join</h4>
 
 <pre>>	cross :: tab -> tab -> tab
-> 	cross t1 t2 = mkTable newHeader
+>	cross t1 t2 = mkTable newHeader
 >		[ x++y | x <- r1, y <- r2]
 >		where
 >		newHeader = header t1 ++ header t2
@@ -74,10 +73,10 @@ TODO: simplify class/type constraints
 
 Note: The default implementation is clean and short, but not very effective.
 
-<pre>> 	projectUnsafe :: [ColumnName] -> tab -> tab
-> 	project :: [ColumnName] -> tab -> tab
+<pre>>	projectUnsafe :: [ColumnName] -> tab -> tab
+>	project :: [ColumnName] -> tab -> tab
 >	projectUnsafe wanted tab = mkTable newHeader $ rows newTab
->   		where
+>		where
 >               names = columnNames tab
 >               newHeader = [(n,t) | w <- wanted, (n,t) <- header tab, w==n]
 >               newRow row = [l | w <- wanted, (n,l) <- zip names row, w==n]
@@ -100,9 +99,9 @@ Note: The default implementation is clean and short, but not very effective.
 
 Syntax: rename{Unsafe} [(oldName, newName)] table
 
-<pre>> 	renameUnsafe :: [(ColumnName,ColumnName)] -> tab -> tab
-> 	rename ::[(ColumnName,ColumnName)] -> tab -> tab
-> 	renameUnsafe names tab = mkTable (replaceNames h) (rows tab)
+<pre>>	renameUnsafe :: [(ColumnName,ColumnName)] -> tab -> tab
+>	rename ::[(ColumnName,ColumnName)] -> tab -> tab
+>	renameUnsafe names tab = mkTable (replaceNames h) (rows tab)
 >		where
 >		h = header tab
 >		replaceNames = map (getNewName names)
@@ -111,7 +110,7 @@ Syntax: rename{Unsafe} [(oldName, newName)] table
 >			| name == old = (new, ctype)
 >			| otherwise = getNewName xs h
 </pre>
-<pre>> 	rename names tab
+<pre>>	rename names tab
 >		| checkParams = renameUnsafe names tab
 >		| otherwise = error ("invalid rename: names = " ++ show names 
 >			++ "\n table column names = " ++
@@ -122,7 +121,16 @@ Syntax: rename{Unsafe} [(oldName, newName)] table
 >		(oldNames,_) = unzip names
 >		(columnNames,_) = unzip h
 </pre>
+<h4>Advnced Operations</h4>
 
+<pre>>       theta :: (Row l -> Row l -> Bool) -> tab -> tab -> tab
+>       theta f t1 t2 = mkTable newHeader
+>		[ x++y | x <- r1, y <- r2, f x y]
+>		where
+>		newHeader = header t1 ++ header t2
+>		r1 = rows t1
+>		r2 = rows t2
+</pre>
 <h4>syntatic sugar</h4>
 
 <pre>>       σ :: ((Row l) -> Bool) -> tab -> tab
@@ -131,21 +139,23 @@ Syntax: rename{Unsafe} [(oldName, newName)] table
 >       π = project
 >       ρ :: [(ColumnName,ColumnName)] -> tab -> tab
 >       ρ = rename
+>       θ :: (Row l -> Row l -> Bool) -> tab -> tab -> tab
+>       θ = theta
 >	(&&&) :: tab -> tab -> tab
 >	(&&&) = intersect
 >	(|||) :: tab -> tab -> tab
-> 	(|||) = union
+>	(|||) = union
 >	(***) :: tab -> tab -> tab
-> 	(***) = cross
+>	(***) = cross
 >	(\\\) :: tab -> tab -> tab
-> 	(\\\) = difference
+>	(\\\) = difference
 </pre>
 Higher order function to apply f on the rows of two tables.
 Checks if the headers of the table match, if not error is raised.
 This is usefull to impl. union, intersection etc.
 
 <pre>>	applyOnTableRows :: ([Row l] -> [Row l] -> [Row l]) -> tab -> tab -> tab
-> 	applyOnTableRows f t1 t2
+>	applyOnTableRows f t1 t2
 >		| h1 == h2 = mkTable h1 (f r1 r2)
 >		| otherwise = error ("applyOnTableRows: table headers"
 >			++ "do not match: " ++
@@ -156,5 +166,11 @@ This is usefull to impl. union, intersection etc.
 >		r1 = rows t1
 >		r2 = rows t2
 </pre>
-  </body>
+
+<h2>Unit Test</h2>
+
+TODO: write testTable + unit tests
+
+<pre>> testTableOps = True</pre>
+</body>
 </html>
