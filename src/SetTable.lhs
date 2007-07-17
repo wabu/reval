@@ -297,9 +297,9 @@ show instance needed for unit testing ...
 >	]
 
 > testGetValue = assertfun3 getValue "getValue" [
->       (table1, (rows table1)!!0, "ID", IntLit 23),
->       (table1, (rows table1)!!1, "ID", IntLit 42),
->       (table1, (rows table1)!!0, "Name", StrLit "fb")
+>       (table1, "ID", (rows table1)!!0, IntLit 23),
+>       (table1, "ID", (rows table1)!!1, IntLit 42),
+>       (table1, "Name", (rows table1)!!0, StrLit "fb")
 >       ]
 
 > testSetTable = testRead && testShow && testCheckTable && testSchema && testColumnNames 

@@ -99,11 +99,11 @@ Retrun a value out of a row, which is inside table inside a named column.
 This function is gets usefull inside projections and theta joins, 
 but is not very efficiont.
 
->       getValueUnsave :: tab -> Row l -> String -> l
->       getValue :: tab -> Row l -> String -> l
+>       getValueUnsave :: tab -> String -> Row l -> l
+>       getValue :: tab -> String -> Row l -> l
 >
->       getValueUnsave table row name = head [l | (l,n) <- zip row (columnNames table), n == name]
->       getValue table row name = checkedLit $ getValueUnsave table row name
+>       getValueUnsave table name row = head [l | (l,n) <- zip row (columnNames table), n == name]
+>       getValue table name row = checkedLit $ getValueUnsave table name row
 >               where checkedLit lit = if 1 == length [n | n <- columnNames table, n == name]
 >                       then lit
 >                       else error ("collumn "++name++" not inside the table")

@@ -29,7 +29,7 @@ are declared and implemented.
 --- Version Managment ---
 -------------------------
 
-We use hg ( http://en.wikipedia.org/wiki/Mercurial_%28software%29 ) for
+We use hg ( http://en.wikipedia.org/wiki/Mercurial_(software) ) for
 version mangement. The hg webinterface can be found at
 http://forti.ath.cx:20480/pro/hg/reval/ .
 To view the Documentation click on "Manifest" and navigate to "docs" .
@@ -69,27 +69,34 @@ fine, otherwise an error is raised.
 
 Some example tables to get you started:
 
-> exampleTable1 :: Tab
-> exampleTable1 = read (
->       "| ID: Integer | Name: String |" ++
->       "| 23         | \"fb\"       |" ++
->       "| 42         | \"wabu\"     |" ++
->       "| 2          | \"foobar\"   |" ++
+> tablePersons :: Tab
+> tablePersons = read (
+>       "| ID: Integer | Name: String | Student: Bool | FavLang: String |" ++
+>       "| 23          | \"fb\"       | True          | \"lisp\"        |" ++
+>       "| 42          | \"wabu\"     | True          | \"ruby\"        |" ++
+>       "| 1337        | \"Schweppe\" | False         | \"haskell\"     |" ++
 >       "")
 >
-> exampleTable2 :: Tab
-> exampleTable2 = read (
->       "| ID: Integer | Name: String | Student: Bool |" ++
->       "| 23         | \"fb\"       | True          |" ++
->       "| 42         | \"wabu\"     | True          |" ++
->       "| 2          | \"foobar\"   | False         |" ++
+> tableProject :: Tab
+> tableProject = read (
+>       "| Name: String | Supervisor: Integer | Language: String | Detail: String |" ++
+>       "| \"reval\" | 12 | \"haskell\"  | \"reval is a relational algebra interpretor\" |" ++
+>       "| \"x2c\"   | 23 | \"ruby\"     | \"x2c is a command line client for xmms2\" |" ++
+>       "")
+>
+> tableDeveloper :: Tab
+> tableDeveloper = read (
+>       "| Dev: Integer | Project: String |" ++
+>       "| 23           | \"reval\"       |" ++
+>       "| 42           | \"reval\"       |" ++
+>       "| 42           | \"x2c\"         |" ++
 >       "")
 
-> exampleTableEmpty :: Tab
-> exampleTableEmpty = read "||"
+> tableEmpty :: Tab
+> tableEmpty = read "||"
 
-> exampleTableID :: Tab
-> exampleTableID = read "| ID: Integer || 23 || 42 || 2 |"
+> tableID :: Tab
+> tableID = read "| ID: Integer || 23 || 42 |"
 
 --- Some pointers to get you started ---
 ----------------------------------------
@@ -98,16 +105,32 @@ try something like:
 
 * cross-join (full outer join):
 
-  cross exampleTable1 exampleTable2
+> testCross = cross tablePersons tableProject
 
-* select rows with ID == 2
+* select rows with ID == 1337
 
-  select (\(x:_) -> x == IntLit 2) exampleTable1
+> testSelect = select (\(x:_) -> x == IntLit 1337) tablePersons
+
+* advanced joins: theta-join tablePerson with tableDeveloper on ID == Dev
+
+  with the power of haskell we can create a nice theta join with the condtion
+  seperated form theta join, so it will be readable even for larger operations
+
+> testTheta = theta sameID tablePersons tableDeveloper
+>       where 
+>       sameID person developer = (personID person == developerID developer)
+>       personID = getValue tablePersons "ID"
+>       developerID = getValue tableDeveloper "Dev"
 
 * combine queries:  
 
-  select (\(x:_) -> x == IntLit 2) exampleTable1
-        (cross exampleTable1 exampleTable2)
+> developing = project ["Name", "Project"] (theta sameID tablePersons tableDeveloper)
+>       where 
+>       sameID person developer = (personID person == developerID developer)
+>       personID = getValue tablePersons "ID"
+>       developerID = getValue tableDeveloper "Dev"
+
+TODO: more examles
 
 --- Legal Foo ---
 -----------------
