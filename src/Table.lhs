@@ -34,16 +34,28 @@
 
 --- The Table ---
 -----------------
-Now Rows and Tables are easy, as we just can use a Set of List. We only have to
+
+As soon as we have Litrals, that can be put into list, it is easy to create
+Rows and Tables, as we just can use a Set of Lists of Literals. We only have to
 check the types when createing or changeing a Table at runtime.
+
+Some types to access things more easy:
 
 > type Row l = [l]
 > type ColumnName = String
 > type ColumnHeader t = (ColumnName, t)
 > type TableHeader t = [ColumnHeader t]
 
-The class table consists of the table data tab, and the type system l t, which
-if functional dependent on tab.
+Now we can use these type to create a Table typeclass:
+The class consists of a table tab, and the type system l t, which
+if functional dependent on tab, as l and t are saved inside tab.
+
+See SetTable for an implementation.
+
+Beside constructors and getters, the class has some list processing high order
+functions like fold. Therefore, we were able to implement a default implementation for
+all other function. That will make it easy to create new implementation for Tables, 
+like a real lacy table to process infinite data (e.g. a table with all Fibonacci numbers).
 
 Note: To Implement this class you need to implement either rows or
 	foldRows, mkTableUnsafe and the basic getters. Basic getters

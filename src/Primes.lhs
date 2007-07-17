@@ -55,7 +55,7 @@ we got a problem: There is no way to instantiate it.
 
 Any java programmer would say: yes, this looks good: c is a String, so it
 should match the generall type b. But as haskells type system is a relly static
-and strict, this will genrate an error:
+and strict, the code will genrate an error:
 
   Expected type: [b]
   Inferred type: [String]
@@ -95,7 +95,7 @@ Well, screw it, just use ASTs to create an own type system.
 --- Basic AST Types ---
 -----------------------
 
-SimpleLit is a Literal, that consists of a type Information and its value
+SimpleLit is a Literal, that consists of a type Information and its value.
 
 > data SimpleLit = Null | IntLit Int | StrLit String | CharLit Char |
 >       BoolLit Bool
@@ -107,13 +107,15 @@ Note: Null has Type Any.
 > data SimpleType = Any | Integer | String | Char | Bool
 >       deriving (Show, Eq, Read)
 
-Now we can just use Lists as rows, as all data just has the type Lit.
+Now we can just use Lists as rows, as all data inside the row has the same type
+Lit.
 
 --- Type System Classes ---
 ---------------------------
 
-As these Types are just not only a short list, we give the user the abillity to
-create his own typesystem
+As these Types are just small fraction of possible valuse stored inside tables,
+we give the user the abillity to create his own typesystem and let all thing
+work on typeclasses.
 
 > class (Eq t) => Type t where
 >       -- check if to types Are compatible
@@ -124,15 +126,20 @@ define the Literal class to have a data l, the literal, and a data t, the type,
 where the literal l determinds the type it is based on.
 
 > class (Type t) => Literal l t | l -> t where
->       -- get the type of a literal
+
+The Literal calss has functions to get the type and to check if it matches a
+given Type.
+
 >       getType :: l -> t
 >
->       -- check if the Litral is compatible to type
 >       checkType :: t -> l -> Bool
 >       checkType typ lit = check typ (getType lit)
 
 --- Implmentation ---
 ---------------------
+
+Now we can implement these function for our SimpleLit and use it to create
+Tables.
 
 Ord for SimpleLit needed to stuff SimpleLits in Sets
 
