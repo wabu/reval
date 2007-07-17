@@ -95,6 +95,19 @@ check the Table and return it, if it is valid, otherwise genrate in error
 >       rows :: tab -> [Row l]
 >	rows = foldRows (:) []
 
+Retrun a value out of a row, which is inside table inside a named column.
+This function is gets usefull inside projections and theta joins, 
+but is not very efficiont.
+
+>       getValueUnsave :: tab -> Row l -> String -> l
+>       getValue :: tab -> Row l -> String -> l
+>
+>       getValueUnsave table row name = head [l | (l,n) <- zip row (columnNames table), n == name]
+>       getValue table row name = checkedLit $ getValueUnsave table row name
+>               where checkedLit lit = if 1 == length [n | n <- columnNames table, n == name]
+>                       then lit
+>                       else error ("collumn "++name++" not inside the table")
+
 ---- basic functional programming higher order functions: ----
 Note: default impl. of foldRow is really slow, should be overwriten.
 

@@ -296,5 +296,11 @@ show instance needed for unit testing ...
 >       (((Null /=) . head), table2, read "| ID: Integer | Name: String || 23 | \"fb\" |")
 >	]
 
+> testGetValue = assertfun3 getValue "getValue" [
+>       (table1, (rows table1)!!0, "ID", IntLit 23),
+>       (table1, (rows table1)!!1, "ID", IntLit 42),
+>       (table1, (rows table1)!!0, "Name", StrLit "fb")
+>       ]
+
 > testSetTable = testRead && testShow && testCheckTable && testSchema && testColumnNames 
->	&& testAnyRow && testAllRows && testSize && testMapRows && testFilterRows
+>	&& testAnyRow && testAllRows && testSize && testMapRows && testFilterRows && testGetValue
