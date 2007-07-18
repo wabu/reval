@@ -290,8 +290,20 @@ projections on table23
 >             "|42         |\"daniel\"  |Null        |\"daniel\" |"))
 >       ]
 
+> instance Show (Tab -> Tab -> Tab) where
+>       show f = "(\\tab -> tab -> tab)"
+
+> testLeft = assertfun3 left "left" [
+>       (natural, table1, table1, table1),
+>       (natural, table1, table2, read "|ID: Integer|Name: String||42|\"daniel\"||23|\"fb\"|"),
+>       (natural, table1, rename [("ID","Foo")] table1 *** rename [("Name","Bar")] table2,
+>        read("|ID: Integer|Name: String|Foo: Integer|Bar: String|"++
+>             "|23         |\"fb\"      |23          |\"fb\"     |"++
+>             "|42         |\"daniel\"  |Null        |Null |"))
+>       ]
+
 > testSetTableOps = testUnion && testDifference && testIntersect
 >       && testSelect && testProject
 >       && testCross && testRename 
->       && testTheta && testNatural
+>       && testTheta && testNatural && testLeft
 
