@@ -297,8 +297,17 @@ project implementierung gekommen, die so funktioniert wie wikipedia sagt
 >        "| 23 | \"fb\" | 23 | \"fb\" |")
 >       ]
 
+> testNatural = assertfun2 natural "natural" [
+>       (table1, table1, table1),
+>       (table1, table2, read "|ID: Integer|Name: String||23|\"fb\"|"),
+>       (table1, rename [("ID","Foo")] table2 *** rename [("Name","Bar")] table1,
+>        read("|ID: Integer|Name: String|Foo: Integer|Bar: String|"++
+>             "|23         |\"fb\"      |23          |\"fb\"     |"++
+>             "|42         |\"daniel\"  |Null        |\"daniel\" |"))
+>       ]
+
 > testSetTableOps = testUnion && testDifference && testIntersect
 >       && testSelect && testProject
 >       && testCross && testRename 
->       && testTheta
+>       && testTheta && testNatural
 
