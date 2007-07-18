@@ -148,13 +148,13 @@ know in order to use reval.
 
 * combine queries:  
 
-TODO: natural join with Project would be really nice
-
 > developing = project ["Name", "Project"] (theta sameID tablePersons tableDeveloper)
 >       where 
 >       sameID person developer = (personID person == developerID developer)
 >       personID = getValue tablePersons "ID"
 >       developerID = getValue tableDeveloper "Dev"
+
+> developing' = project ["Name", "Project", "Language", "Detail"] $ natural developing tableProject
 
 TODO: more examples
 * supervisors that are not developing ...

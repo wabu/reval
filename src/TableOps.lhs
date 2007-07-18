@@ -65,9 +65,6 @@ TODO: simplify class/type constraints
 
 ---- Projection ----
 
-Note: The default implementation is clean and short, but not very effective.
-
-FIXME: throw away project and only use projectUnsave
 
 >	projectUnsafe :: [ColumnName] -> tab -> tab
 >	project :: [ColumnName] -> tab -> tab
@@ -76,6 +73,9 @@ FIXME: throw away project and only use projectUnsave
 >               filterWanted = map snd . filter fst . zip [elem n wanted | n <- columnNames tab]
 >               newHeader = filterWanted (header tab)
 >      		newTab = mapRowsUnsafe filterWanted tab
+
+FIXME: throw away project and only use projectUnsave? -> use [[]] and []
+
 >       project wanted tab
 >               | not checkExist = error(
 >                   "invalid projection: a name can't be found inside the table in project" ++
@@ -125,6 +125,32 @@ Syntax: rename{Unsafe} [(oldName, newName)] table
 >		newHeader = header t1 ++ header t2
 >		r1 = rows t1
 >		r2 = rows t2
+
+
+>	natural :: tab -> tab -> tab
+
+We can cons all falid rows into a new emptyTable.
+
+>	natural tab1 tab2 = foldRows consRows (mkTable newHeader []) tab1
+>		where
+>               h1 = header tab1
+>               h2 = header tab2
+>               newHeader = List.union h1 h2
+
+To check a row, we create a new Row with each header inside, so we can check if
+it is a functional relation.  if so, it is valid.
+
+>               zipedRow r1 r2 = List.union (zip h1 r1) (zip h2 r2)
+>               checkFunctional ziped = all
+>                   (\h -> 1 == length [h | (h',_) <- ziped, h==h']) 
+>                   newHeader 
+
+So we have to fold over each table, and check all rows inside the inner fold
+
+>               consRows r tab = foldRows 
+>                       (\r' t -> checkedCons (zipedRow r r') t) 
+>                       tab tab2
+>               checkedCons r = if checkFunctional r then cons $ map snd r else id
 
 ---- syntatic sugar ----
 
