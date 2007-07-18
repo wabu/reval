@@ -10,6 +10,7 @@ PENDING
 ** (left / right join on ...)
 ** send doku + release to joos and schweppe
 ** Bugfix: lhshtml: $text0 <$text1> $text2 breaks html ...  
+** update docs on public webserver ...
 
 * TESTING! (fb)
 
