@@ -54,8 +54,14 @@ documented...
 Run testAll to run unitTests. If testAll returns true, everthing is
 fine, otherwise an error is raised.
 </br>
-<pre>> module Reval where
-> -- TODO: declare exports + export testAll
+<pre>> module Reval (
+>	testAll,
+>	Table(..),
+>	TableOps(..),
+>	mkTableFromSet,
+>	-- TODO: export something else?
+> )
+> where
 > import Primes
 > import Table
 > import TableOps
@@ -162,6 +168,9 @@ TODO: more examples
 </li><li>developers with projects in there favourite language
 </li></ul>
 <h3>Legal Foo</h3>
+</br>
+A default GPL Note. Not printed at startup, 'cause we consider this
+annoying.
 </br>
 <pre>> licenseNote = "rel-eval \tCopyright (C) 2007 \tDaniel Waeber, Fabian Bieker\n" ++
 >       "This program comes with ABSOLUTELY NO WARRANTY; for details " ++

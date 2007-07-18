@@ -46,8 +46,6 @@ mostly on mkTable to create only valid tables.
 The reason for this is, that I (fb) want it to be leazy
 (as in operate on infinite tables).
 </br>
-TODO: more sanity checking
-</br>
 <pre>> applyOnTableSets :: (Show l, Show t, Ord l, Literal l t) =>
 >       (Set.Set (Row l) -> Set.Set (Row l) -> Set.Set (Row l)) 
 >       -> (SetTable l t) -> (SetTable l t) -> (SetTable l t)
@@ -73,7 +71,7 @@ cross-join
 </br>
 cross table1 table2 -- looks good, imho...
 </br>
-FIXME: is new default implementaion better?
+new default implementaion is faster...
 </br>
  > 	cross (SetTab h1 s1) (SetTab h2 s2) =
  >		SetTab newHeader newSet
@@ -93,8 +91,7 @@ more complex and less readable.
 </pre>
 Projection
 </br>
-FIXME: remove decleartion, default one is nicer?
-TODO: optimize! this is insanley slow :-(
+TODO: remove decleartion, default one is nicer/faster?
 </br>
  >	project wantedNames tab@(SetTab header rows)
  >		| checkHeader = SetTab newHeader newRows
@@ -224,20 +221,7 @@ projections on table23
 >	  (["Name"], table123Empty, mkTable [("Name", String)] []),
 >	  (["ID", "Name"], table123Empty, mkTable
 >		[("ID", Integer), ("Name", String)] []),
-</pre>
- >	  (["Name", "ID"], table123Empty, mkTable
- >		[("Name", String), ("ID", Integer)] []),
-</br>
-FIXME: RLY? 
-wikipedia sagt: 
-\pi</hl>{a_1,...,a_n} R is defined as the set that is obtained when all tuples in R
-are restricted to the set {a1,...,an}.
-</br>
-Dass heist dass {a1,...,an} ein set ist, also unsortiert und die sortierung
-wird aus R uebernommen, imho. forallem is mir heut nacht die erleuchtng fuer ne
-project implementierung gekommen, die so funktioniert wie wikipedia sagt
-</br>
-<pre>>	  (["ID", "Name"], table1, table1),
+>	  (["ID", "Name"], table1, table1),
 >	  (["ID", "Name"], table2, table2),
 >	  (["ID", "Name"], table23, table23),
 >	  (["ID"], table23, table23ID),	
