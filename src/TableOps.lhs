@@ -67,14 +67,15 @@ TODO: simplify class/type constraints
 
 Note: The default implementation is clean and short, but not very effective.
 
+FIXME: throw away project and only use projectUnsave
+
 >	projectUnsafe :: [ColumnName] -> tab -> tab
 >	project :: [ColumnName] -> tab -> tab
 >	projectUnsafe wanted tab = mkTable newHeader $ rows newTab
 >		where
->               names = columnNames tab
->               newHeader = [(n,t) | w <- wanted, (n,t) <- header tab, w==n]
->               newRow row = [l | w <- wanted, (n,l) <- zip names row, w==n]
->      		newTab = mapRowsUnsafe newRow tab
+>               filterWanted = map snd . filter fst . zip [elem n wanted | n <- columnNames tab]
+>               newHeader = filterWanted (header tab)
+>      		newTab = mapRowsUnsafe filterWanted tab
 >       project wanted tab
 >               | not checkExist = error(
 >                   "invalid projection: a name can't be found inside the table in project" ++

@@ -85,25 +85,25 @@ more complex and less readable.
 
 Projection
 
-TODO: projectUnsafe?
+FIXME: remove decleartion, default one is nicer?
 TODO: optimize! this is insanley slow :-(
 
->	project wantedNames tab@(SetTab header rows)
->		| checkHeader = SetTab newHeader newRows
->   		where
->       	checkHeader = all (\n -> checkSize n (length [a | (a,_) <- header, n == a])) wantedNames
->       	checkSize :: String -> Int -> Bool
->       	checkSize n s 
->               	| s == 0 = error ("project: could not project to " 
->                   	    ++ show n ++ ": name unknown.")
->               	| s == 1 = True
->               	| otherwise = error ("project: could not project to " 
->                       	++ show n ++ ": name is ambigious.")
->       	posList = [i | s <- wantedNames, (i,(n,_)) <- zip [1..] header, n==s ]
->      		newHeader = [h | p <- posList, (i,h) <- zip [1..] header, p==i ]
->      		newRows = Set.map 
->	                (\r -> [ l | p <- posList, (i,l) <- zip [1..] r, p==i] )
->               	rows
+ >	project wantedNames tab@(SetTab header rows)
+ >		| checkHeader = SetTab newHeader newRows
+ >   		where
+ >       	checkHeader = all (\n -> checkSize n (length [a | (a,_) <- header, n == a])) wantedNames
+ >       	checkSize :: String -> Int -> Bool
+ >       	checkSize n s 
+ >               	| s == 0 = error ("project: could not project to " 
+ >                   	    ++ show n ++ ": name unknown.")
+ >               	| s == 1 = True
+ >               	| otherwise = error ("project: could not project to " 
+ >                       	++ show n ++ ": name is ambigious.")
+ >       	posList = [i | s <- wantedNames, (i,(n,_)) <- zip [1..] header, n==s ]
+ >      		newHeader = [h | p <- posList, (i,h) <- zip [1..] header, p==i ]
+ >      		newRows = Set.map 
+ >	                (\r -> [ l | p <- posList, (i,l) <- zip [1..] r, p==i] )
+ >               	rows
 
 -- UnitTesting --
 -----------------
@@ -217,8 +217,19 @@ projections on table23
 >	  (["Name"], table123Empty, mkTable [("Name", String)] []),
 >	  (["ID", "Name"], table123Empty, mkTable
 >		[("ID", Integer), ("Name", String)] []),
->	  (["Name", "ID"], table123Empty, mkTable
->		[("Name", String), ("ID", Integer)] []),
+
+ >	  (["Name", "ID"], table123Empty, mkTable
+ >		[("Name", String), ("ID", Integer)] []),
+
+FIXME: RLY? 
+wikipedia sagt: 
+\pi_{a_1,...,a_n} R is defined as the set that is obtained when all tuples in R
+are restricted to the set {a1,...,an}.
+
+Dass heist dass {a1,...,an} ein set ist, also unsortiert und die sortierung
+wird aus R uebernommen, imho. forallem is mir heut nacht die erleuchtng fuer ne
+project implementierung gekommen, die so funktioniert wie wikipedia sagt
+
 >	  (["ID", "Name"], table1, table1),
 >	  (["ID", "Name"], table2, table2),
 >	  (["ID", "Name"], table23, table23),
