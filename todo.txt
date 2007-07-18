@@ -12,7 +12,6 @@ PENDING
 *** spell check docs!
 *** s. todo.tmp.txt
 ** (left / right join on ...)
-** (natural join)
 ** send doku + release to joos and schweppe
 
 * features
@@ -51,6 +50,7 @@ DONE:
 ** sigma/selection (fb) - done!
 ** renaming (fb)
 ** theta join
+** (natural join)
 
 * non-functional features
 

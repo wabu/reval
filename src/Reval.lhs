@@ -156,6 +156,12 @@ know in order to use reval.
 
 > developing' = project ["Name", "Project", "Language", "Detail"] $ natural developing tableProject
 
+> developing'' = project ["Name", "Project"] (left (theta sameID) tablePersons tableDeveloper)
+>       where 
+>       sameID person developer = (personID person == developerID developer)
+>       personID = getValue tablePersons "ID"
+>       developerID = getValue tableDeveloper "Dev"
+
 TODO: more examples
 * supervisors that are not developing ...
 * developers with projects in there favourite language

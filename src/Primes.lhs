@@ -141,6 +141,7 @@ given Type.
 >
 >       checkType :: t -> l -> Bool
 >       checkType typ lit = check typ (getType lit)
+>       getNull :: l
 
 --- Implmentation ---
 ---------------------
@@ -200,6 +201,8 @@ Own Show and Read for SimpleLits
 >       getType (StrLit _) = String
 >       getType (CharLit _) = Char
 >       getType (BoolLit _) = Bool
+>
+>       getNull = Null
 
 -- UnitTesting --
 ------------------

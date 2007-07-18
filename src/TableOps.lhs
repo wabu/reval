@@ -157,6 +157,17 @@ So we have to fold over each table, and check all rows inside the inner fold
 >                       tab tab2
 >               checkedCons r = if checkFunctional r then cons $ map snd r else id
 
+
+>       left :: (tab -> tab -> tab) -> tab -> tab -> tab
+>       left f tab1 tab2 = union ftab $ cross (notInside tab1) (projectAway (setNull tab2) tab1)
+>               where
+>                       ftab = f tab1 tab2
+>                       projectTo t = project (columnNames t) 
+>                       projectAway t t' = project (columnNames t \\ columnNames t') t
+>                       notInside t = t \\\ projectTo t ftab
+>                       setNull t = mkTable (header t) $ [map (\a -> getNull) (header t)]
+
+
 ---- syntatic sugar ----
 
 >       σ :: ((Row l) -> Bool) -> tab -> tab
