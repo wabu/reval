@@ -163,6 +163,9 @@ TODO: more examples
 --- Legal Foo ---
 -----------------
 
+A default GPL Note. Not printed at startup, 'cause we consider this
+annoying.
+
 > licenseNote = "rel-eval \tCopyright (C) 2007 \tDaniel Waeber, Fabian Bieker\n" ++
 >       "This program comes with ABSOLUTELY NO WARRANTY; for details " ++
 >       "read the LICENSE.txt file.\n" ++

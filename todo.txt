@@ -11,6 +11,7 @@ PENDING
 *** s. todo.tmp.txt
 ** (left / right join on ...)
 ** send doku + release to joos and schweppe
+** Bugfix: lhshtml: $text0 <$text1> $text2 breaks html ...  
 
 * TESTING! (fb)
 

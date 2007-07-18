@@ -60,9 +60,10 @@ and strict, the code will genrate an error:
   Expected type: [b]
   Inferred type: [String]
 
-We have to return a value of the general undefined type b, which is simply not
-possible.
-
+We have to return a value of the general undefined type b, but we want
+to create a concrete type instance wich should return a [String]. This
+implies that our Problem is not solved by this code snipped.
+Next try...
 
 -- The Second Try --
 --------------------
@@ -96,7 +97,7 @@ Note: Template Haskell might provide a more decent solution, but using
 template haskell implies a bunch of nasty foo, like using monads and
 having certain compile time constraints. We wanted the Code base to be
 readable and understanable by the average student -> No template
-haskell. And to be hontest, we did not completly understand template
+haskell. And to be honest, we did not completely understand template
 haskell, anyway ... ;)
 
 --- Basic AST Types ---
@@ -120,9 +121,11 @@ Lit.
 --- Type System Classes ---
 ---------------------------
 
-As these Types are just small fraction of possible valuse stored inside tables,
+As these Types are just a small fraction of possible valuse stored inside tables,
 we give the user the abillity to create his own typesystem and let all thing
 work on typeclasses.
+A Nice exercie is to implement a Type instance for n-arry functions.
+This enables the user to store clousures in a Table.
 
 > class (Eq t) => Type t where
 >       -- check if to types Are compatible
@@ -166,7 +169,7 @@ Ord for SimpleLit needed to stuff SimpleLits in Sets
 >       compare (CharLit _) _ = LT
 >       compare _ (CharLit _) = GT
 
-Own Show and Read for SimpleLits
+Implementation of Show and Read for SimpleLits
 
 > showsLit :: SimpleLit -> ShowS
 > showsLit Null = ("Null" ++)
