@@ -52,8 +52,14 @@ documented...
 Run testAll to run unitTests. If testAll returns true, everthing is
 fine, otherwise an error is raised.
 
-> module Reval where
-> -- TODO: declare exports + export testAll
+> module Reval (
+>	testAll,
+>	Table(..),
+>	TableOps(..),
+>	mkTableFromSet,
+>	-- TODO: export something else?
+> )
+> where
 > import Primes
 > import Table
 > import TableOps
