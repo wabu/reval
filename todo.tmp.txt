@@ -1,10 +1,14 @@
-created by ./mk-tmp-todo-list.sh - Tue Jul 17 19:43:54 CEST 2007
+created by ./mk-tmp-todo-list.sh - Wed Jul 18 11:57:11 CEST 2007
 
 src/Reval.lhs:56:> -- TODO: declare exports + export testAll
+src/Reval.lhs:159:TODO: more examples
 src/SetTable.lhs:25:>   Tab, -- FIXME: Tab needs to be visible in SetTableOps, this sux
 src/SetTableOps.lhs:43:TODO: more sanity checking
-src/SetTableOps.lhs:88:TODO: projectUnsafe?
-src/SetTableOps.lhs:89:TODO: optimize! this is insanley slow :-(
-src/Table.lhs:132:TODO: unit test default impls of class Table
+src/SetTableOps.lhs:70:FIXME: is new default implementaion better?
+src/SetTableOps.lhs:90:FIXME: remove decleartion, default one is nicer?
+src/SetTableOps.lhs:91:TODO: optimize! this is insanley slow :-(
+src/SetTableOps.lhs:226:FIXME: RLY? 
+src/Table.lhs:157:TODO: unit test default impls of class Table
 src/TableOps.lhs:37:TODO: simplify class/type constraints
-src/TableOps.lhs:167:TODO: write testTable + unit tests
+src/TableOps.lhs:82:FIXME: throw away project and only use projectUnsave? -> use [[]] and []
+src/TableOps.lhs:199:TODO: write testTable + unit tests

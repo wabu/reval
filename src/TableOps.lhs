@@ -51,12 +51,17 @@ TODO: simplify class/type constraints
 ---- cross-join ----
 
 >	cross :: tab -> tab -> tab
->	cross t1 t2 = mkTable newHeader
->		[ x++y | x <- r1, y <- r2]
+>	cross t1 t2 = foldRows (addRowsFrom t2) newEmpty t1
+
+(addRowsFrom t) is a high order function. It creates a function out of a table t'.
+The function will take a row r and a table t, and appends each rows form t' to
+r and puts them into t, resulting in a table where r is crossed with each row
+of t.
+
 >		where
->		newHeader = header t1 ++ header t2
->		r1 = rows t1
->		r2 = rows t2
+>               addRowsFrom :: tab -> (Row l -> tab -> tab)
+>               addRowsFrom t' r t = foldRows (cons . (r++)) t t'
+>		newEmpty = mkTable (header t1 ++ header t2) []
 
 ---- Selection ----
 
