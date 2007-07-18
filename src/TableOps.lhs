@@ -158,14 +158,38 @@ So we have to fold over each table, and check all rows inside the inner fold
 >               checkedCons r = if checkFunctional r then cons $ map snd r else id
 
 
+TODO: Better implementaion of left right full outer joins
+
 >       left :: (tab -> tab -> tab) -> tab -> tab -> tab
->       left f tab1 tab2 = union ftab $ cross (notInside tab1) (projectAway (setNull tab2) tab1)
+>       left f tab1 tab2
+>               | checkHeader = union original $ cross (notInOriginal tab1) (projectAway tab1 $ (nullTab tab2))
+>               | otherwise = error("This function you tried to call as a left join "++
+>                                   "can't be modefied to be become outer!")
 >               where
->                       ftab = f tab1 tab2
->                       projectTo t = project (columnNames t) 
->                       projectAway t t' = project (columnNames t \\ columnNames t') t
->                       notInside t = t \\\ projectTo t ftab
->                       setNull t = mkTable (header t) $ [map (\a -> getNull) (header t)]
+>                       original = f tab1 tab2
+>                       checkHeader = all (uncurry (==)) $ zip (header original) (header tab1)
+>                       notInOriginal t = t \\\ projectTo t original
+>                       projectTo t' t = project (columnNames t') t 
+>
+>                       projectAway t' t = project (columnNames t \\ columnNames t') t
+>                       nullTab t = mkTable (header t) $ [map (\a -> getNull) (header t)]
+
+>       right :: (tab -> tab -> tab) -> tab -> tab -> tab
+>       right f tab1 tab2
+>               | checkHeader = union original $ cross (notInOriginal tab2) (projectAway tab2 $ (nullTab tab1))
+>               | otherwise = error("This function you tried to call as a right join "++
+>                                   "can't be modefied to be become outer!")
+>               where
+>                       original = f tab1 tab2
+>                       checkHeader = all (uncurry (==)) $ zip (header original) (header tab2)
+>                       notInOriginal t = t \\\ projectTo t original
+>                       projectTo t' t = natural (crossN (columnNames t') t) (project (columnNames t') t)
+>                       crossN :: [String] -> tab -> tab
+>                       crossN [] t = t
+>                       crossN (n:ns) t = cross (project [n] t) (crossN ns t)
+>
+>                       projectAway t' t = project (columnNames t \\ columnNames t') t
+>                       nullTab t = mkTable (header t) $ [map (\a -> getNull) (header t)]
 
 
 ---- syntatic sugar ----

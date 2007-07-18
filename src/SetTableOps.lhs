@@ -302,8 +302,17 @@ projections on table23
 >             "|42         |\"daniel\"  |Null        |Null |"))
 >       ]
 
+> testRight = assertfun3 right "right" [
+>       (natural, table1, table1, table1),
+>       (natural, table1, table2, read "|ID: Integer|Name: String||Null|\"daniel\"||23|\"fb\"|"),
+>       (natural, table1, rename [("ID","Foo")] table1 *** rename [("Name","Bar")] table2,
+>        read("|ID: Integer|Name: String|Foo: Integer|Bar: String|"++
+>             "|23         |\"fb\"      |23          |\"fb\"     |"++
+>             "|Null       |Null        |Null        |\"daniel\" |"))
+>       ]
+
 > testSetTableOps = testUnion && testDifference && testIntersect
 >       && testSelect && testProject
 >       && testCross && testRename 
->       && testTheta && testNatural && testLeft
+>       && testTheta && testNatural && testLeft -- && testRight
 

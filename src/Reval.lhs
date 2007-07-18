@@ -168,10 +168,6 @@ know in order to use reval.
 >       personID = getValue tablePersons "ID"
 >       developerID = getValue tableDeveloper "Dev"
 
-TODO: more examples
-* supervisors that are not developing ...
-* developers with projects in there favourite language
-
 --- Legal Foo ---
 -----------------
 
