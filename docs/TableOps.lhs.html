@@ -1,11 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-              "http://www.w3.org/TR/html4/loose.dtd">
+"http://www.w3.org/TR/html4/loose.dtd">
 <html>
-  <head>
-    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-  </head>
-  <body>
-
+<head>
+<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+</head>
+<body>
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 </br>
 <pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
@@ -58,12 +57,17 @@ TODO: simplify class/type constraints
 <h4>cross-join</h4>
 </br>
 <pre>>	cross :: tab -> tab -> tab
->	cross t1 t2 = mkTable newHeader
->		[ x++y | x <- r1, y <- r2]
->		where
->		newHeader = header t1 ++ header t2
->		r1 = rows t1
->		r2 = rows t2
+>	cross t1 t2 = foldRows (addRowsFrom t2) newEmpty t1
+</pre>
+(addRowsFrom t) is a high order function. It creates a function out of a table t'.
+The function will take a row r and a table t, and appends each rows form t' to
+r and puts them into t, resulting in a table where r is crossed with each row
+of t.
+</br>
+<pre>>		where
+>               addRowsFrom :: tab -> (Row l -> tab -> tab)
+>               addRowsFrom t' r t = foldRows (cons . (r++)) t t'
+>		newEmpty = mkTable (header t1 ++ header t2) []
 </pre>
 <h4>Selection</h4>
 </br>
@@ -72,17 +76,18 @@ TODO: simplify class/type constraints
 </pre>
 <h4>Projection</h4>
 </br>
-Note: The default implementation is clean and short, but not very effective.
 </br>
 <pre>>	projectUnsafe :: [ColumnName] -> tab -> tab
 >	project :: [ColumnName] -> tab -> tab
 >	projectUnsafe wanted tab = mkTable newHeader $ rows newTab
 >		where
->               names = columnNames tab
->               newHeader = [(n,t) | w <- wanted, (n,t) <- header tab, w==n]
->               newRow row = [l | w <- wanted, (n,l) <- zip names row, w==n]
->      		newTab = mapRowsUnsafe newRow tab
->       project wanted tab
+>               filterWanted = map snd . filter fst . zip [elem n wanted | n <- columnNames tab]
+>               newHeader = filterWanted (header tab)
+>      		newTab = mapRowsUnsafe filterWanted tab
+</pre>
+FIXME: throw away project and only use projectUnsave? -> use [[]] and []
+</br>
+<pre>>       project wanted tab
 >               | not checkExist = error(
 >                   "invalid projection: a name can't be found inside the table in project" ++
 >                   show wanted ++ " form " ++ show names)
@@ -132,6 +137,32 @@ Syntax: rename{Unsafe} [(oldName, newName)] table
 >		r1 = rows t1
 >		r2 = rows t2
 </pre>
+</br>
+<pre>>	natural :: tab -> tab -> tab
+</pre>
+We can cons all falid rows into a new emptyTable.
+</br>
+<pre>>	natural tab1 tab2 = foldRows consRows (mkTable newHeader []) tab1
+>		where
+>               h1 = header tab1
+>               h2 = header tab2
+>               newHeader = List.union h1 h2
+</pre>
+To check a row, we create a new Row with each header inside, so we can check if
+it is a functional relation.  if so, it is valid.
+</br>
+<pre>>               zipedRow r1 r2 = List.union (zip h1 r1) (zip h2 r2)
+>               checkFunctional ziped = all
+>                   (\h -> 1 == length [h | (h',_) <- ziped, h==h']) 
+>                   newHeader 
+</pre>
+So we have to fold over each table, and check all rows inside the inner fold
+</br>
+<pre>>               consRows r tab = foldRows 
+>                       (\r' t -> checkedCons (zipedRow r r') t) 
+>                       tab tab2
+>               checkedCons r = if checkFunctional r then cons $ map snd r else id
+</pre>
 <h4>syntatic sugar</h4>
 </br>
 <pre>>       σ :: ((Row l) -> Bool) -> tab -> tab
@@ -173,5 +204,5 @@ This is usefull to impl. union, intersection etc.
 TODO: write testTable + unit tests
 </br>
 <pre>> testTableOps = True</pre>
-  </body>
+</body>
 </html>

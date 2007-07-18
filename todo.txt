@@ -4,15 +4,15 @@ format: **{0,*} <TODO-ITEM> (<USERNAME-WHO-ADDED-IT>) [<USERNAME-OF-PERSON-TO-DO
 
 PENDING
 
-* TESTING! (fb)
-
 * stuff that needs do be done for Thursdays Presentation
-** cleanup imports/exports
-** documentation
 *** spell check docs!
-*** s. todo.tmp.txt
+*** s. todo.tmp.txt (looks quite good now)
 ** (left / right join on ...)
 ** send doku + release to joos and schweppe
+** Bugfix: lhshtml: $text0 <$text1> $text2 breaks html ...  
+** update docs on public webserver ...
+
+* TESTING! (fb)
 
 * features
 ** TH
@@ -50,7 +50,7 @@ DONE:
 ** sigma/selection (fb) - done!
 ** renaming (fb)
 ** theta join
-** (natural join)
+** natural join
 
 * non-functional features
 

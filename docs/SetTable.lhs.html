@@ -1,11 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-              "http://www.w3.org/TR/html4/loose.dtd">
+"http://www.w3.org/TR/html4/loose.dtd">
 <html>
-  <head>
-    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-  </head>
-  <body>
-
+<head>
+<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+</head>
+<body>
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 </br>
 <pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
@@ -29,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 >   Table(..),
 >   SetTable(..),
 >   mkTableFromSet,
->   Tab, -- FIXME: Tab needs to be visible in SetTableOps, this sux
+>   Tab, -- Tab needs to be visible in SetTableOps, this is hidden in Reval
 >   testSetTable,
 > ) where	
 >
@@ -306,5 +305,5 @@ show instance needed for unit testing ...
 </pre>
 <pre>> testSetTable = testRead && testShow && testCheckTable && testSchema && testColumnNames 
 >	&& testAnyRow && testAllRows && testSize && testMapRows && testFilterRows && testGetValue</pre>
-  </body>
+</body>
 </html>

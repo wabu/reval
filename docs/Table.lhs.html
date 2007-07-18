@@ -1,11 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-              "http://www.w3.org/TR/html4/loose.dtd">
+"http://www.w3.org/TR/html4/loose.dtd">
 <html>
-  <head>
-    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-  </head>
-  <body>
-
+<head>
+<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+</head>
+<body>
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 </br>
 <pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
@@ -44,15 +43,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 As soon as we have Litrals, that can be put into list, it is easy to create
 Rows and Tables, as we just can use a Set of Lists of Literals. We only have to
 check the types when createing or changeing a Table at runtime.
+A bunch of unchecked/unsafe operations are implemeted, too. Sometimes
+a user might really want to shoot into his foot ...
 </br>
-Some types to access things more easy:
+Some type defs to build linguistic abstraction:
 </br>
 <pre>> type Row l = [l]
 > type ColumnName = String
 > type ColumnHeader t = (ColumnName, t)
 > type TableHeader t = [ColumnHeader t]
 </pre>
-Now we can use these type to create a Table typeclass:
+Now we can use these types to create a Table typeclass:
 The class consists of a table tab, and the type system l t, which
 if functional dependent on tab, as l and t are saved inside tab.
 </br>
@@ -60,8 +61,8 @@ See SetTable for an implementation.
 </br>
 Beside constructors and getters, the class has some list processing high order
 functions like fold. Therefore, we were able to implement a default implementation for
-all other function. That will make it easy to create new implementation for Tables, 
-like a real lacy table to process infinite data (e.g. a table with all Fibonacci numbers).
+all other function. This makes it easy to create new implementation for Tables, 
+like a real lazy table to process infinite data (e.g. a table with all Fibonacci numbers).
 </br>
 Note: To Implement this class you need to implement either rows or
 	foldRows, mkTableUnsafe and the basic getters. Basic getters
@@ -71,7 +72,7 @@ Note: To Implement this class you need to implement either rows or
 </br>
 <pre>> class (Type t, Literal l t, Eq tab) => Table tab l t | tab -> l t where
 </pre>
-<h4>Constructors and schema checking:</h4>
+<h4>Constructors and schema checking</h4>
 </br>
 <pre>>       checkTable :: tab -> Bool
 >       checkTable t = allRows validRow t && checkSize
@@ -93,7 +94,7 @@ check the Table and return it, if it is valid, otherwise genrate in error
 >       mkTable :: (TableHeader t) -> [(Row l)] -> tab
 >       mkTable h r = checkedTable (mkTableUnsafe h r)
 </pre>
-<h4>Getters:</h4>
+<h4>Getters</h4>
 </br>
 <pre>>       header :: tab -> TableHeader t
 >       schema :: tab -> [t]
@@ -114,7 +115,8 @@ but is not very efficiont.
 >                       then lit
 >                       else error ("collumn "++name++" not inside the table")
 </pre>
-<h4>basic functional programming higher order functions:</h4>
+<h4>basic functional programming higher order functions</h4>
+</br>
 Note: default impl. of foldRow is really slow, should be overwriten.
 </br>
 <pre>>       foldRows :: ((Row l) -> b -> b) -> b -> tab -> b
@@ -125,9 +127,9 @@ Note: default impl. of foldRow is really slow, should be overwriten.
 >		(mkTable (header t) [])
 >		t
 </pre>
-<h4>mapRowsUnsafe might invalidate the table.</h4>
+mapRowsUnsafe might invalidate the table.
 Use mapRows if you want the table to be validated against the schema.
-Use mapRows unsafe if you want the table to be unchecked.
+Use mapRowsUnsafe if you want the table to be unchecked.
 </br>
 <pre>>       mapRowsUnsafe :: ((Row l) -> (Row l)) -> tab -> tab
 >	mapRowsUnsafe f t = foldRows
@@ -137,7 +139,7 @@ Use mapRows unsafe if you want the table to be unchecked.
 >	mapRows :: ((Row l) -> (Row l)) -> tab -> tab
 >	mapRows f t = checkedTable (mapRowsUnsafe f t)
 </pre>
-<h4>Basic list-like operations:</h4>
+<h4>Basic list-like operations</h4>
 </br>
 <pre>>	cons :: (Row l) -> tab -> tab
 >	cons r t = mkTable (header t) (r : rows t) 
@@ -149,7 +151,7 @@ Size returns (count of columns, count of rows)
 <pre>>	size :: tab -> (Int,Int)
 >	size t = (length (schema t), length (rows t))
 </pre>
-<h4>Basic logic operations:</h4>
+<h4>Basic logic operations</h4>
 </br>
 <pre>>       allRows :: ((Row l) -> Bool) -> tab -> Bool
 >       allRows f = foldRows ((&&) . f) True
@@ -162,5 +164,5 @@ Size returns (count of columns, count of rows)
 TODO: unit test default impls of class Table
 </br>
 <pre>> testTable = True</pre>
-  </body>
+</body>
 </html>

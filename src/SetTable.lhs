@@ -22,7 +22,7 @@
 >   Table(..),
 >   SetTable(..),
 >   mkTableFromSet,
->   Tab, -- FIXME: Tab needs to be visible in SetTableOps, this sux
+>   Tab, -- Tab needs to be visible in SetTableOps, this is hidden in Reval
 >   testSetTable,
 > ) where	
 >

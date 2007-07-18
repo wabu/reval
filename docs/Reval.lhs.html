@@ -1,11 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-              "http://www.w3.org/TR/html4/loose.dtd">
+"http://www.w3.org/TR/html4/loose.dtd">
 <html>
-  <head>
-    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-  </head>
-  <body>
-
+<head>
+<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+</head>
+<body>
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 </br>
 <pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
@@ -28,11 +27,11 @@ Reval is an acronym for relational algebra evaluation.
 </br>
 <h3>Recommended reading</h3>
 </br>
-Frist read Primes, Table and SetTable to get an overview.
+First read Primes, Table and SetTable to get an overview.
 Then check out TableOps and SetTableOps where union, cross-joins etc.
 are declared and implemented.
 </br>
-<h3>Version Managment</h3>
+<h3>Version Management</h3>
 </br>
 We use hg ( http://en.wikipedia.org/wiki/Mercurial</hl>(software) ) for
 version mangement. The hg webinterface can be found at
@@ -45,7 +44,7 @@ http://forti.ath.cx:20480/pro/hg/reval/file/ .
 </br>
 <h3>Contribute</h3>
 </br>
-Feel free to submit usefull patches and bugreports, they are welcome.
+Feel free to submit useful patches and bug-reports, they are welcome.
 Check out todo.txt and todo.tmp.txt for open tasks.
 Try to stick to the coding standards. No, currently they are not
 documented...
@@ -55,8 +54,14 @@ documented...
 Run testAll to run unitTests. If testAll returns true, everthing is
 fine, otherwise an error is raised.
 </br>
-<pre>> module Reval where
-> -- TODO: declare exports + export testAll
+<pre>> module Reval (
+>	testAll,
+>	Table(..),
+>	TableOps(..),
+>	mkTableFromSet,
+>	-- TODO: export something else?
+> )
+> where
 > import Primes
 > import Table
 > import TableOps
@@ -67,9 +72,31 @@ fine, otherwise an error is raised.
 >       && testTable && testTableOps
 >       && testSetTable && testSetTableOps
 </pre>
-<h3>Some Sample Tables</h3>
+<h3>Sample Usage</h3>
 </br>
-Some example tables to get you started:
+If you just want to some simple relational algebra expressions, the most
+comfortable way is to put the tables and some expression in a file like this:
+</br>
+<ul><li>import Primes, SetTable and SetTableOps
+</li><li>write table declaration
+</li><li>write some queries and call them inside ghci
+</li><li>or input queries directly to ghci
+</li></ul>
+Below is an example, with some table and some queries. Simply load Reval.lhs
+into ghci with the following command:
+<pre>ghci -fglasgow-exts -i<path/to/reval/src> <your/file>
+Now you can view a table, for example, by typing tablePersons, view the result
+of a query by evaluating developing or just input your own query, e.g. cross
+developing tableProject.
+</br>
+</br>
+<h4>Some Sample Tables</h4>
+</br>
+Some example tables, you must declare the type type (here it is Tab) and read
+in a table, which consists of a header declaration and it rows. Each column is
+separated by a |, beginning and ending with a |.  You can use Integer, String,
+Bool and Char as types. Literals are formated just like normal Haskell
+literals.
 </br>
 <pre>> tablePersons :: Tab
 > tablePersons = read (
@@ -100,9 +127,12 @@ Some example tables to get you started:
 <pre>> tableID :: Tab
 > tableID = read "| ID: Integer || 23 || 42 |"
 </pre>
-<h3>Some pointers to get you started</h3>
+<h4>Some pointers to get you started</h4>
 </br>
-try something like:
+You can find a full list of operations for table in the class declaration
+inside TableOps.lhs. But if you go through the following example and play a
+little with the oparations in ghci, you will know everything you need to
+know in order to use reval.
 </br>
 <ul><li>cross-join (full outer join):
 </li></ul>
@@ -114,8 +144,8 @@ try something like:
 </pre>
 <ul><li>advanced joins: theta-join tablePerson with tableDeveloper on ID == Dev
 </li></ul>
-<pre>with the power of haskell we can create a nice theta join with the condtion
-seperated form theta join, so it will be readable even for larger operations
+<pre>With the power of Haskell we can create a nice theta join with the condition
+separated form theta join, so it will be readable even for larger operations
 </pre>
 <pre>> testTheta = theta sameID tablePersons tableDeveloper
 >       where 
@@ -125,19 +155,22 @@ seperated form theta join, so it will be readable even for larger operations
 </pre>
 <ul><li>combine queries:  
 </li></ul>
-TODO: natural join with Project would be really nice
-</br>
 <pre>> developing = project ["Name", "Project"] (theta sameID tablePersons tableDeveloper)
 >       where 
 >       sameID person developer = (personID person == developerID developer)
 >       personID = getValue tablePersons "ID"
 >       developerID = getValue tableDeveloper "Dev"
 </pre>
-TODO: more examles
+<pre>> developing' = project ["Name", "Project", "Language", "Detail"] $ natural developing tableProject
+</pre>
+TODO: more examples
 <ul><li>supervisors that are not developing ...
-</li><li>developers with projects in there favourt language
+</li><li>developers with projects in there favourite language
 </li></ul>
 <h3>Legal Foo</h3>
+</br>
+A default GPL Note. Not printed at startup, 'cause we consider this
+annoying.
 </br>
 <pre>> licenseNote = "rel-eval \tCopyright (C) 2007 \tDaniel Waeber, Fabian Bieker\n" ++
 >       "This program comes with ABSOLUTELY NO WARRANTY; for details " ++
@@ -146,5 +179,5 @@ TODO: more examles
 >       "redistribute it under certain conditions; type LGPL.txt for " ++
 >       "details.\n"
 > </pre>
-  </body>
+</body>
 </html>

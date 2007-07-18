@@ -1,11 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-              "http://www.w3.org/TR/html4/loose.dtd">
+"http://www.w3.org/TR/html4/loose.dtd">
 <html>
-  <head>
-    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-  </head>
-  <body>
-
+<head>
+<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+</head>
+<body>
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 </br>
 <pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
@@ -47,8 +46,6 @@ mostly on mkTable to create only valid tables.
 The reason for this is, that I (fb) want it to be leazy
 (as in operate on infinite tables).
 </br>
-TODO: more sanity checking
-</br>
 <pre>> applyOnTableSets :: (Show l, Show t, Ord l, Literal l t) =>
 >       (Set.Set (Row l) -> Set.Set (Row l) -> Set.Set (Row l)) 
 >       -> (SetTable l t) -> (SetTable l t) -> (SetTable l t)
@@ -74,13 +71,15 @@ cross-join
 </br>
 cross table1 table2 -- looks good, imho...
 </br>
-<pre>> 	cross (SetTab h1 s1) (SetTab h2 s2) =
->		SetTab newHeader newSet
->		where
->		newHeader = h1 ++ h2
->               newSet = Set.fold (\r1 s -> Set.union s $ multiply r1 s2) Set.empty s1
->               multiply r s = Set.map (\rs -> r ++ rs) s
-</pre>
+new default implementaion is faster...
+</br>
+ > 	cross (SetTab h1 s1) (SetTab h2 s2) =
+ >		SetTab newHeader newSet
+ >		where
+ >		newHeader = h1 ++ h2
+ >               newSet = Set.fold (\r1 s -> Set.union s $ multiply r1 s2) Set.empty s1
+ >               multiply r s = Set.map (\rs -> r ++ rs) s
+</br>
 Note: A Table containing a Set like {{}} is considured invalid. Use a
 Table containg the empty Set {} (aka mkTable [] []) to represent the
 empty table. This might not be formaly correct, but having two
@@ -92,26 +91,25 @@ more complex and less readable.
 </pre>
 Projection
 </br>
-TODO: projectUnsafe?
-TODO: optimize! this is insanley slow :-(
+TODO: remove decleartion, default one is nicer/faster?
 </br>
-<pre>>	project wantedNames tab@(SetTab header rows)
->		| checkHeader = SetTab newHeader newRows
->   		where
->       	checkHeader = all (\n -> checkSize n (length [a | (a,_) <- header, n == a])) wantedNames
->       	checkSize :: String -> Int -> Bool
->       	checkSize n s 
->               	| s == 0 = error ("project: could not project to " 
->                   	    ++ show n ++ ": name unknown.")
->               	| s == 1 = True
->               	| otherwise = error ("project: could not project to " 
->                       	++ show n ++ ": name is ambigious.")
->       	posList = [i | s <- wantedNames, (i,(n,_)) <- zip [1..] header, n==s ]
->      		newHeader = [h | p <- posList, (i,h) <- zip [1..] header, p==i ]
->      		newRows = Set.map 
->	                (\r -> [ l | p <- posList, (i,l) <- zip [1..] r, p==i] )
->               	rows
-</pre>
+ >	project wantedNames tab@(SetTab header rows)
+ >		| checkHeader = SetTab newHeader newRows
+ >   		where
+ >       	checkHeader = all (\n -> checkSize n (length [a | (a,</hl>) <- header, n == a])) wantedNames
+ >       	checkSize :: String -> Int -> Bool
+ >       	checkSize n s 
+ >               	| s == 0 = error ("project: could not project to " 
+ >                   	    ++ show n ++ ": name unknown.")
+ >               	| s == 1 = True
+ >               	| otherwise = error ("project: could not project to " 
+ >                       	++ show n ++ ": name is ambigious.")
+ >       	posList = [i | s <- wantedNames, (i,(n,</hl>)) <- zip [1..] header, n==s ]
+ >      		newHeader = [h | p <- posList, (i,h) <- zip [1..] header, p==i ]
+ >      		newRows = Set.map 
+ >	                (\r -> [ l | p <- posList, (i,l) <- zip [1..] r, p==i] )
+ >               	rows
+</br>
 <h2>UnitTesting</h2>
 </br>
 Format of assertfun2 is:
@@ -223,8 +221,6 @@ projections on table23
 >	  (["Name"], table123Empty, mkTable [("Name", String)] []),
 >	  (["ID", "Name"], table123Empty, mkTable
 >		[("ID", Integer), ("Name", String)] []),
->	  (["Name", "ID"], table123Empty, mkTable
->		[("Name", String), ("ID", Integer)] []),
 >	  (["ID", "Name"], table1, table1),
 >	  (["ID", "Name"], table2, table2),
 >	  (["ID", "Name"], table23, table23),
@@ -290,10 +286,19 @@ projections on table23
 >        "| 23 | \"fb\" | 23 | \"fb\" |")
 >       ]
 </pre>
+<pre>> testNatural = assertfun2 natural "natural" [
+>       (table1, table1, table1),
+>       (table1, table2, read "|ID: Integer|Name: String||23|\"fb\"|"),
+>       (table1, rename [("ID","Foo")] table2 *** rename [("Name","Bar")] table1,
+>        read("|ID: Integer|Name: String|Foo: Integer|Bar: String|"++
+>             "|23         |\"fb\"      |23          |\"fb\"     |"++
+>             "|42         |\"daniel\"  |Null        |\"daniel\" |"))
+>       ]
+</pre>
 <pre>> testSetTableOps = testUnion && testDifference && testIntersect
 >       && testSelect && testProject
 >       && testCross && testRename 
->       && testTheta
+>       && testTheta && testNatural
 </pre>
-  </body>
+</body>
 </html>
