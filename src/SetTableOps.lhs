@@ -40,8 +40,6 @@ mostly on mkTable to create only valid tables.
 The reason for this is, that I (fb) want it to be leazy
 (as in operate on infinite tables).
 
-TODO: more sanity checking
-
 > applyOnTableSets :: (Show l, Show t, Ord l, Literal l t) =>
 >       (Set.Set (Row l) -> Set.Set (Row l) -> Set.Set (Row l)) 
 >       -> (SetTable l t) -> (SetTable l t) -> (SetTable l t)
@@ -67,7 +65,7 @@ cross-join
 
 cross table1 table2 -- looks good, imho...
 
-FIXME: is new default implementaion better?
+new default implementaion is faster...
 
  > 	cross (SetTab h1 s1) (SetTab h2 s2) =
  >		SetTab newHeader newSet
@@ -87,8 +85,7 @@ more complex and less readable.
 
 Projection
 
-FIXME: remove decleartion, default one is nicer?
-TODO: optimize! this is insanley slow :-(
+TODO: remove decleartion, default one is nicer/faster?
 
  >	project wantedNames tab@(SetTab header rows)
  >		| checkHeader = SetTab newHeader newRows
@@ -219,19 +216,6 @@ projections on table23
 >	  (["Name"], table123Empty, mkTable [("Name", String)] []),
 >	  (["ID", "Name"], table123Empty, mkTable
 >		[("ID", Integer), ("Name", String)] []),
-
- >	  (["Name", "ID"], table123Empty, mkTable
- >		[("Name", String), ("ID", Integer)] []),
-
-FIXME: RLY? 
-wikipedia sagt: 
-\pi_{a_1,...,a_n} R is defined as the set that is obtained when all tuples in R
-are restricted to the set {a1,...,an}.
-
-Dass heist dass {a1,...,an} ein set ist, also unsortiert und die sortierung
-wird aus R uebernommen, imho. forallem is mir heut nacht die erleuchtng fuer ne
-project implementierung gekommen, die so funktioniert wie wikipedia sagt
-
 >	  (["ID", "Name"], table1, table1),
 >	  (["ID", "Name"], table2, table2),
 >	  (["ID", "Name"], table23, table23),

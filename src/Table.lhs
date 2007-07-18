@@ -38,15 +38,17 @@
 As soon as we have Litrals, that can be put into list, it is easy to create
 Rows and Tables, as we just can use a Set of Lists of Literals. We only have to
 check the types when createing or changeing a Table at runtime.
+A bunch of unchecked/unsafe operations are implemeted, too. Sometimes
+a user might really want to shoot into his foot ...
 
-Some types to access things more easy:
+Some type defs to build linguistic abstraction:
 
 > type Row l = [l]
 > type ColumnName = String
 > type ColumnHeader t = (ColumnName, t)
 > type TableHeader t = [ColumnHeader t]
 
-Now we can use these type to create a Table typeclass:
+Now we can use these types to create a Table typeclass:
 The class consists of a table tab, and the type system l t, which
 if functional dependent on tab, as l and t are saved inside tab.
 
@@ -54,8 +56,8 @@ See SetTable for an implementation.
 
 Beside constructors and getters, the class has some list processing high order
 functions like fold. Therefore, we were able to implement a default implementation for
-all other function. That will make it easy to create new implementation for Tables, 
-like a real lacy table to process infinite data (e.g. a table with all Fibonacci numbers).
+all other function. This makes it easy to create new implementation for Tables, 
+like a real lazy table to process infinite data (e.g. a table with all Fibonacci numbers).
 
 Note: To Implement this class you need to implement either rows or
 	foldRows, mkTableUnsafe and the basic getters. Basic getters
@@ -65,7 +67,7 @@ Note: To Implement this class you need to implement either rows or
 
 > class (Type t, Literal l t, Eq tab) => Table tab l t | tab -> l t where
 
----- Constructors and schema checking: ----
+---- Constructors and schema checking ----
 
 >       checkTable :: tab -> Bool
 >       checkTable t = allRows validRow t && checkSize
@@ -87,7 +89,7 @@ check the Table and return it, if it is valid, otherwise genrate in error
 >       mkTable :: (TableHeader t) -> [(Row l)] -> tab
 >       mkTable h r = checkedTable (mkTableUnsafe h r)
 
----- Getters: ----
+---- Getters ----
 
 >       header :: tab -> TableHeader t
 >       schema :: tab -> [t]
@@ -108,7 +110,8 @@ but is not very efficiont.
 >                       then lit
 >                       else error ("collumn "++name++" not inside the table")
 
----- basic functional programming higher order functions: ----
+---- basic functional programming higher order functions ----
+
 Note: default impl. of foldRow is really slow, should be overwriten.
 
 >       foldRows :: ((Row l) -> b -> b) -> b -> tab -> b
@@ -119,9 +122,9 @@ Note: default impl. of foldRow is really slow, should be overwriten.
 >		(mkTable (header t) [])
 >		t
 
----- mapRowsUnsafe might invalidate the table. ----
+mapRowsUnsafe might invalidate the table.
 Use mapRows if you want the table to be validated against the schema.
-Use mapRows unsafe if you want the table to be unchecked.
+Use mapRowsUnsafe if you want the table to be unchecked.
 
 >       mapRowsUnsafe :: ((Row l) -> (Row l)) -> tab -> tab
 >	mapRowsUnsafe f t = foldRows
@@ -131,7 +134,7 @@ Use mapRows unsafe if you want the table to be unchecked.
 >	mapRows :: ((Row l) -> (Row l)) -> tab -> tab
 >	mapRows f t = checkedTable (mapRowsUnsafe f t)
 
----- Basic list-like operations: ----
+---- Basic list-like operations ----
 
 >	cons :: (Row l) -> tab -> tab
 >	cons r t = mkTable (header t) (r : rows t) 
@@ -143,7 +146,7 @@ Size returns (count of columns, count of rows)
 >	size :: tab -> (Int,Int)
 >	size t = (length (schema t), length (rows t))
 
----- Basic logic operations: ----
+---- Basic logic operations ----
 
 >       allRows :: ((Row l) -> Bool) -> tab -> Bool
 >       allRows f = foldRows ((&&) . f) True
