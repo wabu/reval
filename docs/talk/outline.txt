@@ -3,33 +3,69 @@
 Startup: "Wir sind Programmier, keine Sales Drohnen, drum haben wir
 Code geschrieben, anstatt Power-Point Slides zu clicken ..."
 
+"Wenn Verständniss Fragen gleich, alles andere -> hinterher"
+
 http://forti.ath.cx:8000/pro/reval
 Use uni proxy ...
 
-* Best Practices
-** Pragmatic Progamming!
-** SCRUM-simulation
-*** TTD
-** Literate-Programming-Simulation
+* reval - What's that? Why bother?
 
 * Design
 ** Goals
-*** See Spec.pdf for Use-cases, methods
+*** Write a decent rel-algebra api/dsl api in haskell
+*** Do not create a complete new programming language, just use
+	haskell
+*** Readable, maintable, good code
+*** Data and Ops must be extenable
+*** clousure property
+*** [...]
+*** See Spec.pdf for Use-cases, methods etc.
 ** Problems
 *** Strict Static Typing in Haskell
 *** Strict Functional constraints in Haskell
+*** [...]
 
 * Demo
-** Show some usage-examples
+** Getting Started
+
+# hg clone http://forti.ath.cx:20480/pro/hg/reval/
+# cd reval/src
+# ghci -fglasgow-exts Reval.lhs
+[...]
+*Reval> testAll
+True
+
+*Reval> tablePersons 
+[...]
+*Reval> tableDeveloper
+[...]
+*Reval> cross tableDeveloper tablePersons
+[...]
+*Reval> rename [("Dev", "ID")] tableDeveloper
+[...]
+*Reval> natural (rename [("Dev", "ID")] tableDeveloper) tablePersons
+[...]
+*Reval> tablePersons \\\ tablePersons
+[...]
+*Reval> tablePersons \\\ tableDeveloper 
+*** Exception: [...]
+*Reval> select (\(x:_) -> x == IntLit 23) tablePersons
+[...]
+*Reval> (select (\(x:_) -> x == IntLit 23) . natural (rename [("Dev","ID")] tableDeveloper)) tablePersons
+[...]
+
 
 * Architekture/Implemtation
 
-** How we met the goals
-TODO
+** How we met the goals (Incomplete)
+*** Readable, maintable, good code
+**** TTD, Literate Programming, Agile Processes (some XP etc.)
+*** Data and Ops must be extenable
+**** Haskell ADT
+*** clousure property
+**** common sense
 
-** How we fixed the problems
-TODO
-
+** How we fixed the problems (Incomplete)
 *** Strict Static Typing in Haskell
 **** Impled own Type System
 **** Made it extendable by using classes
@@ -42,10 +78,17 @@ TODO
 
 * Contrib.
 ** Code is LGPL feel free to submit bugreports/patches
+** Doc? -> RTFS
+
+* Best Practices
+** Pragmatic Progamming!
+** SCRUM-simulation
+*** TTD
+** Literate-Programming-Simulation
+
 
 Credits:
 - Thanks to c-base for proving a decent hacking-space and club-mate
 - Thanks to Joos / Prof. Schwepe for answering some design questions
 
 Thanks for Listenting -> Questions?
-
