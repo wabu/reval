@@ -1,10 +1,11 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
+              "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<head>
-<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-</head>
-<body>
+  <head>
+    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+  </head>
+  <body>
+
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 </br>
 <pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
@@ -40,17 +41,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 The default implementaion of the table class is just a Header an a Set of lits.
 It can be used with any type system, but the literals has to be ordered.
 </br>
-<pre>> data (Ord l, Literal l t) => SetTable l t = SetTab (TableHeader t) (Set.Set (Row l)) 
+<pre>> data (Ord l, Literal l t) =&gt; SetTable l t = SetTab (TableHeader t) (Set.Set (Row l)) 
 >       deriving Eq
 > type Tab = (SetTable SimpleLit SimpleType)
 </pre>
-<pre>> rowSet :: (Ord l, Literal l t) => (SetTable l t) -> (Set.Set (Row l))
+<pre>> rowSet :: (Ord l, Literal l t) =&gt; (SetTable l t) -&gt; (Set.Set (Row l))
 > rowSet (SetTab _ rows) = rows
 </pre>
-<pre>> mkTableFromSet :: (Ord l, Literal l t) => (TableHeader t) -> Set.Set (Row l) -> (SetTable l t)
+<pre>> mkTableFromSet :: (Ord l, Literal l t) =&gt; (TableHeader t) -&gt; Set.Set (Row l) -&gt; (SetTable l t)
 > mkTableFromSet header rows = SetTab header rows
 </pre>
-<pre>> instance (Show l, Show t, Ord l, Literal l t) => Table (SetTable l t) l t where
+<pre>> instance (Show l, Show t, Ord l, Literal l t) =&gt; Table (SetTable l t) l t where
 >       mapRowsUnsafe f (SetTab head rows) = (SetTab head (Set.map f rows))
 >       filterRows f (SetTab head rows) = (SetTab head (Set.filter f rows))
 >       foldRows f i = Set.fold f i . rowSet
@@ -71,7 +72,7 @@ Note: mkTable [] [[]] is considered invalid
 </pre>
 show and read instance for the table
 </br>
-<pre>> showsTable :: (Ord l, Show l, Show t, Literal l t) => (SetTable l t)-> ShowS
+<pre>> showsTable :: (Ord l, Show l, Show t, Literal l t) =&gt; (SetTable l t)-&gt; ShowS
 > showsTable (SetTab header rows) = ('\n':) . heads . alls (map mapcells (Set.toList rows))
 >       where 
 >           space = (' ':)            -- space ShowS
@@ -95,9 +96,9 @@ show and read instance for the table
 >           alls :: [[ShowS]] -> ShowS
 >           alls = folds ((. line) . lines)
 </pre>
-<pre>> instance (Ord l, Show l, Show t, Literal l t) => Show (SetTable l t) where showsPrec </hl> = showsTable
+<pre>> instance (Ord l, Show l, Show t, Literal l t) =&gt; Show (SetTable l t) where showsPrec </hl> = showsTable
 </pre>
-<pre>> readsColumnHeader :: (Read t) => ReadS (ColumnHeader t)
+<pre>> readsColumnHeader :: (Read t) =&gt; ReadS (ColumnHeader t)
 > readsColumnHeader s =
 >       [ ((n,t),w) | (n,u) <- lex s, (":",v) <- lex u, (t,w) <- reads v ]
 > readsTableHeader :: (Read t) => ReadS (TableHeader t)
@@ -236,7 +237,7 @@ show instance needed for unit testing ...
 </br>
 <h3>Basic Functions</h3>
 </br>
-<pre>> instance Show ((Row r) -> Bool)  where
+<pre>> instance Show ((Row r) -&gt; Bool)  where
 >	show _ = "(\\(Row r) -> Bool)"
 > instance Show ((Row r) -> (Row r))  where
 >	show _ = "(\\(Row r) -> (Row r))"
@@ -305,5 +306,5 @@ show instance needed for unit testing ...
 </pre>
 <pre>> testSetTable = testRead && testShow && testCheckTable && testSchema && testColumnNames 
 >	&& testAnyRow && testAllRows && testSize && testMapRows && testFilterRows && testGetValue</pre>
-</body>
+  </body>
 </html>

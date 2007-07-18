@@ -1,10 +1,11 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
+              "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<head>
-<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-</head>
-<body>
+  <head>
+    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+  </head>
+  <body>
+
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 </br>
 <pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
@@ -70,11 +71,11 @@ Note: To Implement this class you need to implement either rows or
 	We recommend implementing more functions if you care about
 	performance.
 </br>
-<pre>> class (Type t, Literal l t, Eq tab) => Table tab l t | tab -> l t where
+<pre>> class (Type t, Literal l t, Eq tab) =&gt; Table tab l t | tab -&gt; l t where
 </pre>
 <h4>Constructors and schema checking</h4>
 </br>
-<pre>>       checkTable :: tab -> Bool
+<pre>>       checkTable :: tab -&gt; Bool
 >       checkTable t = allRows validRow t && checkSize
 >		where
 >		sch = schema t
@@ -83,7 +84,7 @@ Note: To Implement this class you need to implement either rows or
 </pre>
 check the Table and return it, if it is valid, otherwise genrate in error
 </br>
-<pre>>       checkedTable :: tab -> tab
+<pre>>       checkedTable :: tab -&gt; tab
 >       checkedTable t
 >		| checkTable t = t
 >               | otherwise = error ("chechedTable: " ++ 
@@ -96,7 +97,7 @@ check the Table and return it, if it is valid, otherwise genrate in error
 </pre>
 <h4>Getters</h4>
 </br>
-<pre>>       header :: tab -> TableHeader t
+<pre>>       header :: tab -&gt; TableHeader t
 >       schema :: tab -> [t]
 >       columnNames :: tab -> [String]
 >       rows :: tab -> [Row l]
@@ -106,7 +107,7 @@ Retrun a value out of a row, which is inside table inside a named column.
 This function is gets usefull inside projections and theta joins, 
 but is not very efficiont.
 </br>
-<pre>>       getValueUnsave :: tab -> String -> Row l -> l
+<pre>>       getValueUnsave :: tab -&gt; String -&gt; Row l -&gt; l
 >       getValue :: tab -> String -> Row l -> l
 >
 >       getValueUnsave table name row = head [l | (l,n) <- zip row (columnNames table), n == name]
@@ -119,7 +120,7 @@ but is not very efficiont.
 </br>
 Note: default impl. of foldRow is really slow, should be overwriten.
 </br>
-<pre>>       foldRows :: ((Row l) -> b -> b) -> b -> tab -> b
+<pre>>       foldRows :: ((Row l) -&gt; b -&gt; b) -&gt; b -&gt; tab -&gt; b
 >	foldRows f init = foldr f init . rows 
 >       filterRows :: ((Row l) -> Bool) -> tab -> tab
 >	filterRows f t = foldRows
@@ -131,7 +132,7 @@ mapRowsUnsafe might invalidate the table.
 Use mapRows if you want the table to be validated against the schema.
 Use mapRowsUnsafe if you want the table to be unchecked.
 </br>
-<pre>>       mapRowsUnsafe :: ((Row l) -> (Row l)) -> tab -> tab
+<pre>>       mapRowsUnsafe :: ((Row l) -&gt; (Row l)) -&gt; tab -&gt; tab
 >	mapRowsUnsafe f t = foldRows
 >	 	(\row table -> cons (f row) table) 
 >		(mkTable (header t) [])
@@ -141,19 +142,19 @@ Use mapRowsUnsafe if you want the table to be unchecked.
 </pre>
 <h4>Basic list-like operations</h4>
 </br>
-<pre>>	cons :: (Row l) -> tab -> tab
+<pre>>	cons :: (Row l) -&gt; tab -&gt; tab
 >	cons r t = mkTable (header t) (r : rows t) 
 >	isEmpty :: tab -> Bool
 >	isEmpty = null . rows
 </pre>
 Size returns (count of columns, count of rows)
 </br>
-<pre>>	size :: tab -> (Int,Int)
+<pre>>	size :: tab -&gt; (Int,Int)
 >	size t = (length (schema t), length (rows t))
 </pre>
 <h4>Basic logic operations</h4>
 </br>
-<pre>>       allRows :: ((Row l) -> Bool) -> tab -> Bool
+<pre>>       allRows :: ((Row l) -&gt; Bool) -&gt; tab -&gt; Bool
 >       allRows f = foldRows ((&&) . f) True
 >       anyRow :: ((Row l) -> Bool) -> tab -> Bool
 >       anyRow f = foldRows ((||) . f) False
@@ -164,5 +165,5 @@ Size returns (count of columns, count of rows)
 TODO: unit test default impls of class Table
 </br>
 <pre>> testTable = True</pre>
-</body>
+  </body>
 </html>

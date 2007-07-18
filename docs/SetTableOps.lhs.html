@@ -1,10 +1,11 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
+              "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<head>
-<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-</head>
-<body>
+  <head>
+    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+  </head>
+  <body>
+
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 </br>
 <pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
@@ -46,7 +47,7 @@ mostly on mkTable to create only valid tables.
 The reason for this is, that I (fb) want it to be leazy
 (as in operate on infinite tables).
 </br>
-<pre>> applyOnTableSets :: (Show l, Show t, Ord l, Literal l t) =>
+<pre>> applyOnTableSets :: (Show l, Show t, Ord l, Literal l t) =&gt;
 >       (Set.Set (Row l) -> Set.Set (Row l) -> Set.Set (Row l)) 
 >       -> (SetTable l t) -> (SetTable l t) -> (SetTable l t)
 > applyOnTableSets _ t1@(SetTab [] rows) t2 
@@ -62,7 +63,7 @@ The reason for this is, that I (fb) want it to be leazy
 >           error ("applyOnTableSets: table headers do not match: "
 >		++ show head1 ++ " != " ++ show head2)
 </pre>
-<pre>> instance (Show l, Show t, Ord l, Literal l t) => TableOps (SetTable l t) l t where
+<pre>> instance (Show l, Show t, Ord l, Literal l t) =&gt; TableOps (SetTable l t) l t where
 >	union = applyOnTableSets Set.union
 > 	difference = applyOnTableSets Set.difference
 >	intersect = applyOnTableSets Set.intersection
@@ -73,12 +74,12 @@ cross table1 table2 -- looks good, imho...
 </br>
 new default implementaion is faster...
 </br>
- > 	cross (SetTab h1 s1) (SetTab h2 s2) =
- >		SetTab newHeader newSet
- >		where
- >		newHeader = h1 ++ h2
- >               newSet = Set.fold (\r1 s -> Set.union s $ multiply r1 s2) Set.empty s1
- >               multiply r s = Set.map (\rs -> r ++ rs) s
+ &gt; 	cross (SetTab h1 s1) (SetTab h2 s2) =
+ &gt;		SetTab newHeader newSet
+ &gt;		where
+ &gt;		newHeader = h1 ++ h2
+ &gt;               newSet = Set.fold (\r1 s -&gt; Set.union s $ multiply r1 s2) Set.empty s1
+ &gt;               multiply r s = Set.map (\rs -&gt; r ++ rs) s
 </br>
 Note: A Table containing a Set like {{}} is considured invalid. Use a
 Table containg the empty Set {} (aka mkTable [] []) to represent the
@@ -93,22 +94,22 @@ Projection
 </br>
 TODO: remove decleartion, default one is nicer/faster?
 </br>
- >	project wantedNames tab@(SetTab header rows)
- >		| checkHeader = SetTab newHeader newRows
- >   		where
- >       	checkHeader = all (\n -> checkSize n (length [a | (a,</hl>) <- header, n == a])) wantedNames
- >       	checkSize :: String -> Int -> Bool
- >       	checkSize n s 
- >               	| s == 0 = error ("project: could not project to " 
- >                   	    ++ show n ++ ": name unknown.")
- >               	| s == 1 = True
- >               	| otherwise = error ("project: could not project to " 
- >                       	++ show n ++ ": name is ambigious.")
- >       	posList = [i | s <- wantedNames, (i,(n,</hl>)) <- zip [1..] header, n==s ]
- >      		newHeader = [h | p <- posList, (i,h) <- zip [1..] header, p==i ]
- >      		newRows = Set.map 
- >	                (\r -> [ l | p <- posList, (i,l) <- zip [1..] r, p==i] )
- >               	rows
+ &gt;	project wantedNames tab@(SetTab header rows)
+ &gt;		| checkHeader = SetTab newHeader newRows
+ &gt;   		where
+ &gt;       	checkHeader = all (\n -&gt; checkSize n (length [a | (a,</hl>) &lt;- header, n == a])) wantedNames
+ &gt;       	checkSize :: String -&gt; Int -&gt; Bool
+ &gt;       	checkSize n s 
+ &gt;               	| s == 0 = error ("project: could not project to " 
+ &gt;                   	    ++ show n ++ ": name unknown.")
+ &gt;               	| s == 1 = True
+ &gt;               	| otherwise = error ("project: could not project to " 
+ &gt;                       	++ show n ++ ": name is ambigious.")
+ &gt;       	posList = [i | s &lt;- wantedNames, (i,(n,</hl>)) &lt;- zip [1..] header, n==s ]
+ &gt;      		newHeader = [h | p &lt;- posList, (i,h) &lt;- zip [1..] header, p==i ]
+ &gt;      		newRows = Set.map 
+ &gt;	                (\r -&gt; [ l | p &lt;- posList, (i,l) &lt;- zip [1..] r, p==i] )
+ &gt;               	rows
 </br>
 <h2>UnitTesting</h2>
 </br>
@@ -275,7 +276,7 @@ projections on table23
 >			++ "| 42          | \"daniel\"  |") :: Tab) 
 >	]
 </pre>
-<pre>> instance Show (Row l -> Row l -> Bool) where
+<pre>> instance Show (Row l -&gt; Row l -&gt; Bool) where
 >       show f = "(\\Row l -> \\Row l -> Bool)"
 </pre>
 <pre>> testTheta = assertfun3 theta "theta" [
@@ -295,10 +296,31 @@ projections on table23
 >             "|42         |\"daniel\"  |Null        |\"daniel\" |"))
 >       ]
 </pre>
+<pre>> instance Show (Tab -&gt; Tab -&gt; Tab) where
+>       show f = "(\\tab -> tab -> tab)"
+</pre>
+<pre>> testLeft = assertfun3 left "left" [
+>       (natural, table1, table1, table1),
+>       (natural, table1, table2, read "|ID: Integer|Name: String||42|\"daniel\"||23|\"fb\"|"),
+>       (natural, table1, rename [("ID","Foo")] table1 *** rename [("Name","Bar")] table2,
+>        read("|ID: Integer|Name: String|Foo: Integer|Bar: String|"++
+>             "|23         |\"fb\"      |23          |\"fb\"     |"++
+>             "|42         |\"daniel\"  |Null        |Null |"))
+>       ]
+</pre>
+<pre>> testRight = assertfun3 right "right" [
+>       (natural, table1, table1, table1),
+>       (natural, table1, table2, read "|ID: Integer|Name: String||Null|\"daniel\"||23|\"fb\"|"),
+>       (natural, table1, rename [("ID","Foo")] table1 *** rename [("Name","Bar")] table2,
+>        read("|ID: Integer|Name: String|Foo: Integer|Bar: String|"++
+>             "|23         |\"fb\"      |23          |\"fb\"     |"++
+>             "|Null       |Null        |Null        |\"daniel\" |"))
+>       ]
+</pre>
 <pre>> testSetTableOps = testUnion && testDifference && testIntersect
 >       && testSelect && testProject
 >       && testCross && testRename 
->       && testTheta && testNatural
+>       && testTheta && testNatural && testLeft -- && testRight
 </pre>
-</body>
+  </body>
 </html>

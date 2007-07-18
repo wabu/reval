@@ -1,10 +1,11 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
+              "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<head>
-<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-</head>
-<body>
+  <head>
+    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+  </head>
+  <body>
+
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 </br>
 <pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
@@ -47,7 +48,7 @@ TODO: simplify class/type constraints
 </pre>
 <h4>basic set operations</h4>
 </br>
-<pre>>	union :: tab -> tab -> tab
+<pre>>	union :: tab -&gt; tab -&gt; tab
 >	union = applyOnTableRows List.union
 >	difference :: tab -> tab -> tab
 >	difference = applyOnTableRows (\\)
@@ -56,7 +57,7 @@ TODO: simplify class/type constraints
 </pre>
 <h4>cross-join</h4>
 </br>
-<pre>>	cross :: tab -> tab -> tab
+<pre>>	cross :: tab -&gt; tab -&gt; tab
 >	cross t1 t2 = foldRows (addRowsFrom t2) newEmpty t1
 </pre>
 (addRowsFrom t) is a high order function. It creates a function out of a table t'.
@@ -71,13 +72,13 @@ of t.
 </pre>
 <h4>Selection</h4>
 </br>
-<pre>> 	select :: ((Row l) -> Bool) -> tab -> tab
+<pre>> 	select :: ((Row l) -&gt; Bool) -&gt; tab -&gt; tab
 > 	select p tab = mkTable (header tab) (filter p (rows tab))
 </pre>
 <h4>Projection</h4>
 </br>
 </br>
-<pre>>	projectUnsafe :: [ColumnName] -> tab -> tab
+<pre>>	projectUnsafe :: [ColumnName] -&gt; tab -&gt; tab
 >	project :: [ColumnName] -> tab -> tab
 >	projectUnsafe wanted tab = mkTable newHeader $ rows newTab
 >		where
@@ -85,7 +86,7 @@ of t.
 >               newHeader = filterWanted (header tab)
 >      		newTab = mapRowsUnsafe filterWanted tab
 </pre>
-FIXME: throw away project and only use projectUnsave? -> use [[]] and []
+FIXME: throw away project and only use projectUnsave? -&gt; use [[]] and []
 </br>
 <pre>>       project wanted tab
 >               | not checkExist = error(
@@ -105,7 +106,7 @@ FIXME: throw away project and only use projectUnsave? -> use [[]] and []
 </br>
 Syntax: rename{Unsafe} [(oldName, newName)] table
 </br>
-<pre>>	renameUnsafe :: [(ColumnName,ColumnName)] -> tab -> tab
+<pre>>	renameUnsafe :: [(ColumnName,ColumnName)] -&gt; tab -&gt; tab
 >	rename ::[(ColumnName,ColumnName)] -> tab -> tab
 >	renameUnsafe names tab = mkTable (replaceNames h) (rows tab)
 >		where
@@ -129,7 +130,7 @@ Syntax: rename{Unsafe} [(oldName, newName)] table
 </pre>
 <h4>Advnced Operations</h4>
 </br>
-<pre>>       theta :: (Row l -> Row l -> Bool) -> tab -> tab -> tab
+<pre>>       theta :: (Row l -&gt; Row l -&gt; Bool) -&gt; tab -&gt; tab -&gt; tab
 >       theta f t1 t2 = mkTable newHeader
 >		[ x++y | x <- r1, y <- r2, f x y]
 >		where
@@ -138,7 +139,7 @@ Syntax: rename{Unsafe} [(oldName, newName)] table
 >		r2 = rows t2
 </pre>
 </br>
-<pre>>	natural :: tab -> tab -> tab
+<pre>>	natural :: tab -&gt; tab -&gt; tab
 </pre>
 We can cons all falid rows into a new emptyTable.
 </br>
@@ -163,9 +164,44 @@ So we have to fold over each table, and check all rows inside the inner fold
 >                       tab tab2
 >               checkedCons r = if checkFunctional r then cons $ map snd r else id
 </pre>
+</br>
+TODO: Better implementaion of left right full outer joins
+</br>
+<pre>>       left :: (tab -&gt; tab -&gt; tab) -&gt; tab -&gt; tab -&gt; tab
+>       left f tab1 tab2
+>               | checkHeader = union original $ cross (notInOriginal tab1) (projectAway tab1 $ (nullTab tab2))
+>               | otherwise = error("This function you tried to call as a left join "++
+>                                   "can't be modefied to be become outer!")
+>               where
+>                       original = f tab1 tab2
+>                       checkHeader = all (uncurry (==)) $ zip (header original) (header tab1)
+>                       notInOriginal t = t \\\ projectTo t original
+>                       projectTo t' t = project (columnNames t') t 
+>
+>                       projectAway t' t = project (columnNames t \\ columnNames t') t
+>                       nullTab t = mkTable (header t) $ [map (\a -> getNull) (header t)]
+</pre>
+<pre>>       right :: (tab -&gt; tab -&gt; tab) -&gt; tab -&gt; tab -&gt; tab
+>       right f tab1 tab2
+>               | checkHeader = union original $ cross (notInOriginal tab2) (projectAway tab2 $ (nullTab tab1))
+>               | otherwise = error("This function you tried to call as a right join "++
+>                                   "can't be modefied to be become outer!")
+>               where
+>                       original = f tab1 tab2
+>                       checkHeader = all (uncurry (==)) $ zip (header original) (header tab2)
+>                       notInOriginal t = t \\\ projectTo t original
+>                       projectTo t' t = natural (crossN (columnNames t') t) (project (columnNames t') t)
+>                       crossN :: [String] -> tab -> tab
+>                       crossN [] t = t
+>                       crossN (n:ns) t = cross (project [n] t) (crossN ns t)
+>
+>                       projectAway t' t = project (columnNames t \\ columnNames t') t
+>                       nullTab t = mkTable (header t) $ [map (\a -> getNull) (header t)]
+</pre>
+</br>
 <h4>syntatic sugar</h4>
 </br>
-<pre>>       σ :: ((Row l) -> Bool) -> tab -> tab
+<pre>>       σ :: ((Row l) -&gt; Bool) -&gt; tab -&gt; tab
 >       σ = select
 >       π :: [ColumnName] -> tab -> tab
 >       π = project
@@ -186,7 +222,7 @@ Higher order function to apply f on the rows of two tables.
 Checks if the headers of the table match, if not error is raised.
 This is usefull to impl. union, intersection etc.
 </br>
-<pre>>	applyOnTableRows :: ([Row l] -> [Row l] -> [Row l]) -> tab -> tab -> tab
+<pre>>	applyOnTableRows :: ([Row l] -&gt; [Row l] -&gt; [Row l]) -&gt; tab -&gt; tab -&gt; tab
 >	applyOnTableRows f t1 t2
 >		| h1 == h2 = mkTable h1 (f r1 r2)
 >		| otherwise = error ("applyOnTableRows: table headers"
@@ -204,5 +240,5 @@ This is usefull to impl. union, intersection etc.
 TODO: write testTable + unit tests
 </br>
 <pre>> testTableOps = True</pre>
-</body>
+  </body>
 </html>

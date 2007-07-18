@@ -1,10 +1,11 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
+              "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<head>
-<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-</head>
-<body>
+  <head>
+    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+  </head>
+  <body>
+
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 </br>
 <pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
@@ -84,7 +85,7 @@ comfortable way is to put the tables and some expression in a file like this:
 </li></ul>
 Below is an example, with some table and some queries. Simply load Reval.lhs
 into ghci with the following command:
-<pre>ghci -fglasgow-exts -i<path/to/reval/src> <your/file>
+<pre>ghci -fglasgow-exts -i&lt;path/to/reval/src&gt; &lt;your/file&gt;
 Now you can view a table, for example, by typing tablePersons, view the result
 of a query by evaluating developing or just input your own query, e.g. cross
 developing tableProject.
@@ -140,7 +141,7 @@ know in order to use reval.
 </pre>
 <ul><li>select rows with ID == 1337
 </li></ul>
-<pre>> testSelect = select (\(x:</hl>) -> x == IntLit 1337) tablePersons
+<pre>> testSelect = select (\(x:</hl>) -&gt; x == IntLit 1337) tablePersons
 </pre>
 <ul><li>advanced joins: theta-join tablePerson with tableDeveloper on ID == Dev
 </li></ul>
@@ -163,10 +164,12 @@ separated form theta join, so it will be readable even for larger operations
 </pre>
 <pre>> developing' = project ["Name", "Project", "Language", "Detail"] $ natural developing tableProject
 </pre>
-TODO: more examples
-<ul><li>supervisors that are not developing ...
-</li><li>developers with projects in there favourite language
-</li></ul>
+<pre>> developing'' = project ["Name", "Project"] (left (theta sameID) tablePersons tableDeveloper)
+>       where 
+>       sameID person developer = (personID person == developerID developer)
+>       personID = getValue tablePersons "ID"
+>       developerID = getValue tableDeveloper "Dev"
+</pre>
 <h3>Legal Foo</h3>
 </br>
 A default GPL Note. Not printed at startup, 'cause we consider this
@@ -179,5 +182,5 @@ annoying.
 >       "redistribute it under certain conditions; type LGPL.txt for " ++
 >       "details.\n"
 > </pre>
-</body>
+  </body>
 </html>

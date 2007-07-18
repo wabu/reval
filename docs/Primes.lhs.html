@@ -1,10 +1,11 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
+              "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<head>
-<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-</head>
-<body>
+  <head>
+    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+  </head>
+  <body>
+
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 </br>
 <pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
@@ -99,7 +100,7 @@ Well, screw it, just use ASTs to reinvent the wheel^WType system.
 Note: Template Haskell might provide a more decent solution, but using
 template haskell implies a bunch of nasty foo, like using monads and
 having certain compile time constraints. We wanted the Code base to be
-readable and understanable by the average student -> No template
+readable and understanable by the average student -&gt; No template
 haskell. And to be honest, we did not completely understand template
 haskell, anyway ... ;)
 </br>
@@ -128,7 +129,7 @@ work on typeclasses.
 A Nice exercie is to implement a Type instance for n-arry functions.
 This enables the user to store clousures in a Table.
 </br>
-<pre>> class (Eq t) => Type t where
+<pre>> class (Eq t) =&gt; Type t where
 >       -- check if to types Are compatible
 >       check :: t -> t -> Bool
 </pre>
@@ -136,15 +137,16 @@ We need glasgow/98 extension because Literal is conjunct to its Type. So we
 define the Literal class to have a data l, the literal, and a data t, the type,
 where the literal l determinds the type it is based on.
 </br>
-<pre>> class (Type t) => Literal l t | l -> t where
+<pre>> class (Type t) =&gt; Literal l t | l -&gt; t where
 </pre>
 The Literal calss has functions to get the type and to check if it matches a
 given Type.
 </br>
-<pre>>       getType :: l -> t
+<pre>>       getType :: l -&gt; t
 >
 >       checkType :: t -> l -> Bool
 >       checkType typ lit = check typ (getType lit)
+>       getNull :: l
 </pre>
 <h3>Implmentation</h3>
 </br>
@@ -171,7 +173,7 @@ Ord for SimpleLit needed to stuff SimpleLits in Sets
 </pre>
 Implementation of Show and Read for SimpleLits
 </br>
-<pre>> showsLit :: SimpleLit -> ShowS
+<pre>> showsLit :: SimpleLit -&gt; ShowS
 > showsLit Null = ("Null" ++)
 > showsLit (IntLit l) = shows l
 > showsLit (StrLit l) = shows l
@@ -203,6 +205,8 @@ Implementation of Show and Read for SimpleLits
 >       getType (StrLit _) = String
 >       getType (CharLit _) = Char
 >       getType (BoolLit _) = Bool
+>
+>       getNull = Null
 </pre>
 <h2>UnitTesting</h2>
 </br>
@@ -229,5 +233,5 @@ Implementation of Show and Read for SimpleLits
 </pre>
 <pre>> testPrimes = testCheck && testCheckType
 </pre>
-</body>
+  </body>
 </html>

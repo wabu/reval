@@ -5,8 +5,8 @@ Code geschrieben, anstatt Power-Point Slides zu clicken ..."
 
 "Wenn Verständniss Fragen gleich, alles andere -> hinterher"
 
-http://forti.ath.cx:8000/pro/reval
-Use uni proxy ...
+http://forti.ath.cx:20480/pro/reval
+Use uni proxy ... (http://http-proxy.fu-berlin.de/)
 
 * reval - What's that? Why bother?
 
@@ -51,7 +51,7 @@ True
 *** Exception: [...]
 *Reval> select (\(x:_) -> x == IntLit 23) tablePersons
 [...]
-*Reval> (select (\(x:_) -> x == IntLit 23) . natural (rename [("Dev","ID")] tableDeveloper)) tablePersons
+*Reval> (select (\(x:_) -> x == IntLit 23) . left natural (rename [("Dev","ID")] tableDeveloper)) tablePersons
 [...]
 
 
