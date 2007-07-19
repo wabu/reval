@@ -77,7 +77,7 @@ fine, otherwise an error is raised.
 If you just want to some simple relational algebra expressions, the most
 comfortable way is to put the tables and some expression in a file like this:
 
-* import Primes, SetTable and SetTableOps
+* import Reval and Primes, SetTable and SetTableOps or you own implementaion of it
 * write table declaration
 * write some queries and call them inside ghci
 * or input queries directly to ghci

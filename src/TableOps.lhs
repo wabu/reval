@@ -75,7 +75,6 @@ of t.
 >               filterWanted = map snd . filter fst . zip [elem n wanted | n <- columnNames tab]
 >               newHeader = filterWanted (header tab)
 >      		newTab = mapRowsUnsafe filterWanted tab
-
 >       project wanted tab
 >               | not checkExist = error(
 >                   "invalid projection: a name can't be found inside the table in project" ++
@@ -129,31 +128,37 @@ Syntax: rename{Unsafe} [(oldName, newName)] table
 
 >	natural :: tab -> tab -> tab
 
-We can cons all falid rows into a new emptyTable.
+We can cons all valid rows into a new emptyTable.
 
->	natural tab1 tab2 = foldRows consRows (mkTable newHeader []) tab1
+>	natural tab1 tab2 = foldRows (consRows tab2) (mkTable newHeader []) tab1
 >		where
 >               h1 = header tab1
 >               h2 = header tab2
 >               newHeader = List.union h1 h2
 
-To check a row, we create a new Row with each header inside, so we can check if
-it is a functional relation.  if so, it is valid.
+To check if a row is valid, we create a new Row with the header of each row
+inside, so we can check if thats is a functional relation. That means, there is
+only one value for each header, so the value in both rows has to be equal.
 
 >               zipedRow r1 r2 = List.union (zip h1 r1) (zip h2 r2)
 >               checkFunctional ziped = all
->                   (\h -> 1 == length [h | (h',_) <- ziped, h==h']) 
->                   newHeader 
+>                       (\h -> 1 == length [h | (h',_) <- ziped, h==h']) 
+>                       newHeader 
 
 So we have to fold over each table, and check all rows inside the inner fold
 
->               consRows r tab = foldRows 
->                       (\r' t -> checkedCons (zipedRow r r') t) 
->                       tab tab2
+>               consRows tab r t = foldRows 
+>                       (\r' t' -> checkedCons (zipedRow r r') t') 
+>                       t tab
 >               checkedCons r = if checkFunctional r then cons $ map snd r else id
 
 
-TODO: Better implementaion of left right full outer joins
+As our table header is a list, not a set, so we have some problems with the
+definition of outer joins: Our implementation expects the join to return a
+table with a header ordered in a certain way, but it should work on all
+possible combinations of orders for the header.
+
+TODO: Better implementation of left right full outer joins
 
 >       left :: (tab -> tab -> tab) -> tab -> tab -> tab
 >       left f tab1 tab2

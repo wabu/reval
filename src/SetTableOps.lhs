@@ -31,13 +31,13 @@
 > import qualified Data.Set as Set
 > import Data.List ((\\))
 
-applyOnTableSets is a abstract higer order function used to
+applyOnTableSets is a abstract higher order function used to
 build union, difference etc. It boils down to "Building
 Abstraction by Functions" as outlined in SICP.
 
 applyOnTableSets only do some base sanity checks and relies
 mostly on mkTable to create only valid tables.
-The reason for this is, that I (fb) want it to be leazy
+The reason for this is, that I (fb) want it to be lazy
 (as in operate on infinite tables).
 
 > applyOnTableSets :: (Show l, Show t, Ord l, Literal l t) =>
@@ -74,10 +74,10 @@ new default implementaion is faster...
  >               newSet = Set.fold (\r1 s -> Set.union s $ multiply r1 s2) Set.empty s1
  >               multiply r s = Set.map (\rs -> r ++ rs) s
 
-Note: A Table containing a Set like {{}} is considured invalid. Use a
-Table containg the empty Set {} (aka mkTable [] []) to represent the
-empty table. This might not be formaly correct, but having two
-representations of the empty table is not programtic and makes code
+Note: A Table containing a Set like {{}} is considered invalid. Use a
+Table containing the empty Set {} (aka mkTable [] []) to represent the
+empty table. This might not be formally correct, but having two
+representations of the empty table is not programmatic and makes code
 more complex and less readable.
 
 > 	select p (SetTab head rows) = mkTableFromSet head

@@ -37,8 +37,8 @@
 
 As soon as we have Litrals, that can be put into list, it is easy to create
 Rows and Tables, as we just can use a Set of Lists of Literals. We only have to
-check the types when createing or changeing a Table at runtime.
-A bunch of unchecked/unsafe operations are implemeted, too. Sometimes
+check the types when creating or changing a Table at runtime.
+A bunch of unchecked/unsafe operations are implemented, too. Sometimes
 a user might really want to shoot into his foot ...
 
 Some type defs to build linguistic abstraction:
@@ -97,9 +97,9 @@ check the Table and return it, if it is valid, otherwise genrate in error
 >       rows :: tab -> [Row l]
 >	rows = foldRows (:) []
 
-Retrun a value out of a row, which is inside table inside a named column.
-This function is gets usefull inside projections and theta joins, 
-but is not very efficiont.
+Return a value out of a row, which is inside table inside a named column.
+This function is gets useful inside projections and theta joins, 
+but is not very efficient.
 
 >       getValueUnsave :: tab -> String -> Row l -> l
 >       getValue :: tab -> String -> Row l -> l

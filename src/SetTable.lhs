@@ -31,7 +31,7 @@
 > import Lib.AssertFun
 > import qualified Data.Set as Set
 
-The default implementaion of the table class is just a Header an a Set of lits.
+The default implementation of the table class is just a Header and a Set of lits.
 It can be used with any type system, but the literals has to be ordered.
 
 > data (Ord l, Literal l t) => SetTable l t = SetTab (TableHeader t) (Set.Set (Row l)) 
@@ -43,6 +43,8 @@ It can be used with any type system, but the literals has to be ordered.
 
 > mkTableFromSet :: (Ord l, Literal l t) => (TableHeader t) -> Set.Set (Row l) -> (SetTable l t)
 > mkTableFromSet header rows = SetTab header rows
+
+The implementation of the Table class is just a map of the abstract functions to the Set of the table.
 
 > instance (Show l, Show t, Ord l, Literal l t) => Table (SetTable l t) l t where
 >       mapRowsUnsafe f (SetTab head rows) = (SetTab head (Set.map f rows))
@@ -63,7 +65,9 @@ Note: mkTable [] [[]] is considered invalid
 
 >       mkTableUnsafe h r = SetTab h (Set.fromList r) 
 
-show and read instance for the table
+The show and read instance for the table are a little nasty to read, but as
+soon as you now how ReadS and ShowS works, you'll see elegance of the
+ReadS/ShowS approach.
 
 > showsTable :: (Ord l, Show l, Show t, Literal l t) => (SetTable l t)-> ShowS
 > showsTable (SetTab header rows) = ('\n':) . heads . alls (map mapcells (Set.toList rows))
