@@ -1,7 +1,7 @@
 = DBS Project Presentation =
 
-Startup: "Wir sind Programmier, keine Sales Drohnen, drum haben wir
-Code geschrieben, anstatt Power-Point Slides zu clicken ..."
+Startup: "Wir haben unsere Zeit dafuer verwendet, den Code chick zu
+machen, anstatt bunte Slides zu clicken..."
 
 "Wenn Verständniss Fragen gleich, alles andere -> hinterher"
 
@@ -9,6 +9,7 @@ http://forti.ath.cx:20480/pro/reval
 Use uni proxy ... (http://http-proxy.fu-berlin.de/)
 
 * reval - What's that? Why bother?
+** Note DBS != reval
 
 * Design
 ** Goals
@@ -24,6 +25,24 @@ Use uni proxy ... (http://http-proxy.fu-berlin.de/)
 *** Strict Static Typing in Haskell
 *** Strict Functional constraints in Haskell
 *** [...]
+
+* Architekture/Implemtation
+
+** How we met the goals (Incomplete)
+*** Readable, maintable, good code
+**** TTD, Literate Programming, Agile Processes (some XP etc.)
+*** Data and Ops must be extenable
+**** Haskell ADT
+*** clousure property
+**** common sense
+
+** How we fixed the problems (Incomplete)
+*** Strict Static Typing in Haskell
+**** Impled own Type System
+**** Made it extendable by using classes
+*** Strict Functional constraints in Haskell
+**** Live with it, error handling still a little sucky
+
 
 * Demo
 ** Getting Started
@@ -53,24 +72,6 @@ True
 [...]
 *Reval> (select (\(x:_) -> x == IntLit 23) . left natural (rename [("Dev","ID")] tableDeveloper)) tablePersons
 [...]
-
-
-* Architekture/Implemtation
-
-** How we met the goals (Incomplete)
-*** Readable, maintable, good code
-**** TTD, Literate Programming, Agile Processes (some XP etc.)
-*** Data and Ops must be extenable
-**** Haskell ADT
-*** clousure property
-**** common sense
-
-** How we fixed the problems (Incomplete)
-*** Strict Static Typing in Haskell
-**** Impled own Type System
-**** Made it extendable by using classes
-*** Strict Functional constraints in Haskell
-**** Live with it, error handling still a little sucky
 
 ** Foo we did not fix/impl. (yet)
 *** A decent DSL using Template Haskell
