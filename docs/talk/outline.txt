@@ -1,6 +1,6 @@
 = DBS Project Presentation =
 
-Startup: "Wir haben unsere Zeit dafuer verwendet, den Code chick zu
+"Wir haben unsere Zeit dafuer verwendet, den Code chick zu
 machen, anstatt bunte Slides zu clicken..."
 
 "Wenn Verständniss Fragen gleich, alles andere -> hinterher"
