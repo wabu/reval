@@ -1,9 +1,9 @@
-created by ../mk-tmp-todo-list.sh - Wed Jul 18 21:16:50 CEST 2007
+created by ./mk-tmp-todo-list.sh - Thu Jul 19 12:44:52 CEST 2007
 
 src/Reval.lhs:60:>	-- TODO: export something else?
-src/Reval.lhs:165:TODO: more examples
 src/SetTableOps.lhs:88:TODO: remove decleartion, default one is nicer/faster?
 src/Table.lhs:160:TODO: unit test default impls of class Table
 src/TableOps.lhs:37:TODO: simplify class/type constraints
 src/TableOps.lhs:82:FIXME: throw away project and only use projectUnsave? -> use [[]] and []
-src/TableOps.lhs:199:TODO: write testTable + unit tests
+src/TableOps.lhs:161:TODO: Better implementaion of left right full outer joins
+src/TableOps.lhs:234:TODO: write testTable + unit tests
