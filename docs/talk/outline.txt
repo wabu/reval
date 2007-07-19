@@ -46,6 +46,7 @@ Use uni proxy ... (http://http-proxy.fu-berlin.de/)
 
 * Demo
 ** Getting Started
+** Note: Should be done in a .hs file ...
 
 # hg clone http://forti.ath.cx:20480/pro/hg/reval/
 # cd reval/src
