@@ -57,7 +57,8 @@ fine, otherwise an error is raised.
 >	Table(..),
 >	TableOps(..),
 >	mkTableFromSet,
->	-- TODO: export something else?
+>	Literal(..),
+>	Type(..),
 > )
 > where
 > import Primes
