@@ -33,9 +33,6 @@ ADT. Default implemantations are provied, too.
 > import qualified Data.List as List
 > import Data.List ((\\))
 
-
-TODO: simplify class/type constraints
-
 > class (Table tab l t, Type t, Literal l t, Eq tab, Eq l)
 >	=> TableOps tab l t | tab -> l t where
 
@@ -78,8 +75,6 @@ of t.
 >               filterWanted = map snd . filter fst . zip [elem n wanted | n <- columnNames tab]
 >               newHeader = filterWanted (header tab)
 >      		newTab = mapRowsUnsafe filterWanted tab
-
-FIXME: throw away project and only use projectUnsave? -> use [[]] and []
 
 >       project wanted tab
 >               | not checkExist = error(
@@ -163,7 +158,7 @@ TODO: Better implementaion of left right full outer joins
 >       left :: (tab -> tab -> tab) -> tab -> tab -> tab
 >       left f tab1 tab2
 >               | checkHeader = union original $ cross (notInOriginal tab1) (projectAway tab1 $ (nullTab tab2))
->               | otherwise = error("This function you tried to call as a left join "++
+>               | otherwise = error("This function you tried to call as a left join " ++
 >                                   "can't be modefied to be become outer!")
 >               where
 >                       original = f tab1 tab2

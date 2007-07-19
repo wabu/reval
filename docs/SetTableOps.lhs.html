@@ -1,11 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-              "http://www.w3.org/TR/html4/loose.dtd">
+"http://www.w3.org/TR/html4/loose.dtd">
 <html>
-  <head>
-    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-  </head>
-  <body>
-
+<head>
+<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+</head>
+<body>
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 </br>
 <pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
@@ -90,27 +89,6 @@ more complex and less readable.
 <pre>> 	select p (SetTab head rows) = mkTableFromSet head
 >		(Set.filter p rows)
 </pre>
-Projection
-</br>
-TODO: remove decleartion, default one is nicer/faster?
-</br>
- &gt;	project wantedNames tab@(SetTab header rows)
- &gt;		| checkHeader = SetTab newHeader newRows
- &gt;   		where
- &gt;       	checkHeader = all (\n -&gt; checkSize n (length [a | (a,</hl>) &lt;- header, n == a])) wantedNames
- &gt;       	checkSize :: String -&gt; Int -&gt; Bool
- &gt;       	checkSize n s 
- &gt;               	| s == 0 = error ("project: could not project to " 
- &gt;                   	    ++ show n ++ ": name unknown.")
- &gt;               	| s == 1 = True
- &gt;               	| otherwise = error ("project: could not project to " 
- &gt;                       	++ show n ++ ": name is ambigious.")
- &gt;       	posList = [i | s &lt;- wantedNames, (i,(n,</hl>)) &lt;- zip [1..] header, n==s ]
- &gt;      		newHeader = [h | p &lt;- posList, (i,h) &lt;- zip [1..] header, p==i ]
- &gt;      		newRows = Set.map 
- &gt;	                (\r -&gt; [ l | p &lt;- posList, (i,l) &lt;- zip [1..] r, p==i] )
- &gt;               	rows
-</br>
 <h2>UnitTesting</h2>
 </br>
 Format of assertfun2 is:
@@ -322,5 +300,5 @@ projections on table23
 >       && testCross && testRename 
 >       && testTheta && testNatural && testLeft -- && testRight
 </pre>
-  </body>
+</body>
 </html>

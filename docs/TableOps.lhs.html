@@ -1,11 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-              "http://www.w3.org/TR/html4/loose.dtd">
+"http://www.w3.org/TR/html4/loose.dtd">
 <html>
-  <head>
-    <title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
-  </head>
-  <body>
-
+<head>
+<title>lhstml</title><meta content="text/html; charset=UTF-8"  http-equiv="Content-Type" />
+</head>
+<body>
 <h1>rel-eval is a leazy relational algebra interpreter written in haskell.</h1>
 </br>
 <pre>Copyright (C) 2007  Daniel Waeber, Fabian Bieker
@@ -40,9 +39,6 @@ ADT. Default implemantations are provied, too.
 > import qualified Data.List as List
 > import Data.List ((\\))
 </pre>
-</br>
-TODO: simplify class/type constraints
-</br>
 <pre>> class (Table tab l t, Type t, Literal l t, Eq tab, Eq l)
 >	=> TableOps tab l t | tab -> l t where
 </pre>
@@ -86,8 +82,6 @@ of t.
 >               newHeader = filterWanted (header tab)
 >      		newTab = mapRowsUnsafe filterWanted tab
 </pre>
-FIXME: throw away project and only use projectUnsave? -&gt; use [[]] and []
-</br>
 <pre>>       project wanted tab
 >               | not checkExist = error(
 >                   "invalid projection: a name can't be found inside the table in project" ++
@@ -170,7 +164,7 @@ TODO: Better implementaion of left right full outer joins
 <pre>>       left :: (tab -&gt; tab -&gt; tab) -&gt; tab -&gt; tab -&gt; tab
 >       left f tab1 tab2
 >               | checkHeader = union original $ cross (notInOriginal tab1) (projectAway tab1 $ (nullTab tab2))
->               | otherwise = error("This function you tried to call as a left join "++
+>               | otherwise = error("This function you tried to call as a left join " ++
 >                                   "can't be modefied to be become outer!")
 >               where
 >                       original = f tab1 tab2
@@ -240,5 +234,5 @@ This is usefull to impl. union, intersection etc.
 TODO: write testTable + unit tests
 </br>
 <pre>> testTableOps = True</pre>
-  </body>
+</body>
 </html>
