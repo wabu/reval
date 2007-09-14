@@ -59,14 +59,14 @@ we got a problem: There is no way to instantiate it.
 > -}
 </pre>
 Any java programmer would say: yes, this looks good: c is a String, so it
-should match the generall type b. But as haskells type system is a relly static
-and strict, the code will genrate an error:
+should match the general type b. But as Haskell's type system is a really static
+and strict, the code will generate an error:
 </br>
 <pre>Expected type: [b]
 Inferred type: [String]
 </pre>
 We have to return a value of the general undefined type b, but we want
-to create a concrete type instance wich should return a [String]. This
+to create a concrete type instance which should return a [String]. This
 implies that our Problem is not solved by this code snipped.
 Next try...
 </br>
@@ -97,11 +97,11 @@ types. Compiling the code results in a type error ...
 </br>
 Well, screw it, just use ASTs to reinvent the wheel^WType system.
 Note: Template Haskell might provide a more decent solution, but using
-template haskell implies a bunch of nasty foo, like using monads and
+template Haskell implies a bunch of nasty foo, like using monads and
 having certain compile time constraints. We wanted the Code base to be
-readable and understanable by the average student -&gt; No template
-haskell. And to be honest, we did not completely understand template
-haskell, anyway ... ;)
+readable and understandable by the average student -&gt; No template
+Haskell. And to be honest, we did not completely understand template
+Haskell, anyway ... ;)
 </br>
 <h3>Basic AST Types</h3>
 </br>
@@ -122,19 +122,18 @@ Lit.
 </br>
 <h3>Type System Classes</h3>
 </br>
-As these Types are just a small fraction of possible valuse stored inside tables,
-we give the user the abillity to create his own typesystem and let all thing
+As these Types are just a small fraction of possible values stored inside tables,
+we give the user the ability to create his own typesystem and let all thing
 work on typeclasses.
-A Nice exercie is to implement a Type instance for n-arry functions.
-This enables the user to store clousures in a Table.
+A nice exercise is to implement a Type instance for n-arry functions.
+This would enable the user to store clousures in a Table.
 </br>
 <pre>> class (Eq t) =&gt; Type t where
->       -- check if to types Are compatible
 >       check :: t -> t -> Bool
 </pre>
 We need glasgow/98 extension because Literal is conjunct to its Type. So we
 define the Literal class to have a data l, the literal, and a data t, the type,
-where the literal l determinds the type it is based on.
+where the literal l determines the type it is based on.
 </br>
 <pre>> class (Type t) =&gt; Literal l t | l -&gt; t where
 </pre>
@@ -170,7 +169,7 @@ Ord for SimpleLit needed to stuff SimpleLits in Sets
 >       compare (CharLit _) _ = LT
 >       compare _ (CharLit _) = GT
 </pre>
-Implementation of Show and Read for SimpleLits
+Implementation of Show and Read for SimpleLits and Type are straight forward
 </br>
 <pre>> showsLit :: SimpleLit -&gt; ShowS
 > showsLit Null = ("Null" ++)
@@ -189,6 +188,8 @@ Implementation of Show and Read for SimpleLits
 >       [(Null,s) | ("Null", s) <- lex s ]
 > instance Read SimpleLit where readsPrec _ = readsLit
 </pre>
+And the Type and Literal instance is easy, too.
+</br>
 <pre>> instance Type SimpleType where
 >       check Any _ = True
 >       check _ Any = True
